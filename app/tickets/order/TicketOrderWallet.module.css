@@ -1,0 +1,360 @@
+.walletPage {
+  width: 100%;
+  display: grid;
+  gap: clamp(18px, 3vw, 32px);
+  padding: clamp(14px, 2.2vw, 28px) 0 clamp(54px, 8vw, 96px);
+}
+
+.heroCard,
+.centerPanel,
+.summaryGrid,
+.ticketCard,
+.footerNote {
+  border: 1px solid rgba(80, 197, 255, 0.26);
+  background:
+    radial-gradient(circle at 14% 0%, rgba(32, 217, 255, 0.16), transparent 32rem),
+    radial-gradient(circle at 92% 6%, rgba(255, 46, 209, 0.14), transparent 30rem),
+    rgba(8, 12, 30, 0.9);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
+}
+
+.heroCard {
+  border-radius: clamp(24px, 4vw, 42px);
+  padding: clamp(22px, 4vw, 48px);
+  overflow: hidden;
+}
+
+.brandRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(234, 247, 255, 0.9);
+  font-size: 0.84rem;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.logo {
+  width: clamp(120px, 16vw, 184px);
+  height: auto;
+  filter: drop-shadow(0 0 16px rgba(32, 217, 255, 0.34));
+}
+
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+  gap: clamp(18px, 3vw, 34px);
+  align-items: end;
+  margin-top: clamp(22px, 4vw, 46px);
+}
+
+.eyebrow {
+  color: #20d9ff;
+  font-size: 0.8rem;
+  font-weight: 950;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.heroCard h1,
+.centerPanel h1,
+.footerNote h2 {
+  margin: 0.45rem 0 0;
+  color: #fff;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.heroCard h1 {
+  max-width: 980px;
+  font-size: clamp(2.5rem, 7vw, 6rem);
+  line-height: 0.9;
+}
+
+.eventTime {
+  max-width: 760px;
+  margin: clamp(14px, 2vw, 20px) 0 0;
+  color: rgba(235, 242, 255, 0.86);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  line-height: 1.55;
+}
+
+.instructionCard {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: clamp(16px, 2.2vw, 22px);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.instructionCard strong {
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+.instructionCard span {
+  color: rgba(232, 240, 255, 0.78);
+  line-height: 1.45;
+}
+
+.printButton {
+  justify-self: start;
+  margin-top: 8px;
+  border: 1px solid rgba(32, 217, 255, 0.35);
+  border-radius: 999px;
+  padding: 0.76rem 1.05rem;
+  color: #fff;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(32, 217, 255, 0.84), rgba(124, 60, 255, 0.86));
+  cursor: pointer;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  border-radius: 28px;
+  padding: clamp(14px, 2vw, 20px);
+}
+
+.summaryGrid div {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.summaryGrid span,
+.codeBox span,
+.ticketHeader span {
+  color: #20d9ff;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.summaryGrid strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #fff;
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+}
+
+.ticketGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: clamp(16px, 2.4vw, 26px);
+}
+
+.ticketCard {
+  display: grid;
+  gap: 18px;
+  border-radius: 30px;
+  padding: clamp(18px, 2.4vw, 26px);
+}
+
+.ticketHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.ticketHeader h2 {
+  margin: 0.35rem 0 0;
+  color: #fff;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  line-height: 1;
+}
+
+.ticketHeader > strong {
+  flex: 0 0 auto;
+  border: 1px solid rgba(0, 245, 160, 0.28);
+  border-radius: 999px;
+  padding: 0.42rem 0.68rem;
+  color: rgba(209, 255, 236, 0.94);
+  background: rgba(0, 245, 160, 0.1);
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.qrBox {
+  display: grid;
+  place-items: center;
+  min-height: clamp(260px, 42vw, 430px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: clamp(14px, 3vw, 28px);
+  background: #fff;
+}
+
+.qrBox img {
+  width: min(100%, 360px);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+}
+
+.qrFallbackLink,
+.qrMissing {
+  color: #07101f;
+  font-weight: 950;
+  text-align: center;
+}
+
+.codeBox {
+  display: grid;
+  gap: 6px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.codeBox strong {
+  color: #fff;
+  font-size: clamp(1.2rem, 2.4vw, 1.7rem);
+  letter-spacing: 0.18em;
+  overflow-wrap: anywhere;
+}
+
+.doorNote {
+  margin: 0;
+  color: rgba(232, 240, 255, 0.82);
+  font-weight: 800;
+  text-align: center;
+}
+
+.footerNote,
+.centerPanel {
+  border-radius: 28px;
+  padding: clamp(20px, 4vw, 34px);
+  text-align: center;
+}
+
+.footerNote p,
+.centerPanel p {
+  max-width: 760px;
+  margin: 0.65rem auto 0;
+  color: rgba(235, 242, 255, 0.82);
+  line-height: 1.55;
+}
+
+.centerPanel {
+  min-height: min(70vh, 620px);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+}
+
+.centerPanel h1 {
+  font-size: clamp(2rem, 5vw, 4.4rem);
+  line-height: 0.95;
+}
+
+.spinner {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.16);
+  border-top-color: #20d9ff;
+  animation: spin 0.9s linear infinite;
+}
+
+.errorBadge {
+  border: 1px solid rgba(255, 77, 109, 0.32);
+  border-radius: 999px;
+  padding: 0.5rem 0.85rem;
+  color: rgba(255, 225, 232, 0.94);
+  background: rgba(255, 77, 109, 0.12);
+  font-size: 0.76rem;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.smallNote,
+.lookupHint {
+  color: rgba(186, 199, 220, 0.76) !important;
+  font-size: 0.95rem;
+}
+
+.lookupHint {
+  margin: 0;
+  text-align: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 960px) {
+  .heroGrid,
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroCard h1 {
+    font-size: clamp(2.4rem, 12vw, 4.9rem);
+  }
+}
+
+@media (max-width: 620px) {
+  .walletPage {
+    padding-top: 0;
+  }
+
+  .brandRow {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ticketHeader {
+    display: grid;
+  }
+
+  .ticketHeader > strong {
+    justify-self: start;
+  }
+
+  .qrBox {
+    min-height: 250px;
+    padding: 16px;
+  }
+}
+
+@media print {
+  .printButton,
+  .footerNote {
+    display: none;
+  }
+
+  .walletPage {
+    padding: 0;
+    color: #000;
+    background: #fff;
+  }
+
+  .heroCard,
+  .summaryGrid,
+  .ticketCard {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+}

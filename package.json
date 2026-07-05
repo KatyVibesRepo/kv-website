@@ -1,0 +1,29 @@
+{
+  "name": "kv-website",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Public marketing website for Katy Vibes.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^15.5.18",
+    "react": "^19.1.7",
+    "react-dom": "^19.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.10",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.5.18",
+    "typescript": "5.7.2"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  }
+}

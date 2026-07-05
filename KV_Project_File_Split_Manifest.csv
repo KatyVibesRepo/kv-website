@@ -1,0 +1,416 @@
+path,destination,note,size_bytes
+README_v88_mobile_time_debug_patch.md,KV ReservationService,Reservation-service patch/readme/startup history,1144
+.env.startup-sync,Do not copy,"Secrets, local data, generated output, backups, or transient files",355
+.env.local.bak-20260527-190157,Do not copy,"Secrets, local data, generated output, backups, or transient files",1224
+.env.startup-sync.example,Do not copy,"Secrets, local data, generated output, backups, or transient files",1180
+README_v103_ADMIN_TICKET_DATA_READABILITY.md,KV ReservationService,Reservation-service patch/readme/startup history,910
+README_KVRS_V121_STARTUP_WAIT_THEN_LOCAL_SHEETS.txt,KV ReservationService,Reservation-service patch/readme/startup history,1775
+start_kvrs_with_events_sync.sh,KV ReservationService,Reservation-service patch/readme/startup history,13208
+.DS_Store,Do not copy,"Secrets, local data, generated output, backups, or transient files",6148
+.env.local,Do not copy,"Secrets, local data, generated output, backups, or transient files",1177
+README_KVRS_V120_AFFECTED_DATE_SHEET_BACKFILL.txt,KV ReservationService,Reservation-service patch/readme/startup history,1648
+README_v85_SPOTHOPPER_GROSS_SALES.txt,KV ReservationService,Reservation-service patch/readme/startup history,887
+README_v115_DELETE_RESERVATIONS.md,KV ReservationService,Reservation-service patch/readme/startup history,1375
+README_v105_ADMIN_LAYOUT_POLISH.md,KV ReservationService,Reservation-service patch/readme/startup history,691
+.env.startup-sync.bak-20260527-204622,Do not copy,"Secrets, local data, generated output, backups, or transient files",374
+start_kvrs_tailscale_dev.sh,KV ReservationService,Reservation-service patch/readme/startup history,654
+README_v113_SHEET_TIME_FIX.md,KV ReservationService,Reservation-service patch/readme/startup history,806
+next.config.mjs,KV Website,Public website/content/marketing file,113
+tsconfig.tsbuildinfo,Do not copy,"Secrets, local data, generated output, backups, or transient files",925607
+README_v112_MOBILE_IOS_RESERVATION_SHEET_SYNC.md,KV ReservationService,Reservation-service patch/readme/startup history,2312
+README_v117_RESERVATION_SORT_AND_PM_TIME_FIX.md,KV ReservationService,Reservation-service patch/readme/startup history,1374
+README_v102_ADMIN_READABILITY_OVERHAUL.md,KV ReservationService,Reservation-service patch/readme/startup history,1118
+README_FULL_REPLACEMENT_v89.txt,KV ReservationService,Reservation-service patch/readme/startup history,1331
+README_v114_TIME_DISPLAY_FORMAT_FIX.md,KV ReservationService,Reservation-service patch/readme/startup history,1071
+README_v89_SPOTHOPPER_SHEETS_COPY_SYNC.md,KV ReservationService,Reservation-service patch/readme/startup history,3652
+README_v90_RESERVATION_SHEET_LAYOUT_FIX.md,KV ReservationService,Reservation-service patch/readme/startup history,1647
+.env.bak-20260527-190157,Do not copy,"Secrets, local data, generated output, backups, or transient files",1082
+next-env.d.ts,KV Website,Public website/content/marketing file,201
+README.md,KV ReservationService,Reservation-service patch/readme/startup history,8001
+README_v118_MOBILE_DELETE_READY.md,KV ReservationService,Reservation-service patch/readme/startup history,1112
+.env.bak-20260527-152638,Do not copy,"Secrets, local data, generated output, backups, or transient files",1056
+README_KVRS_V121B_MAC_BASH32_STARTUP_FIX.txt,KV ReservationService,Reservation-service patch/readme/startup history,492
+.gitignore,KV Website,Public website/content/marketing file,154
+package-lock.json,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,43200
+package.json,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,1211
+.env,Do not copy,"Secrets, local data, generated output, backups, or transient files",1035
+start_kvrs_with_events_sync.sh.v121B-backup-20260526-194157,KV ReservationService,Reservation-service patch/readme/startup history,13111
+.nvmrc,KV Website,Public website/content/marketing file,8
+README_KVRS_STARTUP_SYNC.txt,KV ReservationService,Reservation-service patch/readme/startup history,612
+README_KVRS_V120_LOCAL_SHEET_DATE_REBUILD.txt,KV ReservationService,Reservation-service patch/readme/startup history,2579
+tsconfig.json,KV Website,Public website/content/marketing file,717
+.kvrs_last_events_manager_startup_sync,Do not copy,"Secrets, local data, generated output, backups, or transient files",11
+README_KVRS_V120B_AFFECTED_DATE_SHEET_BACKFILL_FIX.txt,KV ReservationService,Reservation-service patch/readme/startup history,994
+.env.example,Do not copy,"Secrets, local data, generated output, backups, or transient files",4143
+apply_v121b_mac_bash32_startup_fix.sh,KV ReservationService,Reservation-service patch/readme/startup history,2578
+.env.startup-sync.bak-20260527-204408,Do not copy,"Secrets, local data, generated output, backups, or transient files",381
+README_v95_SPOTHOPPER_DETAILED_SYNC_SAFE_INSERT.md,KV ReservationService,Reservation-service patch/readme/startup history,2351
+README_v116_HIDE_PAST_RESERVATIONS.md,KV ReservationService,Reservation-service patch/readme/startup history,982
+README_v104_ADMIN_TICKET_SORTING_AND_HISTORICAL_SYNC_NOTE.md,KV ReservationService,Reservation-service patch/readme/startup history,687
+README_v94_SPOTHOPPER_SHEET_CLEANUP.md,KV ReservationService,Reservation-service patch/readme/startup history,1548
+README_KVRS_V120C_AFFECTED_DATE_SHEET_BACKFILL_FIX.txt,KV ReservationService,Reservation-service patch/readme/startup history,649
+.env.local.bak-20260527-152638,Do not copy,"Secrets, local data, generated output, backups, or transient files",1198
+kvrs_confirmation_backend_audit.txt,KV ReservationService,Reservation-service patch/readme/startup history,12763
+README_v86_MOBILE_API_CONTRACT.txt,KV ReservationService,Reservation-service patch/readme/startup history,4085
+app/styles.css,KV Website,Public website/content/marketing file,72217
+app/layout.tsx,KV Website,Public website/content/marketing file,1502
+app/page.tsx,KV Website,Public website/content/marketing file,7751
+secrets/Google API Key.rtf,Do not copy,"Secrets, local data, generated output, backups, or transient files",416
+secrets/google-service-account.json,Do not copy,"Secrets, local data, generated output, backups, or transient files",2364
+secrets/Untitled 2.rtf,Do not copy,"Secrets, local data, generated output, backups, or transient files",605
+secrets/.gitkeep,Do not copy,"Secrets, local data, generated output, backups, or transient files",0
+secrets/FalAi API Key.rtf,Do not copy,"Secrets, local data, generated output, backups, or transient files",530
+secrets/Untitled.rtf,Do not copy,"Secrets, local data, generated output, backups, or transient files",449
+secrets/Untitled5.rtf,Do not copy,"Secrets, local data, generated output, backups, or transient files",449
+secrets/Reservations AppScript WebApp ID and URL.rtf,Do not copy,"Secrets, local data, generated output, backups, or transient files",596
+secrets/README_DO_NOT_SHARE_KEYS.txt,Do not copy,"Secrets, local data, generated output, backups, or transient files",300
+prisma/schema.prisma,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,7402
+prisma/dev.db,Do not copy,"Secrets, local data, generated output, backups, or transient files",6049792
+docs/SPOTHOPPER_RESERVATION_IMPORT.md,KV ReservationService,Reservation/system documentation,4452
+docs/AI_RESERVATION_ASSISTANT.md,KV ReservationService,Reservation/system documentation,6972
+docs/PRODUCTION_DATABASE_PLAN.md,KV ReservationService,Reservation/system documentation,1709
+docs/OPENAI_ASSISTANT_SETUP.md,KV ReservationService,Reservation/system documentation,2195
+docs/WINDOWS_EVENTS_MANAGER_PUSH_SYNC.md,KV ReservationService,Reservation/system documentation,4363
+docs/PUBLIC_LAUNCH_PLAN.md,KV Website,Public website/content/marketing file,712
+docs/DATABASE_NOTES.md,KV ReservationService,Reservation/system documentation,772
+docs/AUTOMATION_INTEGRATION.md,KV ReservationService,Reservation/system documentation,3212
+docs/SITE_IMAGE_IMPORT.md,KV Website,Public website/content/marketing file,1610
+docs/PRODUCT_SPEC.md,KV ReservationService,Reservation/system documentation,1302
+docs/KV_RESERVATION_MANAGER_MOBILE_API.md,KV ReservationService,Reservation/system documentation,2309
+docs/LOCAL_DEV_STARTUP.md,KV ReservationService,Reservation/system documentation,680
+docs/ROADMAP.md,KV Website,Public website/content/marketing file,1411
+docs/SPOTHOPPER_TICKET_SALE_IMPORT.md,KV ReservationService,Reservation/system documentation,3216
+docs/EVENTS_MANAGER_DESKTOP_SYNC.md,KV ReservationService,Reservation/system documentation,2721
+docs/RESERVATION_PIPELINE.md,KV ReservationService,Reservation/system documentation,3287
+components/SiteFooter.tsx,KV Website,Public website/content/marketing file,3542
+components/ReservationOnlyForm.tsx,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,3856
+components/ReviewsSection.tsx,KV Website,Public website/content/marketing file,1090
+components/HomeEventsCarousel.tsx,KV Website,Public website/content/marketing file,6797
+components/AdminDeleteReservationButton.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,1979
+components/SiteImageCarousel.tsx,KV Website,Public website/content/marketing file,8163
+components/PublicReservationForm.tsx,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,5271
+components/InquiryForm.tsx,KV Website,Public website/content/marketing file,2186
+components/MenuSection.tsx,KV Website,Public website/content/marketing file,953
+components/SiteImageGallery.tsx,KV Website,Public website/content/marketing file,948
+components/ReservationAssistant.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,10236
+components/EventDatePill.tsx,KV Website,Public website/content/marketing file,437
+components/AdminEventForm.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,10623
+components/TicketTypeCard.tsx,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,4805
+scripts/seed.mjs,KV ReservationService,Reservation/sync/patch script,2571
+scripts/apply-v122e-optional-template-fields.py,KV ReservationService,Reservation/sync/patch script,1851
+scripts/apply-v120-affected-date-sheet-backfill.mjs,KV ReservationService,Reservation/sync/patch script,2682
+scripts/apply-v122d-confirmation-center-clean-customer-text.py,KV ReservationService,Reservation/sync/patch script,4485
+scripts/apply-v88-mobile-time-debug-patch.mjs,KV ReservationService,Reservation/sync/patch script,6172
+scripts/kvrs_confirmation_backend_audit.mjs,KV ReservationService,Reservation/sync/patch script,5763
+scripts/apply-v122b-confirmation-center-backend.py,KV ReservationService,Reservation/sync/patch script,26424
+scripts/check-mobile-api-db.mjs,KV ReservationService,Reservation/sync/patch script,1710
+scripts/kvrs-resync-sheets-route-v120-wrapper.template.ts,KV ReservationService,Reservation/sync/patch script,10844
+scripts/prepare-local-dev.mjs,KV ReservationService,Reservation/sync/patch script,4133
+scripts/apply-v122-confirmation-center-backend.mjs,KV ReservationService,Reservation/sync/patch script,27083
+scripts/kvrs-local-date-sheet-rebuild.mjs,KV ReservationService,Reservation/sync/patch script,11187
+scripts/mac_clean_install.sh,KV ReservationService,Reservation/sync/patch script,284
+scripts/apply-v122c-confirmation-center-safe-inquiry-display.py,KV ReservationService,Reservation/sync/patch script,26614
+scripts/ensure-katyvibes-site-images.mjs,KV Website,Public website/content/marketing file,3046
+scripts/import-katyvibes-site-images.mjs,KV Website,Public website/content/marketing file,8803
+scripts/cleanup-spothopper-ticket-sale-reservation-summaries.mjs,KV ReservationService,Reservation/sync/patch script,927
+scripts/sync-events-manager-api.mjs,KV ReservationService,Reservation/sync/patch script,1099
+lib/prisma.ts,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,307
+lib/inventory.ts,KV ReservationService,Backend/reservation library,23311
+lib/slug.ts,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,237
+lib/datetime.ts,KV Website,Public website/content/marketing file,4639
+lib/stripe.ts,KV ReservationService,Backend/reservation library,1097
+lib/email.ts,KV ReservationService,Backend/reservation library,620
+lib/siteImages.ts,KV Website,Public website/content/marketing file,7131
+lib/importedTicketSales.ts,KV ReservationService,Backend/reservation library,15333
+lib/money.ts,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,603
+lib/tokens.ts,KV ReservationService,Backend/reservation library,149
+lib/mobileConfirmationCenter.ts,KV ReservationService,Backend/reservation library,27205
+lib/assistantSettings.ts,KV ReservationService,Backend/reservation library,2726
+lib/constants.ts,KV ReservationService,Backend/reservation library,954
+lib/eventsManagerSync.ts,KV ReservationService,Backend/reservation library,13844
+lib/reservationDeletion.ts,KV ReservationService,Backend/reservation library,13650
+lib/reservationIntegrations.ts,KV ReservationService,Backend/reservation library,63993
+lib/assistantEventKnowledge.ts,KV ReservationService,Backend/reservation library,6834
+lib/siteContent.ts,KV Website,Public website/content/marketing file,12808
+lib/db.ts,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,369
+lib/stripeLocalCheckoutFallback.ts,KV ReservationService,Backend/reservation library,3762
+lib/importedReservations.ts,KV ReservationService,Backend/reservation library,24303
+app/drinks/page.tsx,KV Website,Public website/content/marketing file,1314
+app/order/page.tsx,KV Website,Public website/content/marketing file,814
+app/contact/page.tsx,KV Website,Public website/content/marketing file,1525
+app/success/page.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,3569
+app/specials/page.tsx,KV Website,Public website/content/marketing file,4649
+app/admin/page.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,30426
+app/about/page.tsx,KV Website,Public website/content/marketing file,3704
+app/food/page.tsx,KV Website,Public website/content/marketing file,1300
+app/parties/page.tsx,KV Website,Public website/content/marketing file,1581
+app/reserve/page.tsx,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,1634
+app/catering/page.tsx,KV Website,Public website/content/marketing file,1337
+app/jobs/page.tsx,KV Website,Public website/content/marketing file,1275
+app/events/page.tsx,KV Website,Public website/content/marketing file,2591
+.kvrs_customer_text_cleanup_backup_20260527_200109/app/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",7774
+.kvrs_customer_text_cleanup_backup_20260527_200109/components/SiteFooter.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",3546
+.kvrs_customer_text_cleanup_backup_20260527_200109/components/PublicReservationForm.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",5262
+.kvrs_customer_text_cleanup_backup_20260527_200109/components/InquiryForm.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",2144
+.kvrs_customer_text_cleanup_backup_20260527_200109/components/ReservationAssistant.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",10314
+integrations/events-manager-windows/kv_reservationservice_reservations_import.py,KV ReservationService,Windows Events Manager / SpotHopper integration,5121
+integrations/events-manager-windows/KVRS_SYNC_README.txt,KV ReservationService,Windows Events Manager / SpotHopper integration,839
+integrations/events-manager-windows/.env.kv-reservationservice.example,KV ReservationService,Windows Events Manager / SpotHopper integration,1356
+integrations/events-manager-windows/sync_spothopper_reservations_full_details.ps1,KV ReservationService,Windows Events Manager / SpotHopper integration,422
+integrations/events-manager-windows/kv_spothopper_reservations_sync.py,KV ReservationService,Windows Events Manager / SpotHopper integration,34538
+integrations/events-manager-windows/install_v64_spothopper_reservation_sync.ps1,KV ReservationService,Windows Events Manager / SpotHopper integration,1386
+integrations/events-manager-windows/sync_spothopper_reservations.ps1,KV ReservationService,Windows Events Manager / SpotHopper integration,392
+integrations/events-manager-windows/kv_reservationservice_sync.py,KV ReservationService,Windows Events Manager / SpotHopper integration,26418
+integrations/events-manager-windows/sync_latest_event.ps1,KV ReservationService,Windows Events Manager / SpotHopper integration,184
+integrations/events-manager-windows/SPOTHOPPER_RESERVATION_SYNC_README.txt,KV ReservationService,Windows Events Manager / SpotHopper integration,2112
+integrations/events-manager-windows/sync_all_events.ps1,KV ReservationService,Windows Events Manager / SpotHopper integration,181
+.kvrs-upload-chunks/events-manager--2026-06-20-2-Party-on-the-patio--b89bd35bf3de45c188010c1308e196a5/000000.part,Do not copy,"Secrets, local data, generated output, backups, or transient files",262144
+.kvrs-upload-chunks/events-manager--2026-06-20-2-Party-on-the-patio--b89bd35bf3de45c188010c1308e196a5/000001.part,Do not copy,"Secrets, local data, generated output, backups, or transient files",262144
+.kvrs-upload-chunks/events-manager--2026-06-20-2-Party-on-the-patio--b89bd35bf3de45c188010c1308e196a5/000002.part,Do not copy,"Secrets, local data, generated output, backups, or transient files",262144
+.kvrs-upload-chunks/events-manager--2026-06-20-2-Party-on-the-patio--b89bd35bf3de45c188010c1308e196a5/000003.part,Do not copy,"Secrets, local data, generated output, backups, or transient files",262144
+.kvrs-upload-chunks/events-manager--2026-06-20-2-Party-on-the-patio--b89bd35bf3de45c188010c1308e196a5/meta.json,Do not copy,"Secrets, local data, generated output, backups, or transient files",462
+_patch_backups/v122b_confirmation_center_backend_20260526215335/.env.local,Do not copy,"Secrets, local data, generated output, backups, or transient files",1056
+_patch_backups/v122b_confirmation_center_backend_20260526215335/.env.example,Do not copy,"Secrets, local data, generated output, backups, or transient files",4037
+_patch_backups/v117_checkout_flow_20260524_212213/.gitignore,Do not copy,"Secrets, local data, generated output, backups, or transient files",76
+sync_outputs/kvrs_startup_sync/last_startup_sync_trigger.txt,Do not copy,"Secrets, local data, generated output, backups, or transient files",11
+app/admin/database/page.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,5379
+app/admin/ai-rules/actions.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1203
+app/admin/ai-rules/page.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,3067
+app/admin/checkin/page.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,2075
+app/admin/sync/page.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,4565
+app/admin/events/actions.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,5939
+app/admin/events/page.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,3440
+app/api/chat/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,12870
+app/api/reservations/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1842
+app/api/checkout/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,3661
+app/api/manager/_auth.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,601
+app/api/checkin/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1217
+app/events/[slug]/page.tsx,Review / bridge,Public checkout/event-reservation files; decide whether to keep in KVRS or refactor to link from website,3190
+.kvrs_customer_text_cleanup_backup_20260527_200109/app/drinks/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",1331
+.kvrs_customer_text_cleanup_backup_20260527_200109/app/order/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",856
+.kvrs_customer_text_cleanup_backup_20260527_200109/app/success/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",3648
+.kvrs_customer_text_cleanup_backup_20260527_200109/app/food/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",1323
+.kvrs_customer_text_cleanup_backup_20260527_200109/app/parties/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",1551
+.kvrs_customer_text_cleanup_backup_20260527_200109/app/catering/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",1306
+integrations/events-manager-windows/__pycache__/kv_spothopper_reservations_sync.cpython-313.pyc,KV ReservationService,Windows Events Manager / SpotHopper integration,46906
+public/uploads/events-manager/karaoke-crawfish-nights-at-katy-vibes-2026-04-11-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/clutch-city-band-live-at-katy-vibes-2026-05-24-a3935f817ae1-2026-05-23-clutch-city-band-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2374983
+public/uploads/events-manager/line-dancing-with-gloria-at-katy-vibes-2026-05-15-e735c2edac94-2026-05-14-gloria-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2225541
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-04-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/ncaa-final-watch-party-at-katy-vibes-2026-04-07-a26bd8e67358-2026-04-06-ncaa-final-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,794485
+public/uploads/events-manager/spicy-crawfish-challenge-at-katy-vibes-2026-04-05-a1ae6bec1cd0-2026-04-04-spicy-crawfish-challenge-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,5034770
+public/uploads/events-manager/party-on-the-patio-at-katy-vibes-2026-06-06-c01feae8ed38-party-on-the-patio-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,4313124
+public/uploads/events-manager/line-dance-with-natasha-at-katy-vibes-2026-05-22-b1da96b37837-2026-05-21-natasha-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3085787
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-16-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-27-23d88d3b2784-karaoke-battles-crawfish-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3867072
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-04-08-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/artist-showcase-with-corey-stoot-at-katy-vibes-2026-05-19-5a4ddc3fa318-2026-05-18-amateur-night-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3435215
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-23-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-05-20-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/party-on-the-patio-at-katy-vibes-2026-06-26-c01feae8ed38-party-on-the-patio-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,4313124
+public/uploads/events-manager/memorial-sunday-funday-at-katy-vibes-2026-05-24-2c67fdfd7347-2026-05-24-memorial-day-party-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,951066
+public/uploads/events-manager/cool-breeze-returns-at-katy-vibes-2026-06-14-e159cd5e2b1f-2026-06-13-cool-breeze-ver2-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,698289
+public/uploads/events-manager/clean-comedy-afternoon-at-katy-vibes-2026-04-26-13412f6cddfc-2026-04-26-comedy-show-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2127662
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-04-29-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-21-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/line-dancing-with-gloria-at-katy-vibes-2026-06-05-437e98084df1-2026-06-04-gloria-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2225145
+public/uploads/events-manager/joilux-interactive-party-band-at-katy-vibes-2026-04-19-4ab963a9c67b-2026-04-18-joilux-band-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,827691
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-14-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-25-23d88d3b2784-karaoke-battles-crawfish-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3867072
+public/uploads/events-manager/karaoke-nights-live-crawfish-at-katy-vibes-2026-04-30-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/party-on-the-patio-at-katy-vibes-2026-06-27-c01feae8ed38-party-on-the-patio-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,4313124
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-09-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/line-dancing-with-gloria-at-katy-vibes-2026-05-01-fc281ec42128-2026-05-30-gloria-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2226150
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-06-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/katy-idol-spring-auditions-at-katy-vibes-2026-04-11-96dce864fad9-2026-04-katy-idol-spring-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,905894
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-07-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-02-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-18-23d88d3b2784-karaoke-battles-crawfish-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3867072
+public/uploads/events-manager/party-on-the-patio-at-katy-vibes-2026-06-20-c01feae8ed38-party-on-the-patio-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,4313124
+public/uploads/events-manager/karaoke-crawfish-nights-at-katy-vibes-2026-04-18-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/joilux-interactive-party-band-at-katy-vibes-2026-05-31-6ed494f4c6a3-2026-05-30-joilux-band-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,827774
+public/uploads/events-manager/line-dance-with-natasha-at-katy-vibes-2026-06-19-54520368dec1-2026-06-18-natasha-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3082957
+public/uploads/events-manager/karaoke-nights-live-crawfish-at-katy-vibes-2026-04-16-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-15-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/karaoke-nights-live-crawfish-at-katy-vibes-2026-04-23-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/party-on-the-patio-at-katy-vibes-2026-06-19-c01feae8ed38-party-on-the-patio-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,4313124
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-06-24-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-05-27-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/karaoke-crawfish-nights-at-katy-vibes-2026-04-02-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-28-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/leslie-michael-friends-night-at-katy-vibes-2026-05-17-82abfb432c4e-2026-05-16-leslie-michael-band-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2848867
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-30-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/karaoke-nights-live-crawfish-at-katy-vibes-2026-04-09-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/amateur-night-at-katy-vibes-2026-04-14-05e637f0ff62-2026-04-13-open-mic-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,995608
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-21-23d88d3b2784-karaoke-battles-crawfish-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3867072
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-04-22-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/katy-idol-2026-at-katy-vibes-2026-05-09-96dce864fad9-2026-04-katy-idol-spring-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,905894
+public/uploads/events-manager/party-on-the-patio-at-katy-vibes-2026-06-05-c01feae8ed38-party-on-the-patio-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,4313124
+public/uploads/events-manager/line-dancing-with-rose-at-katy-vibes-2026-06-26-0cb9091a25f6-2026-06-25-rose-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2068245
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-28-23d88d3b2784-karaoke-battles-crawfish-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3867072
+public/uploads/events-manager/katy-idol-grand-finale-at-katy-vibes-2026-05-30-96dce864fad9-2026-04-katy-idol-spring-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,905894
+public/uploads/events-manager/line-dancing-with-rose-at-katy-vibes-2026-04-24-7b89ee1ba7db-2026-04-23-rose-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2066610
+public/uploads/events-manager/kentucky-derby-watch-party-at-katy-vibes-2026-05-02-51c05c8146c7-2026-05-02-kentucky-derby-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,1180472
+public/uploads/events-manager/party-on-the-patio-at-katy-vibes-2026-06-12-c01feae8ed38-party-on-the-patio-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,4313124
+public/uploads/events-manager/katy-idol-2026-at-katy-vibes-2026-04-18-96dce864fad9-2026-04-katy-idol-spring-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,905894
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-11-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/karaoke-crawfish-nights-at-katy-vibes-2026-04-04-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-06-03-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/cinco-de-mayo-party-at-katy-vibes-2026-05-05-e3b4387b52bd-2026-05-05-cinco-de-mayo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,4353991
+public/uploads/events-manager/line-dancing-with-rose-at-katy-vibes-2026-05-08-d2eacc4ab47e-2026-05-28-rose-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2067863
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-04-15-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-06-17-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/line-dancing-with-gloria-at-katy-vibes-2026-04-10-dbd144e87dc7-2026-04-09-gloria-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2226847
+public/uploads/events-manager/vibe-district-party-band-at-katy-vibes-2026-05-03-9c3e9a835e7b-2026-05-03-vibe-district-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,784081
+public/uploads/events-manager/party-on-the-patio-at-katy-vibes-2026-06-13-c01feae8ed38-party-on-the-patio-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,4313124
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-13-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/katy-idol-2026-at-katy-vibes-2026-04-04-96dce864fad9-2026-04-katy-idol-spring-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,905894
+public/uploads/events-manager/katy-idol-2026-at-katy-vibes-2026-05-02-96dce864fad9-2026-04-katy-idol-spring-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,905894
+public/uploads/events-manager/line-dance-with-natasha-at-katy-vibes-2026-04-17-6478146f0994-2026-04-16-natasha-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3083514
+public/uploads/events-manager/katy-idol-2026-at-katy-vibes-2026-05-16-96dce864fad9-2026-04-katy-idol-spring-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,905894
+public/uploads/events-manager/sympli-lovely-sings-the-blues-at-katy-vibes-2026-04-12-d79f6b8066c8-2026-04-12-sympli-sings-the-blues-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,880719
+public/uploads/events-manager/line-dancing-with-rose-at-katy-vibes-2026-06-12-0cb9091a25f6-2026-06-25-rose-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2068245
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-31-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/cool-breeze-live-at-katy-vibes-2026-04-12-ee479b6135f4-2026-04-11-cool-breeze-ver1-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,821999
+public/uploads/events-manager/ncaa-final-four-watch-party-at-katy-vibes-2026-04-05-bf2805d8a545-2026-04-04-ncaa-final-4-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,767479
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-04-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/line-dancing-with-rose-at-katy-vibes-2026-04-03-7b89ee1ba7db-2026-04-02-rose-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2066610
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-20-23d88d3b2784-karaoke-battles-crawfish-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,3867072
+public/uploads/events-manager/the-klockwork-band-live-at-katy-vibes-2026-04-26-3156b722e338-2026-04-25-klockwork-band-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,711252
+public/uploads/events-manager/karaoke-crawfish-nights-at-katy-vibes-2026-04-25-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/clean-comedy-afternoon-at-katy-vibes-2026-05-24-d5cf1dcd50a1-2026-05-24-comedy-show-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,767329
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-17-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/line-dancing-with-rose-at-katy-vibes-2026-05-29-d2eacc4ab47e-2026-05-28-rose-line-dancing-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2067863
+public/uploads/events-manager/easter-gospel-concert-at-katy-vibes-2026-04-05-cead99925c6e-2026-04-05-easter-gospel-show-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,982858
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-05-13-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-06-10-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+public/uploads/events-manager/katy-idol-2026-at-katy-vibes-2026-04-25-96dce864fad9-2026-04-katy-idol-spring-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,905894
+public/uploads/events-manager/mister-houston-live-at-katy-vibes-2026-04-19-2ea2d0452dde-2026-04-19-mr-houston-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,909774
+public/uploads/events-manager/sympli-lovely-blues-night-at-katy-vibes-2026-05-17-ac9a62468223-2026-05-17-sympli-sings-the-blues-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,880762
+public/uploads/events-manager/r-b-night-with-unorthodox-band-at-katy-vibes-2026-05-03-177377cbd29e-2026-05-02-unorthodox-band-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,813952
+public/uploads/events-manager/katy-idol-2026-at-katy-vibes-2026-05-23-96dce864fad9-2026-04-katy-idol-spring-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,905894
+public/uploads/events-manager/karaoke-night-at-katy-vibes-2026-05-10-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/r-b-night-with-robert-allen-berry-at-katy-vibes-2026-05-10-53bec1bb0353-2026-05-09-robert-allen-berry-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,666684
+public/uploads/events-manager/mother-s-day-tribute-show-at-katy-vibes-2026-05-10-1919f95d7d66-2026-05-10-mothers-day-1500-x-1800.jpg,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,987565
+public/uploads/events-manager/karaoke-nights-at-katy-vibes-2026-06-07-c1d38babbbdd-new-karaoke-flyer-crawfish-banner-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2463112
+public/uploads/events-manager/music-bingo-tuesdays-at-katy-vibes-2026-07-01-173787f8442c-music-bingo-1500-x-1800.png,Review / bridge,Event flyer assets; useful to events page but owned by event/reservation pipeline,2001582
+_patch_backups/v122e_optional_template_fields_20260526225726/lib/mobileConfirmationCenter.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",27021
+_patch_backups/v117E_sheet_creation_confirm_20260524_225516/lib/reservationIntegrations.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",60109
+_patch_backups/v122b_confirmation_center_backend_20260526215335/prisma/schema.prisma,Do not copy,"Secrets, local data, generated output, backups, or transient files",5891
+_patch_backups/v122b_confirmation_center_backend_20260526215335/scripts/kvrs-resync-sheets-route-v120-wrapper.template.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",10829
+_patch_backups/v122d_confirmation_center_clean_customer_text_20260526224824/lib/mobileConfirmationCenter.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",25747
+_patch_backups/v117_checkout_flow_20260524_212213/app/styles.css,Do not copy,"Secrets, local data, generated output, backups, or transient files",70495
+_patch_backups/v117_checkout_flow_20260524_212213/prisma/schema.prisma,Do not copy,"Secrets, local data, generated output, backups, or transient files",5260
+_patch_backups/v117_checkout_flow_20260524_212213/prisma/dev.db,Do not copy,"Secrets, local data, generated output, backups, or transient files",688128
+_patch_backups/v117_checkout_flow_20260524_212213/components/TicketTypeCard.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",3002
+_patch_backups/v117_checkout_flow_20260524_212213/lib/inventory.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",21017
+_patch_backups/v117_checkout_flow_20260524_212213/lib/reservationDeletion.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",6808
+_patch_backups/v122c_confirmation_center_safe_inquiry_display_20260526224558/lib/mobileConfirmationCenter.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",17730
+_patch_backups/v118B_stripe_client_export_20260525_002344/lib/stripe.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",184
+_patch_backups/v118_stripe_refund_delete_20260525_001930/components/AdminDeleteReservationButton.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",1574
+_patch_backups/v118_stripe_refund_delete_20260525_001930/lib/reservationDeletion.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",4798
+_patch_backups/v118_stripe_refund_delete_20260525_001930/lib/reservationIntegrations.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",63941
+_patch_backups/v119_spothopper_ticket_sales_display_20260525_003344/app/styles.css,Do not copy,"Secrets, local data, generated output, backups, or transient files",70983
+_patch_backups/v117F_sheet_rebuild_date_cache_20260524_230524/lib/reservationIntegrations.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",61477
+.kvrs_specials_customer_copy_fix_backup_20260527_202645/app/specials/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",4653
+app/admin/events/new/page.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,611
+app/api/chat/reservation-request/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1367
+app/api/chat/events/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,370
+app/api/admin/events-manager-sync/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,565
+app/api/manager/reservations/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,2277
+app/api/manager/events/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1728
+app/api/mobile/v1/_utils.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,7047
+app/api/mobile/v1/_auth.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1044
+app/api/automation/reservations/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,8090
+app/api/automation/flyers/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,7105
+app/api/automation/ticket-sales/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,8504
+app/api/automation/events/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,12935
+app/api/orders/confirm-session/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,959
+app/api/orders/by-session/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1780
+app/api/stripe/webhook/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,5217
+.kvrs_customer_text_cleanup_backup_20260527_200109/app/events/[slug]/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",3178
+public/uploads/katyvibes-site/drinks/image-19.jpg,KV Website,Public website/content/marketing file,31564
+public/uploads/katyvibes-site/drinks/image-18.jpg,KV Website,Public website/content/marketing file,16032
+public/uploads/katyvibes-site/drinks/image-08.jpg,KV Website,Public website/content/marketing file,93005
+public/uploads/katyvibes-site/drinks/image-20.jpg,KV Website,Public website/content/marketing file,89013
+public/uploads/katyvibes-site/drinks/image-09.jpg,KV Website,Public website/content/marketing file,16168
+public/uploads/katyvibes-site/drinks/image-04.jpg,KV Website,Public website/content/marketing file,29902
+public/uploads/katyvibes-site/drinks/image-10.jpg,KV Website,Public website/content/marketing file,31583
+public/uploads/katyvibes-site/drinks/image-11.jpg,KV Website,Public website/content/marketing file,77363
+public/uploads/katyvibes-site/drinks/image-05.jpg,KV Website,Public website/content/marketing file,75887
+public/uploads/katyvibes-site/drinks/image-13.jpg,KV Website,Public website/content/marketing file,26096
+public/uploads/katyvibes-site/drinks/image-07.jpg,KV Website,Public website/content/marketing file,26242
+public/uploads/katyvibes-site/drinks/image-06.jpg,KV Website,Public website/content/marketing file,14170
+public/uploads/katyvibes-site/drinks/image-12.jpg,KV Website,Public website/content/marketing file,13878
+public/uploads/katyvibes-site/drinks/image-16.jpg,KV Website,Public website/content/marketing file,31514
+public/uploads/katyvibes-site/drinks/image-02.jpg,KV Website,Public website/content/marketing file,87521
+public/uploads/katyvibes-site/drinks/image-03.jpg,KV Website,Public website/content/marketing file,16335
+public/uploads/katyvibes-site/drinks/image-17.jpg,KV Website,Public website/content/marketing file,93373
+public/uploads/katyvibes-site/drinks/manifest.json,KV Website,Public website/content/marketing file,4634
+public/uploads/katyvibes-site/drinks/image-01.jpg,KV Website,Public website/content/marketing file,72444
+public/uploads/katyvibes-site/drinks/image-15.jpg,KV Website,Public website/content/marketing file,16540
+public/uploads/katyvibes-site/drinks/image-14.jpg,KV Website,Public website/content/marketing file,91021
+public/uploads/katyvibes-site/fallback/drink-lemon-drop.svg,KV Website,Public website/content/marketing file,2613
+public/uploads/katyvibes-site/fallback/drink-old-fashioned.svg,KV Website,Public website/content/marketing file,2620
+public/uploads/katyvibes-site/fallback/drink-strawberry-kiwi.svg,KV Website,Public website/content/marketing file,2648
+public/uploads/katyvibes-site/fallback/food-crawfish-rice.svg,KV Website,Public website/content/marketing file,2631
+public/uploads/katyvibes-site/fallback/food-sampler-platter.svg,KV Website,Public website/content/marketing file,2624
+public/uploads/katyvibes-site/fallback/food-coconut-shrimp.svg,KV Website,Public website/content/marketing file,2628
+public/uploads/katyvibes-site/fallback/food-tex-mex-sampler.svg,KV Website,Public website/content/marketing file,2642
+public/uploads/katyvibes-site/fallback/drink-hurricane.svg,KV Website,Public website/content/marketing file,2649
+public/uploads/katyvibes-site/fallback/food-spinach-dip.svg,KV Website,Public website/content/marketing file,2619
+public/uploads/katyvibes-site/fallback/drink-cucumber-martini.svg,KV Website,Public website/content/marketing file,2632
+public/uploads/katyvibes-site/fallback/food-salmon-sliders.svg,KV Website,Public website/content/marketing file,2631
+public/uploads/katyvibes-site/food/image-19.jpg,KV Website,Public website/content/marketing file,26984
+public/uploads/katyvibes-site/food/image-18.jpg,KV Website,Public website/content/marketing file,16004
+public/uploads/katyvibes-site/food/image-24.jpg,KV Website,Public website/content/marketing file,15078
+public/uploads/katyvibes-site/food/image-23.jpg,KV Website,Public website/content/marketing file,74530
+public/uploads/katyvibes-site/food/image-22.jpg,KV Website,Public website/content/marketing file,26154
+public/uploads/katyvibes-site/food/image-08.jpg,KV Website,Public website/content/marketing file,66584
+public/uploads/katyvibes-site/food/image-20.jpg,KV Website,Public website/content/marketing file,83749
+public/uploads/katyvibes-site/food/image-21.jpg,KV Website,Public website/content/marketing file,15270
+public/uploads/katyvibes-site/food/image-09.jpg,KV Website,Public website/content/marketing file,14837
+public/uploads/katyvibes-site/food/image-04.jpg,KV Website,Public website/content/marketing file,26619
+public/uploads/katyvibes-site/food/image-10.jpg,KV Website,Public website/content/marketing file,24070
+public/uploads/katyvibes-site/food/image-11.jpg,KV Website,Public website/content/marketing file,105388
+public/uploads/katyvibes-site/food/image-05.jpg,KV Website,Public website/content/marketing file,61862
+public/uploads/katyvibes-site/food/image-13.jpg,KV Website,Public website/content/marketing file,29987
+public/uploads/katyvibes-site/food/image-07.jpg,KV Website,Public website/content/marketing file,23065
+public/uploads/katyvibes-site/food/image-06.jpg,KV Website,Public website/content/marketing file,14457
+public/uploads/katyvibes-site/food/image-12.jpg,KV Website,Public website/content/marketing file,17123
+public/uploads/katyvibes-site/food/image-16.jpg,KV Website,Public website/content/marketing file,35501
+public/uploads/katyvibes-site/food/image-02.jpg,KV Website,Public website/content/marketing file,77084
+public/uploads/katyvibes-site/food/image-03.jpg,KV Website,Public website/content/marketing file,16160
+public/uploads/katyvibes-site/food/image-17.jpg,KV Website,Public website/content/marketing file,82546
+public/uploads/katyvibes-site/food/manifest.json,KV Website,Public website/content/marketing file,5451
+public/uploads/katyvibes-site/food/image-01.jpg,KV Website,Public website/content/marketing file,72444
+public/uploads/katyvibes-site/food/image-15.jpg,KV Website,Public website/content/marketing file,19633
+public/uploads/katyvibes-site/food/image-14.jpg,KV Website,Public website/content/marketing file,117280
+_patch_backups/v117_checkout_flow_20260524_212213/app/success/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",2197
+_patch_backups/v118_stripe_refund_delete_20260525_001930/app/admin/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",29885
+_patch_backups/v119_spothopper_ticket_sales_display_20260525_003344/app/admin/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",25978
+app/admin/events/[id]/edit/page.tsx,KV ReservationService,Backend/admin/API/AI/reservation operations,1412
+app/api/admin/reservations/[id]/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1415
+app/api/mobile/v1/reservations/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,15060
+app/api/mobile/v1/message-templates/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,470
+app/api/mobile/v1/events/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1619
+app/api/automation/reservations/resync-sheets/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,10846
+app/api/automation/reservations/resync-sheets/route.v119-original.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,5681
+_patch_backups/v117_checkout_flow_20260524_212213/app/api/checkout/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",2373
+_patch_backups/v118_stripe_refund_delete_20260525_001930/app/admin/checkin/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",2019
+_patch_backups/v118_stripe_refund_delete_20260525_001930/app/api/checkin/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",747
+app/api/mobile/v1/reservations/[id]/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,4819
+app/api/mobile/v1/reservations/unconfirmed/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,481
+app/api/mobile/v1/debug/counts/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,3049
+_patch_backups/v117_checkout_flow_20260524_212213/app/api/automation/reservations/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",8036
+_patch_backups/v117_checkout_flow_20260524_212213/app/api/automation/events/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",12730
+_patch_backups/v117_checkout_flow_20260524_212213/app/api/stripe/webhook/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",2059
+app/api/mobile/v1/reservations/[id]/send-confirmation/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,567
+app/api/mobile/v1/reservations/[id]/confirmation-preview/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,1072
+app/api/mobile/v1/reservations/[id]/communications/route.ts,KV ReservationService,Backend/admin/API/AI/reservation operations,614
+_patch_backups/v117_checkout_flow_20260524_212213/app/admin/events/[id]/edit/page.tsx,Do not copy,"Secrets, local data, generated output, backups, or transient files",1052
+_patch_backups/v117_checkout_flow_20260524_212213/app/api/admin/reservations/[id]/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",1534
+_patch_backups/v118_stripe_refund_delete_20260525_001930/app/api/admin/reservations/[id]/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",1189
+_patch_backups/v118_stripe_refund_delete_20260525_001930/app/api/mobile/v1/reservations/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",14869
+_patch_backups/v117_checkout_flow_20260524_212213/app/api/mobile/v1/reservations/[id]/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",5033
+_patch_backups/v118_stripe_refund_delete_20260525_001930/app/api/mobile/v1/reservations/[id]/route.ts,Do not copy,"Secrets, local data, generated output, backups, or transient files",4593

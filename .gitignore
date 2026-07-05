@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+
+# Next.js / build output
+.next/
+out/
+dist/
+.vercel/
+
+# env / secrets
+.env
+.env.local
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+
+# TypeScript cache
+tsconfig.tsbuildinfo
+
+# service accounts / credentials
+*.service-account.json
+*service-account*.json
+*service_account*.json
+*serviceAccount*.json
+*credentials*.json
+*secret*.json
+
+# local patch/backups
+_patch_backups/
+kv_*_patch/
+*_patch/
+*.backup-*
+package.json.backup-*
