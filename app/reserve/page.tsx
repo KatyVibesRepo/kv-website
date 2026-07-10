@@ -17,7 +17,6 @@ export default function ReservePage() {
           </p>
           <div className="button-row">
             <a className="button hot" href="#reservation-request-form">Request a Reservation</a>
-            <a className="button ghost" href="tel:8324372807">Call 832-437-2807</a>
           </div>
         </div>
         <div className="reserve-hero-card panel-card">

@@ -10113,3 +10113,49 @@ nav a,
   }
 }
 /* end mobile-phase-1b */
+
+/* logo-reserve-polish-20260709: stronger desktop brand, no mobile crowding */
+@media (min-width: 901px) {
+  .site-header .brand {
+    gap: 14px !important;
+    min-width: max-content;
+  }
+
+  .site-header .brand-logo {
+    width: clamp(156px, 12vw, 218px) !important;
+    max-width: 218px !important;
+    height: auto !important;
+    filter:
+      drop-shadow(0 0 10px rgba(34, 211, 238, 0.42))
+      drop-shadow(0 0 22px rgba(255, 58, 212, 0.22))
+      contrast(1.08)
+      saturate(1.08) !important;
+  }
+}
+
+@media (min-width: 1181px) {
+  .site-header .brand-mark {
+    display: grid !important;
+    padding-left: 12px;
+    border-left: 1px solid rgba(125, 211, 252, 0.22);
+  }
+
+  .site-header .brand-name {
+    font-size: 14px !important;
+    letter-spacing: 0.18em !important;
+  }
+
+  .site-header .brand-subtitle {
+    font-size: 10px !important;
+    letter-spacing: 0.2em !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  .site-header .brand-logo {
+    width: 232px !important;
+    max-width: 232px !important;
+  }
+}
+/* end logo-reserve-polish-20260709 */
+
