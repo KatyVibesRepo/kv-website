@@ -10159,3 +10159,57 @@ nav a,
 }
 /* end logo-reserve-polish-20260709 */
 
+/* home-reviews-split-polish-20260710: center reviews header and equalize lower homepage cards */
+.home-page-stack .reviews-section .reviews-title-row {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  text-align: center !important;
+}
+
+.home-page-stack .reviews-section .reviews-title-row > div {
+  max-width: 920px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+}
+
+.home-page-stack .reviews-section .reviews-title-row h2,
+.home-page-stack .reviews-section .reviews-title-row p {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.home-page-stack .reviews-section .reviews-title-row .button {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* The homepage split cards should feel like a matched pair on desktop. */
+.home-page-stack .home-events-section ~ .split-section {
+  align-items: stretch !important;
+}
+
+.home-page-stack .home-events-section ~ .split-section > .card {
+  min-height: clamp(320px, 21vw, 390px) !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.home-page-stack .home-events-section ~ .split-section > .card .button {
+  align-self: center !important;
+}
+
+@media (max-width: 820px) {
+  .home-page-stack .home-events-section ~ .split-section > .card {
+    min-height: 0 !important;
+    justify-content: flex-start !important;
+  }
+}
+/* end home-reviews-split-polish-20260710 */
+
