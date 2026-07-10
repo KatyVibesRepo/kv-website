@@ -11,6 +11,9 @@ const footerLinks = [
 ];
 
 export function SiteFooter() {
+  const kvrsAdminBaseUrl = (process.env.NEXT_PUBLIC_KVRS_BASE_URL || 'https://kv-reservationservice.vercel.app').replace(/\/$/, '');
+  const adminLoginHref = `${kvrsAdminBaseUrl}/admin/login`;
+
   return (
     <footer className="site-footer">
       <div className="footer-glow" />
@@ -88,6 +91,10 @@ export function SiteFooter() {
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} Katy Vibes. All rights reserved.</span>
           <span>Good food. Good music. Great vibes.</span>
+        </div>
+
+        <div className="footer-admin-row" aria-label="Katy Vibes staff access">
+          <a href={adminLoginHref} rel="nofollow noreferrer">Staff Login</a>
         </div>
       </div>
     </footer>

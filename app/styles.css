@@ -10213,3 +10213,38 @@ nav a,
 }
 /* end home-reviews-split-polish-20260710 */
 
+/* footer-staff-login-20260710: small unobtrusive KVRS staff login at page bottom */
+.footer-admin-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.footer-admin-row a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 7px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 999px;
+  color: rgba(226, 232, 240, 0.62);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.footer-admin-row a:hover,
+.footer-admin-row a:focus-visible {
+  color: #ffffff;
+  border-color: rgba(34, 211, 238, 0.5);
+  background: rgba(14, 165, 233, 0.14);
+  outline: none;
+}
+/* end footer-staff-login-20260710 */
+
