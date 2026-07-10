@@ -82,7 +82,7 @@ export function MenuSection({
           const itemImages = getImagesForMenuItem(item.name, images);
 
           return (
-            <article className="menu-item" key={`${section.title}-${item.name}`}>
+            <article className={itemImages.length > 0 ? "menu-item menu-item-has-media" : "menu-item"} key={`${section.title}-${item.name}`}>
               <div className="menu-item-copy">
                 <div className="row-between menu-item-heading">
                   <h3>{item.name}</h3>
