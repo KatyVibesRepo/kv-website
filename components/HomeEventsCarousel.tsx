@@ -5,9 +5,9 @@ import type { PublicEvent } from '@/lib/kvrsEvents';
 import { eventFlyerImage, resolveKvrsAssetUrl } from '@/lib/kvrsEvents';
 
 function getCardsPerPage(width: number) {
-  if (width >= 960) return 4;
-  if (width >= 720) return 3;
-  if (width >= 500) return 2;
+  if (width >= 980) return 4;
+  if (width >= 760) return 3;
+  if (width >= 640) return 2;
   return 1;
 }
 

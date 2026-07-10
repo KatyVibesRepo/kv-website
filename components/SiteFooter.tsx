@@ -1,5 +1,4 @@
 import { katyVibesInfo, primaryNav } from '@/lib/siteContent';
-import { kvrsBaseUrl } from '@/lib/kvrsPublic';
 
 const footerLinks = [
   { label: 'About Us', href: '/about' },
@@ -12,8 +11,6 @@ const footerLinks = [
 ];
 
 export function SiteFooter() {
-  const adminLoginHref = `${kvrsBaseUrl()}/admin/login`;
-
   return (
     <footer className="site-footer">
       <div className="footer-glow" />
@@ -91,10 +88,6 @@ export function SiteFooter() {
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} Katy Vibes. All rights reserved.</span>
           <span>Good food. Good music. Great vibes.</span>
-        </div>
-
-        <div className="footer-admin-row" aria-label="Katy Vibes admin access">
-          <a href={adminLoginHref} rel="nofollow">Admin</a>
         </div>
       </div>
     </footer>
