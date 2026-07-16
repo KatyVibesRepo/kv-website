@@ -7,8 +7,8 @@ export const katyVibesInfo = {
   addressLines: ['24757 Katy Freeway', 'Katy, TX 77494'],
   orderUrl: 'https://order.online/store/katy-vibes-restaurant-&-bar-katy-31147277/',
   socials: [
-    { label: 'Facebook', href: 'https://www.facebook.com/KatyVibes' },
-    { label: 'Instagram', href: 'https://www.instagram.com/katyvibes' },
+    { label: 'Facebook', href: 'https://www.facebook.com/KatyVibesTX/' },
+    { label: 'Instagram', href: 'https://www.instagram.com/KatyVibesTX' },
     { label: 'TikTok', href: 'https://www.tiktok.com/@katyvibes' },
     { label: 'Google', href: 'https://www.google.com/search?q=Katy+Vibes+Restaurant+%26+Bar+Katy+TX' },
   ],
