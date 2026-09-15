@@ -1,47 +1,28 @@
 # v2.28 — Public Website Feed Integration
 
-## What changed
+## Architecture
 
-The public Katy Vibes website now has a safe KV ReservationService feed layer for public website data.
+KV ReservationService remains the source of truth for events, ticket/table products, checkout, reservation flow, and published website media. KV Website remains a separate public Next.js application and consumes KVRS public read-only APIs.
 
-KV ReservationService remains the source of truth for events, ticket/table products, checkout URLs, reservation flow, and published website gallery images. KV Website stays its own Next.js app and consumes KVRS public read-only APIs.
+## Shared KVRS configuration
 
-## Required environment variable
+The Website now resolves KVRS destinations through the shared resolver in `lib/kvrsConfig.mjs`.
 
-Local development:
-
-```env
-NEXT_PUBLIC_KVRS_URL=http://localhost:3001
-```
-
-Production will likely use the production KV ReservationService/admin domain, for example:
-
-```env
-NEXT_PUBLIC_KVRS_URL=https://admin.katyvibes.com
-```
-
-Older environment variable names are still supported as fallbacks:
+Preferred local variables:
 
 ```env
 NEXT_PUBLIC_KVRS_BASE_URL=http://localhost:3001
-KVRS_PUBLIC_API_BASE_URL=http://localhost:3001/api/public
+KVRS_BASE_URL=http://localhost:3001
 ```
 
-## Local dev setup
+Final Production values, only after coordinated KVRS cutover:
 
-Start KV ReservationService first:
-
-```bash
-cd "$HOME/Desktop/KV ReservationService"
-PORT=3001 npm run dev
+```env
+NEXT_PUBLIC_KVRS_BASE_URL=https://admin.katyvibes.com
+KVRS_BASE_URL=https://admin.katyvibes.com
 ```
 
-Then start the public website:
-
-```bash
-cd "$HOME/Desktop/KV Website"
-PORT=3000 npm run dev
-```
+Legacy aliases such as `NEXT_PUBLIC_KVRS_URL`, `KVRS_URL`, and endpoint-specific overrides are transition-only. They cannot silently redirect a different Website path to another KVRS host: conflicting origins are rejected.
 
 ## Feeds consumed by KV Website
 
@@ -62,28 +43,28 @@ GET /api/public/site-media?placement=home_secondary_gallery
 GET /api/public/site-media?placement=home_community_panel
 ```
 
-## Homepage gallery behavior
+## Local dev setup
 
-The homepage uses KVRS published site-media feeds for:
+Start KVRS first:
 
-- `home_hero_gallery`
-- `home_secondary_gallery`
-- `home_community_panel`
+```bash
+cd "$HOME/Desktop/KV ReservationService"
+PORT=3001 npm run dev
+```
 
-If KVRS is offline, missing, or returns no published images for a placement, the website falls back to the existing local hardcoded image arrays so the public website still renders.
+Then Website:
 
-## URL normalization
+```bash
+cd "$HOME/Desktop/KV Website"
+PORT=3000 npm run dev
+```
 
-The KVRS public helper normalizes image URLs:
+## URL and asset normalization
 
-- absolute URLs are used as-is
-- relative URLs like `/uploads/...` are prefixed with `NEXT_PUBLIC_KVRS_URL`
-- local imported URLs that accidentally point to `localhost:3000` are rewritten to the configured KVRS base URL during split-app local development
+Known KVRS upload paths such as `/uploads/events-manager/...` and `/uploads/site-media/...` are normalized to the single resolved KVRS base. The Website no longer walks a list of possible KVRS hosts for an asset.
 
-## Production notes
+If KVRS is offline, public feed helpers may still return empty/fallback presentation data so the Website can render. A successful Next.js build therefore does not replace the explicit Production configuration verifier.
 
-- Do not add secrets to the public website.
-- Keep admin/media management in KV ReservationService.
-- Public site media APIs should only return published images.
-- KV Website should display media/events, not own the database or transaction flow.
-- Customer checkout/reservation/ticket flows should continue pointing into KV ReservationService routes/URLs returned by KVRS.
+## Production rule
+
+Run `npm run verify:kvrs-production` before a Website Production cutover. Production Website configuration must resolve every KVRS entry point to `https://admin.katyvibes.com` and must reject localhost, tunnels, `.vercel.app` KVRS hosts, and conflicting overrides.

@@ -1,82 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getKvrsServerConfig } from '@/lib/kvrsServerConfig';
 
 export const dynamic = 'force-dynamic';
 
-const defaultLocalKvrsBaseUrl = 'http://localhost:3001';
 const kvrsUploadAssetPathPattern = /^\/uploads\/(?:events-manager|site-media)\//;
-
-function cleanBaseUrl(value?: string | null) {
-  return (value || '').trim().replace(/\/$/, '');
-}
-
-function isWebsiteLocalhostOrigin(value: string) {
-  try {
-    const url = new URL(value);
-    return (url.hostname === 'localhost' || url.hostname === '127.0.0.1') && url.port === '3000';
-  } catch {
-    return false;
-  }
-}
-
-
-function baseUrlFromPublicApi(value?: string | null) {
-  const cleaned = cleanBaseUrl(value);
-  if (!cleaned) return null;
-
-  try {
-    const url = new URL(cleaned);
-    url.pathname = url.pathname.replace(/\/api\/public\/?$/, '').replace(/\/$/, '');
-    url.search = '';
-    url.hash = '';
-    return cleanBaseUrl(url.toString());
-  } catch {
-    return null;
-  }
-}
-
-function baseUrlFromCheckoutApi(value?: string | null) {
-  const cleaned = cleanBaseUrl(value);
-  if (!cleaned) return null;
-
-  try {
-    const url = new URL(cleaned);
-    url.pathname = url.pathname.replace(/\/api\/checkout\/?$/, '').replace(/\/$/, '');
-    url.search = '';
-    url.hash = '';
-    return cleanBaseUrl(url.toString());
-  } catch {
-    return null;
-  }
-}
-
-function unique(values: Array<string | null | undefined>) {
-  const seen = new Set<string>();
-  const output: string[] = [];
-
-  for (const value of values) {
-    const cleaned = cleanBaseUrl(value);
-    if (!cleaned || seen.has(cleaned)) continue;
-    seen.add(cleaned);
-    output.push(cleaned);
-  }
-
-  return output;
-}
-
-function kvrsAssetBaseCandidates() {
-  return unique([
-    baseUrlFromPublicApi(process.env.KVRS_PUBLIC_API_BASE_URL),
-    baseUrlFromPublicApi(process.env.NEXT_PUBLIC_KVRS_PUBLIC_API_BASE_URL),
-    baseUrlFromCheckoutApi(process.env.KVRS_CHECKOUT_URL),
-    baseUrlFromCheckoutApi(process.env.NEXT_PUBLIC_KVRS_CHECKOUT_URL),
-    baseUrlFromCheckoutApi(process.env.NEXT_PUBLIC_KVRS_CHECKOUT_API_URL),
-    process.env.KVRS_BASE_URL,
-    process.env.KVRS_URL,
-    process.env.NEXT_PUBLIC_KVRS_BASE_URL,
-    process.env.NEXT_PUBLIC_KVRS_URL,
-    defaultLocalKvrsBaseUrl,
-  ]).filter((base) => !isWebsiteLocalhostOrigin(base));
-}
 
 function candidateAssetUrls(src: string) {
   const trimmed = src.trim();
@@ -90,16 +17,12 @@ function candidateAssetUrls(src: string) {
     }
 
     const pathAndSearch = `${url.pathname}${url.search}`;
-    const bases = kvrsAssetBaseCandidates();
-
-    return bases.map((base) => `${base}${pathAndSearch}`);
+    return [`${getKvrsServerConfig().assetBaseUrl}${pathAndSearch}`];
   } catch {
     if (!trimmed.startsWith('/')) return [trimmed];
     if (!kvrsUploadAssetPathPattern.test(trimmed)) return [trimmed];
 
-    const bases = kvrsAssetBaseCandidates();
-
-    return bases.map((base) => `${base}${trimmed}`);
+    return [`${getKvrsServerConfig().assetBaseUrl}${trimmed}`];
   }
 }
 
@@ -131,12 +54,12 @@ export async function GET(request: NextRequest) {
         },
       });
     } catch {
-      // Try the next candidate origin.
+      // A single canonical KVRS origin is intentional. Do not fall through to stale hosts.
     }
   }
 
   return NextResponse.json(
     { ok: false, error: 'asset_not_found', tried: candidates.length },
-    { status: 404, headers: { 'Cache-Control': 'no-store' } }
+    { status: 404, headers: { 'Cache-Control': 'no-store' } },
   );
 }

@@ -1,4 +1,5 @@
 import { katyVibesInfo, primaryNav } from '@/lib/siteContent';
+import { getKvrsServerConfig } from '@/lib/kvrsServerConfig';
 
 const footerLinks = [
   { label: 'About Us', href: '/about' },
@@ -11,8 +12,7 @@ const footerLinks = [
 ];
 
 export function SiteFooter() {
-  const kvrsAdminBaseUrl = (process.env.NEXT_PUBLIC_KVRS_BASE_URL || 'https://kv-reservationservice.vercel.app').replace(/\/$/, '');
-  const adminLoginHref = `${kvrsAdminBaseUrl}/admin/login`;
+  const adminLoginHref = getKvrsServerConfig().adminLoginUrl;
 
   return (
     <footer className="site-footer">

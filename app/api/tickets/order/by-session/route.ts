@@ -1,29 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getKvrsServerConfig } from '@/lib/kvrsServerConfig';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-const localKvrsBaseUrl = 'http://localhost:3001';
-
-function kvrsOrderLookupEndpoint() {
-  const explicit =
-    process.env.KVRS_ORDER_LOOKUP_URL ||
-    process.env.NEXT_PUBLIC_KVRS_ORDER_LOOKUP_URL ||
-    process.env.NEXT_PUBLIC_KVRS_ORDERS_BY_SESSION_URL;
-
-  if (explicit?.trim()) {
-    return explicit.trim().replace(/\/+$/, '');
-  }
-
-  const base =
-    process.env.KVRS_BASE_URL ||
-    process.env.KVRS_URL ||
-    process.env.NEXT_PUBLIC_KVRS_BASE_URL ||
-    process.env.NEXT_PUBLIC_KVRS_URL ||
-    localKvrsBaseUrl;
-
-  return `${base.trim().replace(/\/+$/, '')}/api/orders/by-session`;
-}
 
 function noStoreJson(body: unknown, init?: ResponseInit) {
   const headers = new Headers(init?.headers);
@@ -43,7 +22,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const lookupUrl = new URL(kvrsOrderLookupEndpoint());
+  const lookupUrl = new URL(getKvrsServerConfig().orderLookupUrl);
   lookupUrl.searchParams.set('session_id', sessionId);
   lookupUrl.searchParams.set('_', String(Date.now()));
 
@@ -74,7 +53,7 @@ export async function GET(request: NextRequest) {
     return noStoreJson(data ?? { ok: false, error: 'empty_kvrs_response' }, {
       status: response.status,
     });
-  } catch (error) {
+  } catch {
     return noStoreJson(
       {
         ok: false,
