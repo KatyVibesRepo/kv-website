@@ -1,0 +1,68 @@
+/* public legal policy pages and footer legal links */
+.legal-page {
+  max-width: 960px;
+  margin: 0 auto;
+}
+.legal-hero h1 {
+  font-size: clamp(38px, 5.4vw, 68px);
+}
+.legal-document {
+  gap: 0;
+  padding: clamp(22px, 3vw, 34px);
+}
+.legal-meta {
+  margin: 0 0 4px;
+  color: var(--soft);
+  font-size: 13px;
+  font-weight: 800;
+}
+.legal-document section {
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+.legal-document section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.legal-document h2 {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 2.4vw, 32px);
+}
+.legal-document p {
+  margin: 0 0 12px;
+}
+.legal-document p:last-child {
+  margin-bottom: 0;
+}
+.legal-document ul {
+  margin: 10px 0 14px;
+  padding-left: 1.35rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.legal-document li + li {
+  margin-top: 5px;
+}
+.legal-document strong {
+  color: #fff;
+}
+.footer-legal-links {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.footer-legal-links a {
+  color: rgba(248,251,255,.72);
+  font-weight: 800;
+}
+.footer-legal-links a:hover {
+  color: var(--cyan);
+  text-shadow: 0 0 18px rgba(32,217,255,.40);
+}
+@media (max-width: 620px) {
+  .footer-legal-links {
+    justify-content: flex-start;
+  }
+}

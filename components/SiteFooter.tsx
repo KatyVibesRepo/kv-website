@@ -90,6 +90,10 @@ export function SiteFooter() {
 
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} Katy Vibes. All rights reserved.</span>
+          <span className="footer-legal-links" aria-label="Legal">
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms</a>
+          </span>
           <span>Good food. Good music. Great vibes.</span>
         </div>
 

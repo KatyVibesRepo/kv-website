@@ -1,4 +1,5 @@
 import './styles.css';
+import './legal.css';
 import { SiteBackdrop } from '@/components/SiteBackdrop';
 import type { ReactNode } from 'react';
 import { katyVibesInfo, primaryNav } from '@/lib/siteContent';
