@@ -48,6 +48,8 @@ return (
       <HomepageMediaExperience
         heroImages={homeHeroImages}
         galleryImages={homeSecondaryGalleryImages}
+        heroFallbackImages={liveHomepageHeroImages}
+        galleryFallbackImages={liveHomepageGalleryImages}
         showGallery={false}
       />
 
@@ -110,6 +112,7 @@ return (
       <HomepageMediaExperience
         heroImages={[]}
         galleryImages={homeSecondaryGalleryImages}
+        galleryFallbackImages={liveHomepageGalleryImages}
         showHero={false}
         showGallery
         className="homepage-gallery-after-jobs"
