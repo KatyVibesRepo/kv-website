@@ -3,7 +3,7 @@ import { HomepageMediaExperience } from '@/components/HomepageMediaExperience';
 import { homeFeaturePanels, katyVibesInfo } from '@/lib/siteContent';
 import { ReviewsSection } from '@/components/ReviewsSection';
 import { liveHomepageGalleryImages, liveHomepageHeroImages } from '@/lib/liveHomepageImages';
-import { getPublicEvents } from '@/lib/kvrsEvents';
+import { getPublicEventsFeedResult } from '@/lib/kvrsEvents';
 import { getSiteMediaImages } from '@/lib/kvrsSiteMedia';
 
 export const dynamic = 'force-dynamic';
@@ -24,17 +24,18 @@ const homeSections = [
 
 export default async function HomePage() {
   const [
-    upcomingHomeEvents,
+    upcomingHomeEventFeed,
     kvrsHeroImages,
     kvrsSecondaryGalleryImages,
     kvrsCommunityPanelImages,
   ] = await Promise.all([
-    getPublicEvents({ limit: 100 }),
+    getPublicEventsFeedResult({ limit: 100 }),
     getSiteMediaImages('home_hero_gallery'),
     getSiteMediaImages('home_secondary_gallery'),
     getSiteMediaImages('home_community_panel'),
   ]);
 
+  const upcomingHomeEvents = upcomingHomeEventFeed.events;
   const homeHeroImages = kvrsHeroImages.length ? kvrsHeroImages : liveHomepageHeroImages;
   const homeSecondaryGalleryImages = kvrsSecondaryGalleryImages.length
     ? kvrsSecondaryGalleryImages
@@ -86,10 +87,20 @@ return (
       </section>
 
       <section className="home-events-section" aria-labelledby="home-events-title">
-        {upcomingHomeEvents.length === 0 ? (
+        {upcomingHomeEventFeed.status === 'unavailable' ? (
           <div className="card stack">
-            <h3>No upcoming events yet</h3>
-            <p>Upcoming events from KV ReservationService will appear here as soon as they are published.</p>
+            <div className="eyebrow">Upcoming Events</div>
+            <h3>We’re refreshing the latest event lineup.</h3>
+            <p>
+              Event listings are temporarily unavailable. Please check back shortly or call us at 832-437-2807 for upcoming events, tickets, and tables.
+            </p>
+            <a className="button ghost small-button" href="tel:8324372807">Call Katy Vibes</a>
+          </div>
+        ) : upcomingHomeEvents.length === 0 ? (
+          <div className="card stack">
+            <div className="eyebrow">Upcoming Events</div>
+            <h3>No upcoming events are published right now.</h3>
+            <p>Check back soon for the next Katy Vibes lineup.</p>
           </div>
         ) : (
           <HomeEventsCarousel

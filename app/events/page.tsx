@@ -1,6 +1,6 @@
 import { EventFlyerCard } from '@/components/EventFlyerCarousel';
 import { WeeklyEventVibeCarousel } from '@/components/WeeklyEventVibeCarousel';
-import { getPublicEvents } from '@/lib/kvrsEvents';
+import { getPublicEventsFeedResult } from '@/lib/kvrsEvents';
 
 export const metadata = {
   title: 'Events at Katy Vibes | Live Music, DJs, Karaoke, Sports & Watch Parties',
@@ -44,7 +44,8 @@ function GoogleCalendarEmbed({ embedUrl }: { embedUrl?: string }) {
 }
 
 export default async function EventsPage() {
-  const upcomingEvents = await getPublicEvents({ limit: 100 });
+  const eventFeed = await getPublicEventsFeedResult({ limit: 100 });
+  const upcomingEvents = eventFeed.events;
   const calendarEmbedUrl = process.env.NEXT_PUBLIC_KV_GOOGLE_CALENDAR_EMBED_URL || '';
 
   return (
@@ -66,7 +67,20 @@ export default async function EventsPage() {
         </div>
       </div>
 
-      <WeeklyEventVibeCarousel events={upcomingEvents} />
+      {eventFeed.status === 'unavailable' ? (
+        <section className="card stack weekly-vibe-section" id="pick-your-vibe">
+          <div className="eyebrow">This Week</div>
+          <h2>We’re refreshing the latest event lineup.</h2>
+          <p className="muted">
+            Event listings are temporarily unavailable. Please check back shortly or call 832-437-2807 for upcoming events, tickets, and tables.
+          </p>
+          <div>
+            <a className="button hot" href="tel:8324372807">Call Katy Vibes</a>
+          </div>
+        </section>
+      ) : (
+        <WeeklyEventVibeCarousel events={upcomingEvents} />
+      )}
 
       <GoogleCalendarEmbed embedUrl={calendarEmbedUrl} />
 
@@ -79,7 +93,16 @@ export default async function EventsPage() {
           <a className="button ghost" href="/reserve">Tickets & Reservations</a>
         </div>
 
-        {upcomingEvents.length ? (
+        {eventFeed.status === 'unavailable' ? (
+          <article className="card stack">
+            <div className="eyebrow">Event Lineup</div>
+            <h2>The latest event listings are temporarily unavailable.</h2>
+            <p className="muted">
+              Please check back shortly or call Katy Vibes for current event details, tickets, tables, and reservations.
+            </p>
+            <a className="button hot" href="tel:8324372807">Call Katy Vibes</a>
+          </article>
+        ) : upcomingEvents.length ? (
           <div className="event-card-grid event-flyer-grid">
             {upcomingEvents.map((event) => (
               <EventFlyerCard
@@ -93,11 +116,11 @@ export default async function EventsPage() {
         ) : (
           <article className="card stack">
             <div className="eyebrow">Coming Soon</div>
-            <h2>Events will appear here as soon as they are published.</h2>
+            <h2>No upcoming events are published right now.</h2>
             <p className="muted">
               Check back for Katy Vibes live music, karaoke, DJs, sports watch parties, patio nights, and special events.
             </p>
-            <a className="button hot" href="/contact">Call Katy Vibes</a>
+            <a className="button hot" href="/contact">Contact Katy Vibes</a>
           </article>
         )}
       </section>

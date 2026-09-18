@@ -371,9 +371,34 @@ function normalizeCalendarDay(day: PublicCalendarDay): PublicCalendarDay {
   };
 }
 
-export async function getPublicEvents(options: PublicEventsQuery = { limit: 100 }) {
+export type PublicEventsFeedStatus = 'ready' | 'unavailable';
+
+export type PublicEventsFeedResult = {
+  status: PublicEventsFeedStatus;
+  events: PublicEvent[];
+};
+
+export async function getPublicEventsFeedResult(
+  options: PublicEventsQuery = { limit: 100 }
+): Promise<PublicEventsFeedResult> {
   const data = await fetchKvrsJson<EventsResponse>(`/events${buildQuery(options)}`);
-  return (data?.events || []).map(normalizeEvent);
+
+  if (!data || data.ok !== true) {
+    return {
+      status: 'unavailable',
+      events: [],
+    };
+  }
+
+  return {
+    status: 'ready',
+    events: (data.events || []).map(normalizeEvent),
+  };
+}
+
+export async function getPublicEvents(options: PublicEventsQuery = { limit: 100 }) {
+  const result = await getPublicEventsFeedResult(options);
+  return result.events;
 }
 
 function eventStartTime(event: PublicEvent) {
