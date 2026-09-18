@@ -7,8 +7,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit",
-    "lint": "next lint"
+    "lint": "next lint",
+    "verify:kvrs-production": "node scripts/verify-kvrs-production.mjs"
   },
   "dependencies": {
     "next": "^15.5.18",

@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from 'react';
 import type { PublicEvent, PublicSaleStatus, PublicTicketType } from '@/lib/kvrsEvents';
+import { resolveKvrsConfig } from '@/lib/kvrsConfig.mjs';
 
 type EventTicketCheckoutCardsProps = {
   event: PublicEvent;
@@ -23,20 +24,19 @@ const inactiveSaleStatuses: PublicSaleStatus[] = [
   'postponed',
 ];
 
-const localKvrsBaseUrl = 'http://localhost:3001';
-
 function kvrsCheckoutEndpoint() {
-  const raw =
-    process.env.NEXT_PUBLIC_KVRS_CHECKOUT_URL ||
-    process.env.NEXT_PUBLIC_KVRS_CHECKOUT_API_URL ||
-    process.env.NEXT_PUBLIC_KVRS_BASE_URL ||
-    process.env.NEXT_PUBLIC_KVRS_URL ||
-    localKvrsBaseUrl;
-
-  const trimmed = raw.trim().replace(/\/+$/, '');
-  const endpoint = trimmed || localKvrsBaseUrl;
-  if (endpoint.endsWith('/api/checkout')) return endpoint;
-  return `${endpoint}/api/checkout`;
+  return resolveKvrsConfig(
+    {
+      NEXT_PUBLIC_KVRS_BASE_URL: process.env.NEXT_PUBLIC_KVRS_BASE_URL,
+      NEXT_PUBLIC_KVRS_URL: process.env.NEXT_PUBLIC_KVRS_URL,
+      NEXT_PUBLIC_KVRS_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_KVRS_PUBLIC_API_BASE_URL,
+      NEXT_PUBLIC_KVRS_CHECKOUT_URL: process.env.NEXT_PUBLIC_KVRS_CHECKOUT_URL,
+      NEXT_PUBLIC_KVRS_CHECKOUT_API_URL: process.env.NEXT_PUBLIC_KVRS_CHECKOUT_API_URL,
+      NEXT_PUBLIC_KVRS_ORDER_LOOKUP_URL: process.env.NEXT_PUBLIC_KVRS_ORDER_LOOKUP_URL,
+      NEXT_PUBLIC_KVRS_ORDERS_BY_SESSION_URL: process.env.NEXT_PUBLIC_KVRS_ORDERS_BY_SESSION_URL,
+    },
+    { scope: 'client', throwOnConflict: true, throwOnInvalid: true },
+  ).checkoutUrl;
 }
 
 function formatMoney(cents: number, currency = 'USD') {
@@ -113,7 +113,7 @@ function buttonLabel(event: PublicEvent, ticket: TicketChoice) {
     return titleCaseStatus(event.saleStatus);
   }
 
-  return 'Checkout';
+  return ticket?.type === 'free_rsvp' ? 'Reserve Your Spot' : 'Checkout';
 }
 
 function isCheckoutDisabled(event: PublicEvent, ticket: TicketChoice) {
@@ -206,7 +206,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     setPending((current) => ({ ...current, [key]: true }));
     setMessages((current) => ({
       ...current,
-      [key]: { tone: 'muted', text: 'Opening secure checkout…' },
+      [key]: { tone: 'muted', text: ticket?.type === 'free_rsvp' ? 'Reserving your spot…' : 'Opening secure checkout…' },
     }));
 
     try {
@@ -232,7 +232,9 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           tone: 'error',
           text: checkoutErrorMessage(
             data,
-            'Checkout could not be started. Please check your information or call 832-437-2807.',
+            ticket?.type === 'free_rsvp'
+              ? 'Your RSVP could not be started. Please check your information or call 832-437-2807.'
+              : 'Checkout could not be started. Please check your information or call 832-437-2807.',
           ),
         },
       }));
@@ -241,7 +243,9 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
         ...current,
         [key]: {
           tone: 'error',
-          text: 'Checkout service is unavailable right now. Please try again or call 832-437-2807.',
+          text: ticket?.type === 'free_rsvp'
+            ? 'The RSVP service is unavailable right now. Please try again or call 832-437-2807.'
+            : 'Checkout service is unavailable right now. Please try again or call 832-437-2807.',
         },
       }));
     } finally {
@@ -325,7 +329,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                 </label>
 
                 <button className="button" type="submit" disabled={disabled || isPending}>
-                  {isPending ? 'Opening Checkout…' : buttonLabel(event, ticket)}
+                  {isPending ? (ticket?.type === 'free_rsvp' ? 'Reserving…' : 'Opening Checkout…') : buttonLabel(event, ticket)}
                 </button>
 
                 {message && (

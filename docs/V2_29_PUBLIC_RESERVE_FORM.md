@@ -1,62 +1,45 @@
 # v2.29 Public Reserve Form
 
-## What changed
-
-The public KV Website reserve page now contains a customer-facing reservation request form at `/reserve`. It no longer sends customers to a KVRS admin page.
-
-The form submits to a KV Website proxy route:
-
-```text
-POST /api/reserve
-```
-
-That proxy forwards the request server-side to KV ReservationService:
-
-```text
-POST http://localhost:3001/api/public/reservations/request
-```
-
 ## Architecture
 
-KV Website remains the public frontend. KVRS remains the backend/admin/source of truth.
-
-Flow:
+The public Website reservation page remains an approval-first request flow. It does not send customers to an admin page and it does not auto-confirm reservations.
 
 ```text
 KV Website /reserve form
-→ KV Website /api/reserve proxy
-→ KVRS /api/public/reservations/request
-→ KVRS creates pending manager-review reservation
-→ Mo/team reviews later in KVRS /admin/reservations
+→ POST KV Website /api/reserve
+→ POST KVRS /api/public/reservations/request
+→ KVRS creates a pending manager-review reservation
+→ manager/team reviews it in KVRS admin
 ```
 
-## Environment variables
+KV Website remains the public frontend. KVRS remains the backend/admin/source of truth.
 
-Local development:
+## Shared KVRS configuration
+
+`/api/reserve` now obtains its destination from the same Website KVRS resolver used by feeds, assets, wallet lookup, job applications, checkout, and Staff Login.
+
+Preferred local configuration:
 
 ```env
-NEXT_PUBLIC_KVRS_URL=http://localhost:3001
+NEXT_PUBLIC_KVRS_BASE_URL=http://localhost:3001
+KVRS_BASE_URL=http://localhost:3001
 ```
 
-Optional server-side override:
+Final Production configuration after coordinated KVRS cutover:
 
 ```env
-KVRS_URL=http://localhost:3001
+NEXT_PUBLIC_KVRS_BASE_URL=https://admin.katyvibes.com
+KVRS_BASE_URL=https://admin.katyvibes.com
 ```
 
-Production will likely use the final KVRS domain, such as:
+Legacy `KVRS_URL`, `KVRS_PUBLIC_URL`, and `NEXT_PUBLIC_KVRS_URL` aliases remain transition fallbacks only. They cannot silently override a conflicting canonical host.
 
-```env
-NEXT_PUBLIC_KVRS_URL=https://admin.katyvibes.com
-KVRS_URL=https://admin.katyvibes.com
-```
-
-No secrets are required for this public request flow.
+No secrets are required for this public reservation-request flow.
 
 ## Fallback behavior
 
-If KVRS is offline or the public API fails, the website does not crash. The form displays a customer-safe message telling guests to call Katy Vibes at 832-437-2807.
+If KVRS is offline or the public API fails, the Website returns a customer-safe message directing guests to call Katy Vibes at 832-437-2807.
 
-## Notes
+## Ownership
 
-This form does not auto-confirm reservations. It creates a request for manager review.
+The Website does not store authoritative reservations, orders, payments, tickets, or event inventory. Reservation approval and persistence remain in KVRS.

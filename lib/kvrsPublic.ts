@@ -1,61 +1,17 @@
+import { getKvrsServerConfig } from '@/lib/kvrsServerConfig';
+
 const kvrsUploadAssetPathPattern = /^\/uploads\/(?:events-manager|site-media)\//;
 
-function cleanBaseUrl(value: string) {
-  return value.replace(/\/$/, '');
-}
-
-function baseUrlFromPublicApi(value?: string | null) {
-  if (!value) return null;
-
-  try {
-    const url = new URL(value);
-    url.pathname = url.pathname.replace(/\/api\/public\/?$/, '').replace(/\/$/, '');
-    url.search = '';
-    url.hash = '';
-    return cleanBaseUrl(url.toString());
-  } catch {
-    return null;
-  }
-}
-
 export function kvrsBaseUrl() {
-  const raw =
-    process.env.NEXT_PUBLIC_KVRS_URL ||
-    process.env.NEXT_PUBLIC_KVRS_BASE_URL ||
-    'http://localhost:3001';
-
-  return cleanBaseUrl(raw);
-}
-
-function isWebsiteLocalhostBase(value: string) {
-  try {
-    const url = new URL(value);
-    return (url.hostname === 'localhost' || url.hostname === '127.0.0.1') && url.port === '3000';
-  } catch {
-    return false;
-  }
+  return getKvrsServerConfig().baseUrl;
 }
 
 export function kvrsAssetBaseUrl() {
-  const configuredBase = cleanBaseUrl(
-    process.env.NEXT_PUBLIC_KVRS_URL || process.env.NEXT_PUBLIC_KVRS_BASE_URL || ''
-  );
-
-  return (
-    (configuredBase && !isWebsiteLocalhostBase(configuredBase) ? configuredBase : null) ||
-    baseUrlFromPublicApi(process.env.KVRS_PUBLIC_API_BASE_URL) ||
-    baseUrlFromPublicApi(process.env.NEXT_PUBLIC_KVRS_PUBLIC_API_BASE_URL) ||
-    kvrsBaseUrl()
-  );
+  return getKvrsServerConfig().assetBaseUrl;
 }
 
 export function kvrsPublicApiBaseUrl() {
-  const raw =
-    process.env.KVRS_PUBLIC_API_BASE_URL ||
-    process.env.NEXT_PUBLIC_KVRS_PUBLIC_API_BASE_URL ||
-    `${kvrsBaseUrl()}/api/public`;
-
-  return cleanBaseUrl(raw);
+  return getKvrsServerConfig().publicApiBaseUrl;
 }
 
 export function resolveKvrsPublicAssetUrl(value?: string | null) {

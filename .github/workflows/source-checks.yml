@@ -1,0 +1,31 @@
+name: Website source checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  source-checks:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_KVRS_BASE_URL: http://localhost:3001
+      KVRS_BASE_URL: http://localhost:3001
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+
+      - name: Verify final Production resolver policy
+        env:
+          NEXT_PUBLIC_KVRS_BASE_URL: https://admin.katyvibes.com
+          KVRS_BASE_URL: https://admin.katyvibes.com
+        run: npm run verify:kvrs-production

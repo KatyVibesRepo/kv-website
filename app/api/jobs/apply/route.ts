@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getKvrsServerConfig } from '@/lib/kvrsServerConfig';
 
 type JobApplicationPayload = {
   applicantName?: string;
@@ -21,23 +22,6 @@ function cleanText(value: unknown) {
 
 function cleanBool(value: unknown) {
   return value === true;
-}
-
-function kvrsBaseUrl() {
-  return (
-    process.env.KVRS_API_URL ||
-    process.env.NEXT_PUBLIC_KVRS_URL ||
-    process.env.NEXT_PUBLIC_KVRS_BASE_URL ||
-    'http://localhost:3001'
-  ).replace(/\/$/, '');
-}
-
-function kvrsJobApplicationsUrl() {
-  const base = kvrsBaseUrl();
-  if (base.endsWith('/api/public')) {
-    return `${base}/job-applications`;
-  }
-  return `${base}/api/public/job-applications`;
 }
 
 function validate(payload: JobApplicationPayload) {
@@ -87,7 +71,7 @@ export async function POST(request: NextRequest) {
   };
 
   try {
-    const response = await fetch(kvrsJobApplicationsUrl(), {
+    const response = await fetch(getKvrsServerConfig().jobApplicationsUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

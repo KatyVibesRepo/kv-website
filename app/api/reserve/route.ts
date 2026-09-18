@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getKvrsServerConfig } from '@/lib/kvrsServerConfig';
 
 export const runtime = 'nodejs';
 
@@ -15,16 +16,6 @@ type ReservationRequestPayload = {
   occasion?: string;
   notes?: string;
 };
-
-function kvrsBaseUrl() {
-  return (
-    process.env.KVRS_URL ||
-    process.env.KVRS_PUBLIC_URL ||
-    process.env.NEXT_PUBLIC_KVRS_URL ||
-    process.env.NEXT_PUBLIC_KVRS_BASE_URL ||
-    'http://localhost:3001'
-  ).replace(/\/$/, '');
-}
 
 function cleanString(value: unknown) {
   if (typeof value !== 'string') return '';
@@ -83,7 +74,7 @@ export async function POST(request: Request) {
   };
 
   try {
-    const response = await fetch(`${kvrsBaseUrl()}/api/public/reservations/request`, {
+    const response = await fetch(getKvrsServerConfig().reservationRequestUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
