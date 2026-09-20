@@ -57,6 +57,22 @@ function priceSummary(event: EventDetail) {
   return null;
 }
 
+function NonTicketedPrimaryAction({ event }: { event: EventDetail }) {
+  if (
+    event.saleStatus === 'free_entry' &&
+    !event.isReservationEnabled &&
+    !event.isTableReservationEnabled
+  ) {
+    return (
+      <a className="button hot" href="/contact">
+        Plan Your Visit
+      </a>
+    );
+  }
+
+  return <PublicEventCta event={event} />;
+}
+
 export async function generateMetadata({ params }: EventDetailPageProps) {
   const { slug } = await params;
   const event = await getPublicEvent(slug);
@@ -149,7 +165,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               {isTicketedEvent ? (
                 <a className="button hot" href="#event-ticket-options">Choose Tickets</a>
               ) : (
-                <PublicEventCta event={event} />
+                <NonTicketedPrimaryAction event={event} />
               )}
               <a className="button ghost" href="tel:18324372807">Call 832-437-2807</a>
               <a className="button ghost" href="/events">Back to Events</a>
@@ -218,7 +234,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             {isTicketedEvent ? (
               <a className="button" href="#event-ticket-options">Choose Tickets</a>
             ) : (
-              <PublicEventCta event={event} />
+              <NonTicketedPrimaryAction event={event} />
             )}
             <p className="muted">
               {isTicketedEvent
