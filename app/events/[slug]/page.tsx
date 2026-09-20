@@ -4,13 +4,14 @@ import { EventTicketCheckoutCards } from '@/components/EventTicketCheckoutCards'
 import {
   formatEventDateTime,
   getPublicEvent,
-  getPublicEvents,
   moneyFromCents,
 } from '@/lib/kvrsEvents';
 
 type EventDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export const dynamic = 'force-dynamic';
 
 type EventDetail = NonNullable<Awaited<ReturnType<typeof getPublicEvent>>>;
 type FlyerPreference = 'default' | 'portrait' | 'square' | 'tall' | 'wide' | 'landscape';
@@ -56,6 +57,22 @@ function priceSummary(event: EventDetail) {
   return null;
 }
 
+function NonTicketedPrimaryAction({ event }: { event: EventDetail }) {
+  if (
+    event.saleStatus === 'free_entry' &&
+    !event.isReservationEnabled &&
+    !event.isTableReservationEnabled
+  ) {
+    return (
+      <a className="button hot" href="/contact">
+        Plan Your Visit
+      </a>
+    );
+  }
+
+  return <PublicEventCta event={event} />;
+}
+
 export async function generateMetadata({ params }: EventDetailPageProps) {
   const { slug } = await params;
   const event = await getPublicEvent(slug);
@@ -87,13 +104,6 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
   };
 }
 
-export async function generateStaticParams() {
-  const events = await getPublicEvents();
-
-  return events.map((event) => ({
-    slug: event.slug,
-  }));
-}
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { slug } = await params;
@@ -155,18 +165,23 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
               {isTicketedEvent ? (
                 <a className="button hot" href="#event-ticket-options">Choose Tickets</a>
               ) : (
-                <PublicEventCta event={event} />
+                <NonTicketedPrimaryAction event={event} />
               )}
               <a className="button ghost" href="tel:18324372807">Call 832-437-2807</a>
               <a className="button ghost" href="/events">Back to Events</a>
             </div>
           </div>
 
-          {flyerImage && (
-            <figure className="public-event-detail-flyer">
+          <figure className="public-event-detail-flyer">
+            {flyerImage ? (
               <img src={flyerImage} alt={event.flyerAlt || `${event.title} flyer`} />
-            </figure>
-          )}
+            ) : (
+              <div className="event-flyer-placeholder">
+                <span>Katy Vibes</span>
+                <strong>{event.title}</strong>
+              </div>
+            )}
+          </figure>
         </div>
       </article>
 
@@ -219,7 +234,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             {isTicketedEvent ? (
               <a className="button" href="#event-ticket-options">Choose Tickets</a>
             ) : (
-              <PublicEventCta event={event} />
+              <NonTicketedPrimaryAction event={event} />
             )}
             <p className="muted">
               {isTicketedEvent
