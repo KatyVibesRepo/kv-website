@@ -4,13 +4,14 @@ import { EventTicketCheckoutCards } from '@/components/EventTicketCheckoutCards'
 import {
   formatEventDateTime,
   getPublicEvent,
-  getPublicEvents,
   moneyFromCents,
 } from '@/lib/kvrsEvents';
 
 type EventDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export const dynamic = 'force-dynamic';
 
 type EventDetail = NonNullable<Awaited<ReturnType<typeof getPublicEvent>>>;
 type FlyerPreference = 'default' | 'portrait' | 'square' | 'tall' | 'wide' | 'landscape';
@@ -87,13 +88,6 @@ export async function generateMetadata({ params }: EventDetailPageProps) {
   };
 }
 
-export async function generateStaticParams() {
-  const events = await getPublicEvents();
-
-  return events.map((event) => ({
-    slug: event.slug,
-  }));
-}
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
   const { slug } = await params;
@@ -162,11 +156,16 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             </div>
           </div>
 
-          {flyerImage && (
-            <figure className="public-event-detail-flyer">
+          <figure className="public-event-detail-flyer">
+            {flyerImage ? (
               <img src={flyerImage} alt={event.flyerAlt || `${event.title} flyer`} />
-            </figure>
-          )}
+            ) : (
+              <div className="event-flyer-placeholder">
+                <span>Katy Vibes</span>
+                <strong>{event.title}</strong>
+              </div>
+            )}
+          </figure>
         </div>
       </article>
 
