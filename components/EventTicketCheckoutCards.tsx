@@ -503,6 +503,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
   async function handleSubmit(ticket: TicketChoice, formEvent: FormEvent<HTMLFormElement>) {
     formEvent.preventDefault();
 
+    const form = formEvent.currentTarget;
     const key = ticketKey(event, ticket);
     const freeReservation = isFreeReservationChoice(event, ticket);
 
@@ -650,7 +651,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
               || 'Your RSVP request was received. Katy Vibes management will review it before confirmation.',
           },
         }));
-        formEvent.currentTarget.reset();
+        form.reset();
         return;
       }
 
