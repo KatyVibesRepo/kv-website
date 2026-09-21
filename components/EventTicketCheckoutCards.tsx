@@ -16,6 +16,15 @@ type EventTicketCheckoutCardsProps = {
 
 type TicketChoice = PublicTicketType | null;
 
+type TicketShowGroup = {
+  key: string;
+  title: string | null;
+  detail: string | null;
+  tone: string;
+  order: number;
+  tickets: TicketChoice[];
+};
+
 type FormMessage = {
   tone: 'success' | 'muted' | 'error';
   text: string;
@@ -140,6 +149,160 @@ function ticketShowCoverage(event: PublicEvent, ticket: TicketChoice) {
     .join(' + ')}`;
 }
 
+
+function buildTicketShowGroups(event: PublicEvent, choices: TicketChoice[]): TicketShowGroup[] {
+  const eventShows = event.shows || [];
+
+  if (eventShows.length === 0) {
+    return [
+      {
+        key: 'event-options',
+        title: 'Tickets & Tables',
+        detail: null,
+        tone: 'all',
+        order: 0,
+        tickets: choices,
+      },
+    ];
+  }
+
+  if (eventShows.length === 1) {
+    const show = eventShows[0];
+
+    return [
+      {
+        key: `show:${show.id}`,
+        title: show.name || 'Tickets & Tables',
+        detail: formatShowTimeRange(
+          show,
+          event.timezone || 'America/Chicago',
+        ),
+        tone: 'show-0',
+        order: 0,
+        tickets: choices,
+      },
+    ];
+  }
+
+  const groups = new Map<string, TicketShowGroup>();
+  const showIndexes = new Map(eventShows.map((show, index) => [show.id, index]));
+
+  const ensureGroup = (group: Omit<TicketShowGroup, 'tickets'>) => {
+    const existing = groups.get(group.key);
+
+    if (existing) return existing;
+
+    const created: TicketShowGroup = {
+      ...group,
+      tickets: [],
+    };
+
+    groups.set(group.key, created);
+    return created;
+  };
+
+  for (const ticket of choices) {
+    if (!ticket?.showIds?.length) {
+      ensureGroup({
+        key: 'other',
+        title: 'Other Ticket Options',
+        detail: 'Additional ticket and table options for this event.',
+        tone: 'other',
+        order: 1000,
+      }).tickets.push(ticket);
+
+      continue;
+    }
+
+    const coveredIds = new Set(ticket.showIds);
+    const coveredShows = eventShows.filter((show) => coveredIds.has(show.id));
+
+    if (!coveredShows.length) {
+      ensureGroup({
+        key: 'other',
+        title: 'Other Ticket Options',
+        detail: 'Additional ticket and table options for this event.',
+        tone: 'other',
+        order: 1000,
+      }).tickets.push(ticket);
+
+      continue;
+    }
+
+    const coversAllShows =
+      coveredShows.length === eventShows.length &&
+      eventShows.every((show) => coveredIds.has(show.id));
+
+    if (coversAllShows) {
+      const title = eventShows.length === 2 ? 'Both Shows' : 'All Shows';
+
+      const detail = coveredShows
+        .map((show) => {
+          const time = formatShowTimeRange(
+            show,
+            event.timezone || 'America/Chicago',
+          );
+
+          return time ? `${show.name} ${time}` : show.name;
+        })
+        .join(' + ');
+
+      ensureGroup({
+        key: 'all-shows',
+        title,
+        detail,
+        tone: 'all',
+        order: 0,
+      }).tickets.push(ticket);
+
+      continue;
+    }
+
+    if (coveredShows.length === 1) {
+      const show = coveredShows[0];
+      const showIndex = showIndexes.get(show.id) ?? 0;
+
+      ensureGroup({
+        key: `show:${show.id}`,
+        title: show.name,
+        detail: formatShowTimeRange(
+          show,
+          event.timezone || 'America/Chicago',
+        ),
+        tone: `show-${showIndex % 3}`,
+        order: 10 + showIndex,
+      }).tickets.push(ticket);
+
+      continue;
+    }
+
+    const coveredIndexes = coveredShows.map(
+      (show) => showIndexes.get(show.id) ?? 999,
+    );
+
+    const firstIndex = Math.min(...coveredIndexes);
+
+    ensureGroup({
+      key: `shows:${coveredShows.map((show) => show.id).join('|')}`,
+      title: coveredShows.map((show) => show.name).join(' + '),
+      detail: coveredShows
+        .map((show) => {
+          const time = formatShowTimeRange(
+            show,
+            event.timezone || 'America/Chicago',
+          );
+
+          return time ? `${show.name} ${time}` : show.name;
+        })
+        .join(' + '),
+      tone: `show-${firstIndex % 3}`,
+      order: 100 + firstIndex,
+    }).tickets.push(ticket);
+  }
+
+  return Array.from(groups.values()).sort((a, b) => a.order - b.order);
+}
+
 function ticketPrice(event: PublicEvent, ticket: TicketChoice) {
   if (ticket) {
     return ticket.priceCents > 0 ? formatMoney(ticket.priceCents, ticket.currency) : 'Free';
@@ -232,6 +395,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     if (event.isTicketed || event.ticketSummary?.isTicketed) return [null];
     return [];
   }, [event.isTicketed, event.ticketSummary?.isTicketed, ticketTypes]);
+
+  const showGroups = useMemo(
+    () => buildTicketShowGroups(event, choices),
+    [event, choices],
+  );
 
   if (!choices.length) return null;
 
@@ -340,8 +508,30 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
         </div>
       </div>
 
-      <div className="event-ticket-option-grid">
-        {choices.map((ticket) => {
+      <div className="event-ticket-show-groups">
+        {showGroups.map((group) => (
+          <section
+            className="event-ticket-show-group"
+            data-show-tone={group.tone}
+            key={group.key}
+          >
+            {group.title && (
+              <div className="event-ticket-show-group-header">
+                <div>
+                  <div className="eyebrow">Ticket Options</div>
+                  <h3>{group.title}</h3>
+                  {group.detail && <p>{group.detail}</p>}
+                </div>
+
+                <span className="event-ticket-show-group-count">
+                  {group.tickets.length}{' '}
+                  {group.tickets.length === 1 ? 'option' : 'options'}
+                </span>
+              </div>
+            )}
+
+            <div className="event-ticket-option-grid">
+              {group.tickets.map((ticket) => {
           const key = ticketKey(event, ticket);
           const disabled = isCheckoutDisabled(event, ticket);
           const message = messages[key];
@@ -421,7 +611,10 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
               </form>
             </article>
           );
-        })}
+              })}
+            </div>
+          </section>
+        ))}
       </div>
     </section>
   );
