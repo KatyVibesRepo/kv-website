@@ -321,19 +321,30 @@ function buildTicketShowGroups(event: PublicEvent, choices: TicketChoice[]): Tic
 }
 
 function ticketSelectableShows(event: PublicEvent, ticket: TicketChoice) {
-  if (
-    !ticket
-    || String(ticket.scope || 'EVENT').toUpperCase() !== 'SHOWS'
-    || !ticket.showIds?.length
-    || !event.shows?.length
-  ) {
-    return [];
+  if (!event.shows?.length) return [];
+
+  const availableShows = event.shows.filter(
+    (show) => show.transactionEnabled !== false,
+  );
+
+  if (!ticket) {
+    return isFreeReservationChoice(event, ticket)
+      ? availableShows
+      : [];
   }
+
+  if (String(ticket.scope || 'EVENT').toUpperCase() !== 'SHOWS') {
+    return isFreeReservationChoice(event, ticket)
+      ? availableShows
+      : [];
+  }
+
+  if (!ticket.showIds?.length) return [];
 
   const coveredIds = new Set(ticket.showIds);
 
-  return event.shows.filter(
-    (show) => coveredIds.has(show.id) && show.transactionEnabled !== false,
+  return availableShows.filter(
+    (show) => coveredIds.has(show.id),
   );
 }
 
@@ -437,7 +448,13 @@ function isCheckoutDisabled(event: PublicEvent, ticket: TicketChoice) {
     if (ticket.status && !['active', 'published', 'available', 'on_sale'].includes(ticket.status)) return true;
 
     if (
-      String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS'
+      (
+        String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS'
+        || (
+          isFreeReservationChoice(event, ticket)
+          && Boolean(event.shows?.length)
+        )
+      )
       && ticketSelectableShows(event, ticket).length === 0
     ) {
       return true;
@@ -531,9 +548,18 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     const showId = readFormValue(formData, 'showId');
     const selectableShows = ticketSelectableShows(event, ticket);
 
+    const requiresShowSelection =
+      Boolean(
+        ticket
+        && String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS',
+      )
+      || (
+        freeReservation
+        && Boolean(event.shows?.length)
+      );
+
     if (
-      ticket
-      && String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS'
+      requiresShowSelection
       && (!showId || !selectableShows.some((show) => show.id === showId))
     ) {
       setMessages((current) => ({
@@ -731,11 +757,16 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           const maxQuantity = quantityMax(event, ticket);
           const showCoverage = ticketShowCoverage(event, ticket);
           const selectableShows = ticketSelectableShows(event, ticket);
-          const showScoped = Boolean(
-            ticket
-            && String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS',
-          );
           const freeReservation = isFreeReservationChoice(event, ticket);
+          const requiresShowSelection =
+            Boolean(
+              ticket
+              && String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS',
+            )
+            || (
+              freeReservation
+              && Boolean(event.shows?.length)
+            );
 
           return (
             <article className="event-ticket-purchase-card card" key={key}>
@@ -760,11 +791,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                 <input type="hidden" name="ticketTypeId" value={ticket?.id || ''} />
                 <input type="hidden" name="ticketTypeName" value={ticketName(event, ticket)} />
 
-                {showScoped && selectableShows.length === 1 ? (
+                {requiresShowSelection && selectableShows.length === 1 ? (
                   <input type="hidden" name="showId" value={selectableShows[0].id} />
                 ) : null}
 
-                {showScoped && selectableShows.length > 1 ? (
+                {requiresShowSelection && selectableShows.length > 1 ? (
                   <label>
                     <span>Choose Show</span>
                     <select name="showId" defaultValue="" required>
@@ -785,7 +816,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   </label>
                 ) : null}
 
-                {showScoped && selectableShows.length === 0 ? (
+                {requiresShowSelection && selectableShows.length === 0 ? (
                   <p className="ticket-form-message error">
                     No eligible show is currently available for this option.
                   </p>
