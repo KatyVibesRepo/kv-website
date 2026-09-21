@@ -303,6 +303,23 @@ function buildTicketShowGroups(event: PublicEvent, choices: TicketChoice[]): Tic
   return Array.from(groups.values()).sort((a, b) => a.order - b.order);
 }
 
+function ticketSelectableShows(event: PublicEvent, ticket: TicketChoice) {
+  if (
+    !ticket
+    || String(ticket.scope || 'EVENT').toUpperCase() !== 'SHOWS'
+    || !ticket.showIds?.length
+    || !event.shows?.length
+  ) {
+    return [];
+  }
+
+  const coveredIds = new Set(ticket.showIds);
+
+  return event.shows.filter(
+    (show) => coveredIds.has(show.id) && show.transactionEnabled !== false,
+  );
+}
+
 function ticketPrice(event: PublicEvent, ticket: TicketChoice) {
   if (ticket) {
     return ticket.priceCents > 0 ? formatMoney(ticket.priceCents, ticket.currency) : 'Free';
@@ -324,16 +341,21 @@ function ticketAvailableText(ticket: TicketChoice) {
   return `${ticket.quantityAvailable} available`;
 }
 
+function isGeneralAdmissionTicket(ticket: TicketChoice) {
+  return ticket?.type === 'general_admission';
+}
+
 function quantityMin(ticket: TicketChoice) {
-  if (!ticket) return 1;
+  if (!ticket || !isGeneralAdmissionTicket(ticket)) return 1;
   return Math.max(1, ticket.minQuantity || 1);
 }
 
 function quantityMax(ticket: TicketChoice) {
-  const min = quantityMin(ticket);
-  if (!ticket) return 1;
+  if (!ticket || !isGeneralAdmissionTicket(ticket)) return 1;
 
+  const min = quantityMin(ticket);
   const configuredMax = Math.max(min, ticket.maxQuantity || min);
+
   if (ticket.quantityAvailable > 0) {
     return Math.max(min, Math.min(configuredMax, ticket.quantityAvailable));
   }
@@ -342,7 +364,7 @@ function quantityMax(ticket: TicketChoice) {
 }
 
 function shouldShowQuantity(ticket: TicketChoice) {
-  return quantityMax(ticket) > quantityMin(ticket);
+  return isGeneralAdmissionTicket(ticket) && quantityMax(ticket) > quantityMin(ticket);
 }
 
 function buttonLabel(event: PublicEvent, ticket: TicketChoice) {
@@ -362,6 +384,14 @@ function isCheckoutDisabled(event: PublicEvent, ticket: TicketChoice) {
     if (ticket.checkoutEnabled === false || ticket.action?.enabled === false) return true;
     if (ticket.quantityAvailable <= 0) return true;
     if (ticket.status && !['active', 'published', 'available', 'on_sale'].includes(ticket.status)) return true;
+
+    if (
+      String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS'
+      && ticketSelectableShows(event, ticket).length === 0
+    ) {
+      return true;
+    }
+
     return false;
   }
 
@@ -426,9 +456,27 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     const min = quantityMin(ticket);
     const max = quantityMax(ticket);
     const safeQuantity = Math.max(min, Math.min(max, quantity));
+    const showId = readFormValue(formData, 'showId');
+    const selectableShows = ticketSelectableShows(event, ticket);
+
+    if (
+      ticket
+      && String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS'
+      && (!showId || !selectableShows.some((show) => show.id === showId))
+    ) {
+      setMessages((current) => ({
+        ...current,
+        [key]: {
+          tone: 'error',
+          text: 'Please choose an available show for this ticket or table option.',
+        },
+      }));
+      return;
+    }
 
     const payload = {
       ticketTypeId: ticket?.id,
+      showId: showId || null,
       quantity: safeQuantity,
       customerName: readFormValue(formData, 'customerName'),
       customerEmail: readFormValue(formData, 'customerEmail'),
@@ -539,6 +587,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           const minQuantity = quantityMin(ticket);
           const maxQuantity = quantityMax(ticket);
           const showCoverage = ticketShowCoverage(event, ticket);
+          const selectableShows = ticketSelectableShows(event, ticket);
+          const showScoped = Boolean(
+            ticket
+            && String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS',
+          );
 
           return (
             <article className="event-ticket-purchase-card card" key={key}>
@@ -562,6 +615,37 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                 <input type="hidden" name="eventSlug" value={event.slug} />
                 <input type="hidden" name="ticketTypeId" value={ticket?.id || ''} />
                 <input type="hidden" name="ticketTypeName" value={ticketName(ticket)} />
+
+                {showScoped && selectableShows.length === 1 ? (
+                  <input type="hidden" name="showId" value={selectableShows[0].id} />
+                ) : null}
+
+                {showScoped && selectableShows.length > 1 ? (
+                  <label>
+                    <span>Choose Show</span>
+                    <select name="showId" defaultValue="" required>
+                      <option value="" disabled>Select a show</option>
+                      {selectableShows.map((show) => {
+                        const time = formatShowTimeRange(
+                          show,
+                          event.timezone || 'America/Chicago',
+                        );
+
+                        return (
+                          <option key={show.id} value={show.id}>
+                            {time ? `${show.name} — ${time}` : show.name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </label>
+                ) : null}
+
+                {showScoped && selectableShows.length === 0 ? (
+                  <p className="ticket-form-message error">
+                    No eligible show is currently available for this option.
+                  </p>
+                ) : null}
 
                 {shouldShowQuantity(ticket) ? (
                   <label>
