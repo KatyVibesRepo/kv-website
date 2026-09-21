@@ -7,11 +7,16 @@ const checkoutCardsSource = await readFile(
   'utf8',
 );
 
-test('show-scoped checkout submits the authoritative show ID', () => {
+test('single-show checkout submits the authoritative show ID', () => {
   assert.match(
     checkoutCardsSource,
     /showId:\s*showId \|\| null/,
-    'checkout payload must carry the selected authoritative showId',
+    'checkout payload must carry an exact showId when one is required',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /ticket\.showIds\?\.length === 1/,
+    'only one-show SHOWS products require a singular show selection',
   );
   assert.match(
     checkoutCardsSource,
@@ -20,13 +25,21 @@ test('show-scoped checkout submits the authoritative show ID', () => {
   );
   assert.match(
     checkoutCardsSource,
-    /<select name="showId"[^>]*required/,
-    'shared multi-show products must require a show selection',
+    /const availableShows = event\.shows\.filter\([\s\S]{0,120}show\.transactionEnabled !== false/,
+    'show choices must come only from transaction-enabled event shows',
+  );
+});
+
+test('multi-show whole-night products submit no singular show selection', () => {
+  assert.match(
+    checkoutCardsSource,
+    /if \(ticket\.showIds\.length > 1\) return \[\];/,
+    'multi-show Contract-v1 products must not offer a singular show selector',
   );
   assert.match(
     checkoutCardsSource,
-    /const availableShows = event\.shows\.filter\([\s\S]{0,120}show\.transactionEnabled !== false/,
-    'show choices must come only from transaction-enabled event shows',
+    /ticketScope === 'SHOWS'[\s\S]{0,120}ticket\.showIds\?\.length === 1/,
+    'show selection must be limited to exact one-show products',
   );
 });
 
@@ -86,7 +99,7 @@ test('RSVP-only events can render a free reservation form without a ticket produ
 test('timed free RSVP requires an authoritative show selection even for event-scoped RSVP', () => {
   assert.match(
     checkoutCardsSource,
-    /freeReservation\s*&&\s*Boolean\(event\.shows\?\.length\)/,
+    /ticketScope !== 'SHOWS'[\s\S]{0,120}freeReservation[\s\S]{0,120}Boolean\(event\.shows\?\.length\)/,
   );
   assert.match(
     checkoutCardsSource,
