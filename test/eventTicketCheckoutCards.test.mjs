@@ -64,10 +64,10 @@ test('free RSVP uses the no-payment KVRS reservation endpoint with idempotency',
   assert.match(checkoutCardsSource, /partySize: safeQuantity/);
   assert.match(checkoutCardsSource, /crypto\.randomUUID\(\)/);
   assert.match(checkoutCardsSource, /'Idempotency-Key': idempotencyKey/);
-  assert.doesNotMatch(
+  assert.match(
     checkoutCardsSource,
-    /freeReservation[\s\S]{0,800}ticketTypeId:/,
-    'free RSVP payload must not be sent through the paid checkout shape',
+    /freeReservation\s*\?\s*kvrsFreeReservationEndpoint\(\)\s*:\s*kvrsCheckoutEndpoint\(\)/,
+    'free RSVP must choose the reservation endpoint instead of Stripe checkout',
   );
 });
 
