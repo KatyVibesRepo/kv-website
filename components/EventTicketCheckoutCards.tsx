@@ -1,7 +1,12 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
-import type { PublicEvent, PublicSaleStatus, PublicTicketType } from '@/lib/kvrsEvents';
+import type {
+  PublicEvent,
+  PublicEventShow,
+  PublicSaleStatus,
+  PublicTicketType,
+} from '@/lib/kvrsEvents';
 import { resolveKvrsConfig } from '@/lib/kvrsConfig.mjs';
 
 type EventTicketCheckoutCardsProps = {
@@ -63,6 +68,76 @@ function ticketName(ticket: TicketChoice) {
 
 function ticketDescription(event: PublicEvent, ticket: TicketChoice) {
   return ticket?.description || event.shortDescription || event.subtitle || '';
+}
+
+function formatShowClockTime(value: string, timezone: string) {
+  const date = new Date(value);
+
+  if (!Number.isFinite(date.getTime())) return null;
+
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: timezone,
+    hour: 'numeric',
+    minute: '2-digit',
+  };
+
+  try {
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  } catch {
+    return new Intl.DateTimeFormat('en-US', {
+      ...options,
+      timeZone: 'America/Chicago',
+    }).format(date);
+  }
+}
+
+function formatShowTimeRange(show: PublicEventShow, eventTimezone: string) {
+  const timezone = show.timezone || eventTimezone || 'America/Chicago';
+  const start = formatShowClockTime(show.startsAt, timezone);
+
+  if (!start) return null;
+
+  if (!show.endsAt) return start;
+
+  const end = formatShowClockTime(show.endsAt, timezone);
+
+  return end ? `${start}–${end}` : start;
+}
+
+function ticketShowCoverage(event: PublicEvent, ticket: TicketChoice) {
+  if (!ticket?.showIds?.length || !event.shows?.length) return null;
+
+  const coveredIds = new Set(ticket.showIds);
+  const coveredShows = event.shows.filter((show) => coveredIds.has(show.id));
+
+  if (!coveredShows.length) return null;
+
+  const showDetail = (show: PublicEventShow, includeBullet: boolean) => {
+    const timeRange = formatShowTimeRange(show, event.timezone || 'America/Chicago');
+
+    if (!timeRange) return show.name;
+
+    return includeBullet
+      ? `${show.name} • ${timeRange}`
+      : `${show.name} ${timeRange}`;
+  };
+
+  const coversAllShows =
+    coveredShows.length === event.shows.length &&
+    event.shows.every((show) => coveredIds.has(show.id));
+
+  if (coversAllShows && event.shows.length > 1) {
+    const label = event.shows.length === 2 ? 'Both Shows' : 'All Shows';
+    return `${label} • ${coveredShows.map((show) => showDetail(show, false)).join(' + ')}`;
+  }
+
+  if (coveredShows.length === 1) {
+    return showDetail(coveredShows[0], true);
+  }
+
+  return `${coveredShows.length} Shows • ${coveredShows
+    .map((show) => showDetail(show, false))
+    .join(' + ')}`;
 }
 
 function ticketPrice(event: PublicEvent, ticket: TicketChoice) {
@@ -273,6 +348,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           const isPending = Boolean(pending[key]);
           const minQuantity = quantityMin(ticket);
           const maxQuantity = quantityMax(ticket);
+          const showCoverage = ticketShowCoverage(event, ticket);
 
           return (
             <article className="event-ticket-purchase-card card" key={key}>
@@ -285,6 +361,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
               </div>
 
               <div className="ticket-purchase-meta" aria-label="Ticket details">
+                {showCoverage && <span>{showCoverage}</span>}
                 <span>{ticketGuestText(ticket)}</span>
                 <span>{ticketAvailableText(ticket)}</span>
                 {ticket?.type && <span>{ticket.type.replace(/_/g, ' ')}</span>}

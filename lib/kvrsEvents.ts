@@ -38,6 +38,20 @@ export type PublicTicketAction = {
   reason?: string | null;
 };
 
+export type PublicEventShow = {
+  id: string;
+  name: string;
+  startsAt: string;
+  endsAt: string | null;
+  doorsAt: string | null;
+  timezone: string;
+  status: string;
+  definitionState?: string | null;
+  isVisible?: boolean;
+  sortOrder?: number;
+  transactionEnabled?: boolean;
+};
+
 export type PublicTicketType = {
   id: string;
   name: string;
@@ -55,6 +69,8 @@ export type PublicTicketType = {
   checkoutUrl?: string | null;
   actionLabel?: string | null;
   action?: PublicTicketAction | null;
+  scope?: string | null;
+  showIds?: string[];
 };
 
 export type PublicWebsiteButtons = {
@@ -74,6 +90,7 @@ export type PublicEvent = {
   endsAt: string | null;
   doorsAt: string | null;
   timezone: string;
+  shows?: PublicEventShow[];
   venueName: string;
   venueAddress: string | null;
   category: string;
@@ -298,6 +315,12 @@ function normalizeTicketType(ticket: PublicTicketType): PublicTicketType {
     maxQuantity: Number.isFinite(ticket.maxQuantity) ? ticket.maxQuantity : 1,
     quantityAvailable: Number.isFinite(ticket.quantityAvailable) ? ticket.quantityAvailable : 0,
     status: ticket.status || 'active',
+    scope: ticket.scope || null,
+    showIds: Array.isArray(ticket.showIds)
+      ? ticket.showIds.filter(
+          (showId): showId is string => typeof showId === 'string' && showId.length > 0
+        )
+      : [],
     checkoutUrl: ticket.checkoutUrl ? resolveKvrsAssetUrl(ticket.checkoutUrl) : null,
     action: normalizeTicketAction(ticket.action),
   };
@@ -330,6 +353,12 @@ function normalizeEvent(event: PublicEvent): PublicEvent {
   return {
     ...event,
     tags: Array.isArray(event.tags) ? event.tags : [],
+    shows: Array.isArray(event.shows)
+      ? event.shows.map((show) => ({
+          ...show,
+          timezone: show.timezone || event.timezone || 'America/Chicago',
+        }))
+      : [],
     galleryImages: Array.isArray(event.galleryImages)
       ? event.galleryImages.map((image) => resolveKvrsAssetUrl(image)).filter((image): image is string => Boolean(image))
       : [],
