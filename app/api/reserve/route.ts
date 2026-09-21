@@ -30,7 +30,14 @@ function cleanOptionalString(value: unknown) {
 function cleanGuestCount(value: unknown) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return 1;
-  return Math.max(1, Math.min(500, Math.round(numeric)));
+  return Math.max(1, Math.min(100, Math.round(numeric)));
+}
+
+const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{16,160}$/;
+
+function cleanIdempotencyKey(request: Request) {
+  const key = request.headers.get('idempotency-key')?.trim() || '';
+  return IDEMPOTENCY_KEY_PATTERN.test(key) ? key : '';
 }
 
 function jsonError(message: string, status = 400) {
@@ -52,25 +59,32 @@ export async function POST(request: Request) {
   const reservationDate = cleanString(body.reservationDate);
   const reservationTime = cleanString(body.reservationTime);
   const guestCount = cleanGuestCount(body.guestCount);
+  const idempotencyKey = cleanIdempotencyKey(request);
 
   if (!guestName) return jsonError('Please enter your name.');
   if (!guestEmail) return jsonError('Please enter your email.');
   if (!guestPhone) return jsonError('Please enter your phone number.');
   if (!reservationDate) return jsonError('Please choose a reservation date.');
   if (!reservationTime) return jsonError('Please choose a reservation time.');
+  if (!idempotencyKey) {
+    return jsonError('Please retry your reservation request from the form.', 400);
+  }
 
   const payload = {
+    eventId: cleanOptionalString(body.eventId) || null,
+    reservationType:
+      cleanOptionalString(body.reservationType)
+      || 'General reservation',
+    date: reservationDate,
+    time: reservationTime,
     guestName,
     guestEmail,
     guestPhone,
-    reservationDate,
-    reservationTime,
-    guestCount,
-    reservationType: cleanOptionalString(body.reservationType) || 'General Reservation',
-    eventId: cleanOptionalString(body.eventId),
-    seatingPreference: cleanOptionalString(body.seatingPreference),
-    occasion: cleanOptionalString(body.occasion),
-    notes: cleanOptionalString(body.notes),
+    partySize: guestCount,
+    seatingPreference: cleanOptionalString(body.seatingPreference) || null,
+    occasion: cleanOptionalString(body.occasion) || null,
+    bringingCake: false,
+    notes: cleanOptionalString(body.notes) || null,
   };
 
   try {
@@ -79,6 +93,7 @@ export async function POST(request: Request) {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        'Idempotency-Key': idempotencyKey,
       },
       body: JSON.stringify(payload),
       cache: 'no-store',
@@ -93,17 +108,42 @@ export async function POST(request: Request) {
     }
 
     if (!response.ok) {
-      const message =
-        data && typeof data === 'object' && 'message' in data && typeof (data as { message?: unknown }).message === 'string'
+      const errorMessage =
+        data
+        && typeof data === 'object'
+        && 'error' in data
+        && typeof (data as { error?: unknown }).error === 'string'
+          ? (data as { error: string }).error
+          : null;
+      const legacyMessage =
+        data
+        && typeof data === 'object'
+        && 'message' in data
+        && typeof (data as { message?: unknown }).message === 'string'
           ? (data as { message: string }).message
-          : 'We could not submit your request right now. Please call Katy Vibes at 832-437-2807.';
+          : null;
 
-      return jsonError(message, response.status >= 400 && response.status < 600 ? response.status : 502);
+      return jsonError(
+        errorMessage
+        || legacyMessage
+        || 'We could not submit your request right now. Please call Katy Vibes at 832-437-2807.',
+        response.status >= 400 && response.status < 600
+          ? response.status
+          : 502,
+      );
     }
+
+    const successMessage =
+      data
+      && typeof data === 'object'
+      && 'message' in data
+      && typeof (data as { message?: unknown }).message === 'string'
+        ? (data as { message: string }).message
+        : 'Your reservation request was received. Our team will review it and follow up to confirm.';
 
     return NextResponse.json({
       ok: true,
-      message: 'Your reservation request was received. Our team will review it and follow up to confirm.',
+      message: successMessage,
       data,
     });
   } catch {
