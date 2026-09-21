@@ -38,7 +38,7 @@ const inactiveSaleStatuses: PublicSaleStatus[] = [
   'postponed',
 ];
 
-function kvrsCheckoutEndpoint() {
+function kvrsClientConfig() {
   return resolveKvrsConfig(
     {
       NEXT_PUBLIC_KVRS_BASE_URL: process.env.NEXT_PUBLIC_KVRS_BASE_URL,
@@ -50,7 +50,15 @@ function kvrsCheckoutEndpoint() {
       NEXT_PUBLIC_KVRS_ORDERS_BY_SESSION_URL: process.env.NEXT_PUBLIC_KVRS_ORDERS_BY_SESSION_URL,
     },
     { scope: 'client', throwOnConflict: true, throwOnInvalid: true },
-  ).checkoutUrl;
+  );
+}
+
+function kvrsCheckoutEndpoint() {
+  return kvrsClientConfig().checkoutUrl;
+}
+
+function kvrsFreeReservationEndpoint() {
+  return `${kvrsClientConfig().baseUrl}/api/reservations`;
 }
 
 function formatMoney(cents: number, currency = 'USD') {
@@ -71,8 +79,17 @@ function ticketKey(event: PublicEvent, ticket: TicketChoice) {
   return ticket?.id || `${event.id}-general-admission`;
 }
 
-function ticketName(ticket: TicketChoice) {
-  return ticket?.publicLabel || ticket?.name || 'General Admission';
+function ticketName(event: PublicEvent, ticket: TicketChoice) {
+  if (ticket) return ticket.publicLabel || ticket.name || 'General Admission';
+
+  if (
+    event.saleStatus === 'rsvp_only'
+    || (event.isFreeEvent && event.isReservationEnabled)
+  ) {
+    return 'Free RSVP';
+  }
+
+  return 'General Admission';
 }
 
 function ticketDescription(event: PublicEvent, ticket: TicketChoice) {
@@ -320,10 +337,21 @@ function ticketSelectableShows(event: PublicEvent, ticket: TicketChoice) {
   );
 }
 
+function isFreeReservationChoice(event: PublicEvent, ticket: TicketChoice) {
+  return Boolean(
+    event.saleStatus === 'rsvp_only'
+    || event.isFreeEvent
+    || ticket?.type === 'free_rsvp'
+    || (ticket && ticket.priceCents <= 0),
+  );
+}
+
 function ticketPrice(event: PublicEvent, ticket: TicketChoice) {
   if (ticket) {
     return ticket.priceCents > 0 ? formatMoney(ticket.priceCents, ticket.currency) : 'Free';
   }
+
+  if (isFreeReservationChoice(event, ticket)) return 'Free';
 
   const lowestPrice = event.ticketSummary?.lowestPriceCents || 0;
   if (lowestPrice > 0) return formatMoney(lowestPrice);
@@ -345,15 +373,36 @@ function isGeneralAdmissionTicket(ticket: TicketChoice) {
   return ticket?.type === 'general_admission';
 }
 
-function quantityMin(ticket: TicketChoice) {
+function quantityMin(event: PublicEvent, ticket: TicketChoice) {
+  if (isFreeReservationChoice(event, ticket)) {
+    return Math.max(1, ticket?.minQuantity || 1);
+  }
+
   if (!ticket || !isGeneralAdmissionTicket(ticket)) return 1;
   return Math.max(1, ticket.minQuantity || 1);
 }
 
-function quantityMax(ticket: TicketChoice) {
+function quantityMax(event: PublicEvent, ticket: TicketChoice) {
+  const min = quantityMin(event, ticket);
+
+  if (isFreeReservationChoice(event, ticket)) {
+    const configuredMax = Math.min(
+      50,
+      Math.max(min, ticket?.maxQuantity || 50),
+    );
+
+    if (ticket && ticket.quantityAvailable > 0) {
+      return Math.max(
+        min,
+        Math.min(configuredMax, ticket.quantityAvailable),
+      );
+    }
+
+    return configuredMax;
+  }
+
   if (!ticket || !isGeneralAdmissionTicket(ticket)) return 1;
 
-  const min = quantityMin(ticket);
   const configuredMax = Math.max(min, ticket.maxQuantity || min);
 
   if (ticket.quantityAvailable > 0) {
@@ -363,8 +412,8 @@ function quantityMax(ticket: TicketChoice) {
   return configuredMax;
 }
 
-function shouldShowQuantity(ticket: TicketChoice) {
-  return isGeneralAdmissionTicket(ticket) && quantityMax(ticket) > quantityMin(ticket);
+function shouldShowQuantity(event: PublicEvent, ticket: TicketChoice) {
+  return quantityMax(event, ticket) > quantityMin(event, ticket);
 }
 
 function buttonLabel(event: PublicEvent, ticket: TicketChoice) {
@@ -373,7 +422,9 @@ function buttonLabel(event: PublicEvent, ticket: TicketChoice) {
     return titleCaseStatus(event.saleStatus);
   }
 
-  return ticket?.type === 'free_rsvp' ? 'Reserve Your Spot' : 'Checkout';
+  return isFreeReservationChoice(event, ticket)
+    ? 'Reserve Your Spot'
+    : 'Checkout';
 }
 
 function isCheckoutDisabled(event: PublicEvent, ticket: TicketChoice) {
@@ -419,12 +470,28 @@ function checkoutErrorMessage(data: unknown, fallback: string) {
 export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketCheckoutCardsProps) {
   const [messages, setMessages] = useState<Record<string, FormMessage>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
+  const [pendingSubmissions, setPendingSubmissions] = useState<
+    Record<string, { key: string; serializedPayload: string }>
+  >({});
 
   const choices = useMemo<TicketChoice[]>(() => {
     if (ticketTypes.length > 0) return ticketTypes;
     if (event.isTicketed || event.ticketSummary?.isTicketed) return [null];
+    if (
+      event.saleStatus === 'rsvp_only'
+      || (event.isFreeEvent && event.isReservationEnabled)
+    ) {
+      return [null];
+    }
     return [];
-  }, [event.isTicketed, event.ticketSummary?.isTicketed, ticketTypes]);
+  }, [
+    event.isFreeEvent,
+    event.isReservationEnabled,
+    event.isTicketed,
+    event.saleStatus,
+    event.ticketSummary?.isTicketed,
+    ticketTypes,
+  ]);
 
   const showGroups = useMemo(
     () => buildTicketShowGroups(event, choices),
@@ -437,6 +504,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     formEvent.preventDefault();
 
     const key = ticketKey(event, ticket);
+    const freeReservation = isFreeReservationChoice(event, ticket);
 
     if (isCheckoutDisabled(event, ticket)) {
       setMessages((current) => ({
@@ -444,17 +512,20 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
         [key]: {
           tone: 'muted',
           text: !ticket?.id
-            ? 'This event is missing a selectable ticket type. Please call 832-437-2807 and we can help you finish booking.'
-            : `${ticketName(ticket)} is currently marked ${titleCaseStatus(event.saleStatus)}.`,
+            ? freeReservation
+              ? 'This RSVP option is not available online right now. Please call 832-437-2807 and we can help.'
+              : 'This event is missing a selectable ticket type. Please call 832-437-2807 and we can help you finish booking.'
+            : `${ticketName(event, ticket)} is currently marked ${titleCaseStatus(event.saleStatus)}.`,
         },
       }));
       return;
     }
 
     const formData = new FormData(formEvent.currentTarget);
-    const quantity = Number(readFormValue(formData, 'quantity')) || quantityMin(ticket);
-    const min = quantityMin(ticket);
-    const max = quantityMax(ticket);
+    const quantity = Number(readFormValue(formData, 'quantity'))
+      || quantityMin(event, ticket);
+    const min = quantityMin(event, ticket);
+    const max = quantityMax(event, ticket);
     const safeQuantity = Math.max(min, Math.min(max, quantity));
     const showId = readFormValue(formData, 'showId');
     const selectableShows = ticketSelectableShows(event, ticket);
@@ -474,16 +545,32 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
       return;
     }
 
-    const payload = {
-      ticketTypeId: ticket?.id,
-      showId: showId || null,
-      quantity: safeQuantity,
-      customerName: readFormValue(formData, 'customerName'),
-      customerEmail: readFormValue(formData, 'customerEmail'),
-      customerPhone: readFormValue(formData, 'customerPhone'),
-    };
+    const guestName = readFormValue(formData, 'customerName');
+    const guestEmail = readFormValue(formData, 'customerEmail');
+    const guestPhone = readFormValue(formData, 'customerPhone');
 
-    if (!payload.ticketTypeId) {
+    const payload = freeReservation
+      ? {
+          eventId: event.id,
+          reservationTypeId: ticket?.id || null,
+          showId: showId || null,
+          guestName,
+          guestEmail,
+          guestPhone,
+          partySize: safeQuantity,
+          notes: readFormValue(formData, 'notes') || null,
+          sourceDetail: 'Katy Vibes Website event RSVP',
+        }
+      : {
+          ticketTypeId: ticket?.id,
+          showId: showId || null,
+          quantity: safeQuantity,
+          customerName: guestName,
+          customerEmail: guestEmail,
+          customerPhone: guestPhone,
+        };
+
+    if (!freeReservation && !ticket?.id) {
       setMessages((current) => ({
         ...current,
         [key]: {
@@ -494,23 +581,78 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
       return;
     }
 
+    const serializedPayload = JSON.stringify(payload);
+    const priorSubmission = pendingSubmissions[key];
+    const idempotencyKey = freeReservation
+      ? priorSubmission?.serializedPayload === serializedPayload
+        ? priorSubmission.key
+        : crypto.randomUUID()
+      : null;
+
+    if (idempotencyKey) {
+      setPendingSubmissions((current) => ({
+        ...current,
+        [key]: {
+          key: idempotencyKey,
+          serializedPayload,
+        },
+      }));
+    }
+
     setPending((current) => ({ ...current, [key]: true }));
     setMessages((current) => ({
       ...current,
-      [key]: { tone: 'muted', text: ticket?.type === 'free_rsvp' ? 'Reserving your spot…' : 'Opening secure checkout…' },
+      [key]: {
+        tone: 'muted',
+        text: freeReservation
+          ? 'Submitting your RSVP request…'
+          : 'Opening secure checkout…',
+      },
     }));
 
     try {
-      const response = await fetch(kvrsCheckoutEndpoint(), {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        freeReservation
+          ? kvrsFreeReservationEndpoint()
+          : kvrsCheckoutEndpoint(),
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            ...(idempotencyKey
+              ? { 'Idempotency-Key': idempotencyKey }
+              : {}),
+          },
+          body: serializedPayload,
         },
-        body: JSON.stringify(payload),
-      });
+      );
 
-      const data = (await response.json().catch(() => null)) as { ok?: boolean; url?: string | null } | null;
+      const data = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        url?: string | null;
+        message?: string | null;
+        error?: string | null;
+      } | null;
+
+      if (response.ok && data?.ok && freeReservation) {
+        setPendingSubmissions((current) => {
+          const next = { ...current };
+          delete next[key];
+          return next;
+        });
+        setMessages((current) => ({
+          ...current,
+          [key]: {
+            tone: 'success',
+            text:
+              data.message
+              || 'Your RSVP request was received. Katy Vibes management will review it before confirmation.',
+          },
+        }));
+        formEvent.currentTarget.reset();
+        return;
+      }
 
       if (response.ok && data?.ok && data.url) {
         window.location.href = data.url;
@@ -523,8 +665,8 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           tone: 'error',
           text: checkoutErrorMessage(
             data,
-            ticket?.type === 'free_rsvp'
-              ? 'Your RSVP could not be started. Please check your information or call 832-437-2807.'
+            freeReservation
+              ? 'Your RSVP could not be submitted. Please check your information or call 832-437-2807.'
               : 'Checkout could not be started. Please check your information or call 832-437-2807.',
           ),
         },
@@ -534,7 +676,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
         ...current,
         [key]: {
           tone: 'error',
-          text: ticket?.type === 'free_rsvp'
+          text: freeReservation
             ? 'The RSVP service is unavailable right now. Please try again or call 832-437-2807.'
             : 'Checkout service is unavailable right now. Please try again or call 832-437-2807.',
         },
@@ -551,7 +693,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           <div className="eyebrow">Tickets & Tables</div>
           <h2>Choose your spot.</h2>
           <p className="muted">
-            Pick an option, enter your contact information, and continue to secure checkout.
+            Pick an option, enter your contact information, and complete checkout or submit your RSVP request.
           </p>
         </div>
       </div>
@@ -584,20 +726,21 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           const disabled = isCheckoutDisabled(event, ticket);
           const message = messages[key];
           const isPending = Boolean(pending[key]);
-          const minQuantity = quantityMin(ticket);
-          const maxQuantity = quantityMax(ticket);
+          const minQuantity = quantityMin(event, ticket);
+          const maxQuantity = quantityMax(event, ticket);
           const showCoverage = ticketShowCoverage(event, ticket);
           const selectableShows = ticketSelectableShows(event, ticket);
           const showScoped = Boolean(
             ticket
             && String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS',
           );
+          const freeReservation = isFreeReservationChoice(event, ticket);
 
           return (
             <article className="event-ticket-purchase-card card" key={key}>
               <div className="ticket-purchase-card-top">
                 <div>
-                  <h3>{ticketName(ticket)}</h3>
+                  <h3>{ticketName(event, ticket)}</h3>
                   {ticketDescription(event, ticket) && <p>{ticketDescription(event, ticket)}</p>}
                 </div>
                 <strong className="ticket-purchase-price">{ticketPrice(event, ticket)}</strong>
@@ -614,7 +757,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                 <input type="hidden" name="eventId" value={event.id} />
                 <input type="hidden" name="eventSlug" value={event.slug} />
                 <input type="hidden" name="ticketTypeId" value={ticket?.id || ''} />
-                <input type="hidden" name="ticketTypeName" value={ticketName(ticket)} />
+                <input type="hidden" name="ticketTypeName" value={ticketName(event, ticket)} />
 
                 {showScoped && selectableShows.length === 1 ? (
                   <input type="hidden" name="showId" value={selectableShows[0].id} />
@@ -647,9 +790,9 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   </p>
                 ) : null}
 
-                {shouldShowQuantity(ticket) ? (
+                {shouldShowQuantity(event, ticket) ? (
                   <label>
-                    <span>Quantity</span>
+                    <span>{freeReservation ? 'Party Size' : 'Quantity'}</span>
                     <input
                       name="quantity"
                       type="number"
@@ -679,8 +822,23 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   <input name="customerPhone" type="tel" autoComplete="tel" required />
                 </label>
 
+                {freeReservation ? (
+                  <label>
+                    <span>Notes (optional)</span>
+                    <textarea
+                      name="notes"
+                      rows={3}
+                      placeholder="Anything our team should know?"
+                    />
+                  </label>
+                ) : null}
+
                 <button className="button" type="submit" disabled={disabled || isPending}>
-                  {isPending ? (ticket?.type === 'free_rsvp' ? 'Reserving…' : 'Opening Checkout…') : buttonLabel(event, ticket)}
+                  {isPending
+                    ? freeReservation
+                      ? 'Submitting RSVP…'
+                      : 'Opening Checkout…'
+                    : buttonLabel(event, ticket)}
                 </button>
 
                 {message && (
