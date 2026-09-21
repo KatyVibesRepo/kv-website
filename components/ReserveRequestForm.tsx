@@ -37,6 +37,10 @@ const initialValues: FormValues = {
 export function ReserveRequestForm() {
   const [values, setValues] = useState<FormValues>(initialValues);
   const [submitState, setSubmitState] = useState<SubmitState>({ status: 'idle', message: '' });
+  const [pendingSubmission, setPendingSubmission] = useState<{
+    key: string;
+    serializedPayload: string;
+  } | null>(null);
 
   const minDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
@@ -48,31 +52,58 @@ export function ReserveRequestForm() {
     event.preventDefault();
     setSubmitState({ status: 'submitting', message: 'Submitting your request…' });
 
+    const payload = {
+      ...values,
+      guestCount: Number(values.guestCount || 1),
+    };
+    const serializedPayload = JSON.stringify(payload);
+    const idempotencyKey =
+      pendingSubmission?.serializedPayload === serializedPayload
+        ? pendingSubmission.key
+        : crypto.randomUUID();
+
+    setPendingSubmission({
+      key: idempotencyKey,
+      serializedPayload,
+    });
+
     try {
       const response = await fetch('/api/reserve', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...values,
-          guestCount: Number(values.guestCount || 1),
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey,
+        },
+        body: serializedPayload,
       });
 
-      const data = (await response.json().catch(() => null)) as { ok?: boolean; message?: string } | null;
+      const data = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        message?: string;
+      } | null;
 
       if (!response.ok || !data?.ok) {
-        throw new Error(data?.message || 'We could not submit your request right now. Please call Katy Vibes at 832-437-2807.');
+        throw new Error(
+          data?.message
+          || 'We could not submit your request right now. Please call Katy Vibes at 832-437-2807.',
+        );
       }
 
+      setPendingSubmission(null);
       setValues(initialValues);
       setSubmitState({
         status: 'success',
-        message: data.message || 'Your request was received. Our team will review it and follow up to confirm.',
+        message:
+          data.message
+          || 'Your request was received. Our team will review it and follow up to confirm.',
       });
     } catch (error) {
       setSubmitState({
         status: 'error',
-        message: error instanceof Error ? error.message : 'We could not submit your request right now. Please call Katy Vibes at 832-437-2807.',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'We could not submit your request right now. Please call Katy Vibes at 832-437-2807.',
       });
     }
   }
@@ -148,7 +179,7 @@ export function ReserveRequestForm() {
             type="number"
             name="guestCount"
             min="1"
-            max="500"
+            max="100"
             value={values.guestCount}
             onChange={(event) => updateValue('guestCount', event.target.value)}
           />
