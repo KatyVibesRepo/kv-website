@@ -38,8 +38,13 @@ test('non-GA paid products submit one inventory unit per checkout', () => {
   );
   assert.match(
     checkoutCardsSource,
-    /return isGeneralAdmissionTicket\(ticket\) && quantityMax\(ticket\) > quantityMin\(ticket\);/,
-    'only GA products may expose a variable paid checkout quantity',
+    /if \(!ticket \|\| !isGeneralAdmissionTicket\(ticket\)\) return 1;/,
+    'paid non-GA products remain fixed to one inventory unit',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /function shouldShowQuantity\(event: PublicEvent, ticket: TicketChoice\)/,
+    'quantity presentation distinguishes paid checkout from free reservation party size',
   );
 });
 
@@ -47,4 +52,32 @@ test('existing multi-show presentation remains grouped by authoritative show cov
   assert.match(checkoutCardsSource, /const coveredIds = new Set\(ticket\.showIds\)/);
   assert.match(checkoutCardsSource, /eventShows\.filter\(\(show\) => coveredIds\.has\(show\.id\)\)/);
   assert.match(checkoutCardsSource, /'Both Shows'/);
+});
+
+
+test('free RSVP uses the no-payment KVRS reservation endpoint with idempotency', () => {
+  assert.match(
+    checkoutCardsSource,
+    /return `\$\{kvrsClientConfig\(\)\.baseUrl\}\/api\/reservations`;/,
+  );
+  assert.match(checkoutCardsSource, /reservationTypeId: ticket\?\.id \|\| null/);
+  assert.match(checkoutCardsSource, /partySize: safeQuantity/);
+  assert.match(checkoutCardsSource, /crypto\.randomUUID\(\)/);
+  assert.match(checkoutCardsSource, /'Idempotency-Key': idempotencyKey/);
+  assert.doesNotMatch(
+    checkoutCardsSource,
+    /freeReservation[\s\S]{0,800}ticketTypeId:/,
+    'free RSVP payload must not be sent through the paid checkout shape',
+  );
+});
+
+test('RSVP-only events can render a free reservation form without a ticket product', () => {
+  assert.match(
+    checkoutCardsSource,
+    /event\.saleStatus === 'rsvp_only'[\s\S]{0,180}return \[null\]/,
+  );
+  assert.match(
+    checkoutCardsSource,
+    /event\.saleStatus === 'rsvp_only'[\s\S]{0,180}'Free RSVP'/,
+  );
 });
