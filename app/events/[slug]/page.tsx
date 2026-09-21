@@ -115,7 +115,18 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const flyerImage = eventImage(event, 'portrait');
   const description = event.fullDescription || event.shortDescription || event.subtitle;
   const ticketTypes = event.ticketTypes || [];
-  const isTicketedEvent = event.isTicketed || Boolean(event.ticketSummary?.isTicketed) || ticketTypes.length > 0;
+  const isTicketedEvent =
+    event.isTicketed
+    || Boolean(event.ticketSummary?.isTicketed)
+    || ticketTypes.length > 0;
+  const hasEventTransactionForm =
+    isTicketedEvent
+    || event.saleStatus === 'rsvp_only'
+    || (event.isFreeEvent && event.isReservationEnabled);
+  const transactionActionLabel =
+    event.saleStatus === 'rsvp_only'
+      ? 'Reserve Your Spot'
+      : 'Choose Tickets';
   const priceText = priceSummary(event);
   const locationText = event.venueAddress || event.venueName;
 
@@ -162,8 +173,10 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             </div>
 
             <div className="button-row event-detail-main-actions">
-              {isTicketedEvent ? (
-                <a className="button hot" href="#event-ticket-options">Choose Tickets</a>
+              {hasEventTransactionForm ? (
+                <a className="button hot" href="#event-ticket-options">
+                  {transactionActionLabel}
+                </a>
               ) : (
                 <NonTicketedPrimaryAction event={event} />
               )}
@@ -231,21 +244,27 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           )}
 
           <div className="event-detail-ticket-actions">
-            {isTicketedEvent ? (
-              <a className="button" href="#event-ticket-options">Choose Tickets</a>
+            {hasEventTransactionForm ? (
+              <a className="button" href="#event-ticket-options">
+                {transactionActionLabel}
+              </a>
             ) : (
               <NonTicketedPrimaryAction event={event} />
             )}
             <p className="muted">
-              {isTicketedEvent
-                ? 'Ticket and table choices are listed below with a quick checkout form for each option.'
+              {hasEventTransactionForm
+                ? event.saleStatus === 'rsvp_only'
+                  ? 'Submit your free RSVP below. Requests are reviewed by Katy Vibes management before confirmation.'
+                  : 'Ticket and table choices are listed below with a quick checkout form for each option.'
                 : 'Call Katy Vibes at 832-437-2807 if you need help planning your visit.'}
             </p>
           </div>
         </aside>
       </section>
 
-      {isTicketedEvent && <EventTicketCheckoutCards event={event} ticketTypes={ticketTypes} />}
+      {hasEventTransactionForm && (
+        <EventTicketCheckoutCards event={event} ticketTypes={ticketTypes} />
+      )}
     </section>
   );
 }
