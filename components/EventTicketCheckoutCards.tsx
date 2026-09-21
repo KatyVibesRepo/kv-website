@@ -341,10 +341,18 @@ function ticketSelectableShows(event: PublicEvent, ticket: TicketChoice) {
 
   if (!ticket.showIds?.length) return [];
 
-  const coveredIds = new Set(ticket.showIds);
+  /*
+   * One covered show means this product needs that exact show ID.
+   * Multiple covered shows represent one whole-event entitlement
+   * in the current Contract-v1 feed, so no singular show selection
+   * should be sent to KVRS.
+   */
+  if (ticket.showIds.length > 1) return [];
+
+  const coveredId = ticket.showIds[0];
 
   return availableShows.filter(
-    (show) => coveredIds.has(show.id),
+    (show) => show.id === coveredId,
   );
 }
 
@@ -447,11 +455,17 @@ function isCheckoutDisabled(event: PublicEvent, ticket: TicketChoice) {
     if (ticket.quantityAvailable <= 0) return true;
     if (ticket.status && !['active', 'published', 'available', 'on_sale'].includes(ticket.status)) return true;
 
+    const ticketScope = String(ticket.scope || 'EVENT').toUpperCase();
+    const singleShowScoped =
+      ticketScope === 'SHOWS'
+      && ticket.showIds?.length === 1;
+
     if (
       (
-        String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS'
+        singleShowScoped
         || (
-          isFreeReservationChoice(event, ticket)
+          ticketScope !== 'SHOWS'
+          && isFreeReservationChoice(event, ticket)
           && Boolean(event.shows?.length)
         )
       )
@@ -548,13 +562,16 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     const showId = readFormValue(formData, 'showId');
     const selectableShows = ticketSelectableShows(event, ticket);
 
+    const ticketScope = String(ticket?.scope || 'EVENT').toUpperCase();
     const requiresShowSelection =
       Boolean(
         ticket
-        && String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS',
+        && ticketScope === 'SHOWS'
+        && ticket.showIds?.length === 1,
       )
       || (
-        freeReservation
+        ticketScope !== 'SHOWS'
+        && freeReservation
         && Boolean(event.shows?.length)
       );
 
@@ -758,13 +775,16 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           const showCoverage = ticketShowCoverage(event, ticket);
           const selectableShows = ticketSelectableShows(event, ticket);
           const freeReservation = isFreeReservationChoice(event, ticket);
+          const ticketScope = String(ticket?.scope || 'EVENT').toUpperCase();
           const requiresShowSelection =
             Boolean(
               ticket
-              && String(ticket.scope || 'EVENT').toUpperCase() === 'SHOWS',
+              && ticketScope === 'SHOWS'
+              && ticket.showIds?.length === 1,
             )
             || (
-              freeReservation
+              ticketScope !== 'SHOWS'
+              && freeReservation
               && Boolean(event.shows?.length)
             );
 
