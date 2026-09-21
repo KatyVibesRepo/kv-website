@@ -25,8 +25,8 @@ test('show-scoped checkout submits the authoritative show ID', () => {
   );
   assert.match(
     checkoutCardsSource,
-    /coveredIds\.has\(show\.id\) && show\.transactionEnabled !== false/,
-    'show choices must come only from authoritative product coverage and transaction-enabled event shows',
+    /const availableShows = event\.shows\.filter\([\s\S]{0,120}show\.transactionEnabled !== false/,
+    'show choices must come only from transaction-enabled event shows',
   );
 });
 
@@ -79,5 +79,21 @@ test('RSVP-only events can render a free reservation form without a ticket produ
   assert.match(
     checkoutCardsSource,
     /event\.saleStatus === 'rsvp_only'[\s\S]{0,180}'Free RSVP'/,
+  );
+});
+
+
+test('timed free RSVP requires an authoritative show selection even for event-scoped RSVP', () => {
+  assert.match(
+    checkoutCardsSource,
+    /freeReservation\s*&&\s*Boolean\(event\.shows\?\.length\)/,
+  );
+  assert.match(
+    checkoutCardsSource,
+    /return isFreeReservationChoice\(event, ticket\)\s*\? availableShows\s*:\s*\[\]/,
+  );
+  assert.match(
+    checkoutCardsSource,
+    /requiresShowSelection[\s\S]{0,220}!showId \|\| !selectableShows\.some/,
   );
 });
