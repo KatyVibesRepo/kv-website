@@ -57,6 +57,37 @@ test('fresh KVRS inventory state replaces stale customer-facing availability', (
   );
 });
 
+test('live reductions preserve original intent across repeated inventory changes', () => {
+  assert.match(
+    checkoutCardsSource,
+    /const originalRequested = existing\.requestedQuantity \?\? existing\.quantity;/,
+    'a second inventory drop must retain the original customer request rather than the first adjusted value',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /Math\.min\(availableMax, originalRequested\)/,
+    'transaction quantity must follow current availability without exceeding the original request',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /adjustedQuantity < originalRequested[\s\S]{0,180}requestedQuantity: originalRequested/,
+    'automatic reductions must retain requestedQuantity while the transaction remains reduced',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /: \{[\s\S]{0,80}quantity: adjustedQuantity,[\s\S]{0,80}\};/,
+    'when availability again supports the original request, the adjustment marker must clear',
+  );
+});
+
+test('manual quantity edits replace stale automatic intent', () => {
+  assert.match(
+    checkoutCardsSource,
+    /setQuantitySelections\(\(current\) => \(\{[\s\S]{0,180}\[key\]: \{[\s\S]{0,80}quantity: nextQuantity,[\s\S]{0,80}\},/,
+    'a manual edit must write a fresh selection without carrying requestedQuantity forward',
+  );
+});
+
 test('PublicTicketType carries KVRS availabilityStatus explicitly', () => {
   assert.match(kvrsEventsSource, /availabilityStatus\?: string \| null;/);
 });
