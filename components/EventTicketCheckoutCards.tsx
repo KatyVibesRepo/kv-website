@@ -53,6 +53,7 @@ type TicketInventoryResponse = {
 type QuantitySelection = {
   quantity: number;
   requestedQuantity?: number;
+  inputValue?: string;
 };
 
 const inactiveSaleStatuses: PublicSaleStatus[] = [
@@ -758,12 +759,18 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     }
 
     const formData = new FormData(formEvent.currentTarget);
-    const quantity = Number(readFormValue(formData, 'quantity'))
-      || quantityMin(event, ticket);
     const min = quantityMin(event, ticket);
     const max = quantityMax(event, ticket);
-    const safeQuantity = Math.max(min, Math.min(max, quantity));
     const quantitySelection = quantitySelections[key];
+    const rawQuantity = readFormValue(formData, 'quantity');
+    const parsedQuantity =
+      rawQuantity === ''
+        ? quantitySelection?.quantity ?? min
+        : Number(rawQuantity);
+    const quantity = Number.isFinite(parsedQuantity)
+      ? parsedQuantity
+      : quantitySelection?.quantity ?? min;
+    const safeQuantity = Math.max(min, Math.min(max, quantity));
     const requestedQuantity =
       !freeReservation
       && quantitySelection?.requestedQuantity
@@ -1000,6 +1007,8 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
             minQuantity,
             Math.min(maxQuantity, quantitySelection?.quantity ?? minQuantity),
           );
+          const quantityInputValue =
+            quantitySelection?.inputValue ?? String(selectedQuantity);
           const showCoverage = ticketShowCoverage(event, ticket);
           const selectableShows = ticketSelectableShows(event, ticket);
           const freeReservation = isFreeReservationChoice(event, ticket);
@@ -1092,19 +1101,63 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                       inputMode="numeric"
                       min={minQuantity}
                       max={maxQuantity}
-                      value={selectedQuantity}
+                      value={quantityInputValue}
+                      onFocus={(focusEvent) => {
+                        focusEvent.currentTarget.select();
+                      }}
                       onChange={(changeEvent) => {
-                        const requestedQuantity = Number(changeEvent.currentTarget.value);
-                        const nextQuantity = Number.isFinite(requestedQuantity)
-                          ? Math.max(minQuantity, Math.min(maxQuantity, requestedQuantity))
-                          : minQuantity;
+                        const inputValue = changeEvent.currentTarget.value;
+                        const parsedQuantity = Number(inputValue);
 
-                        setQuantitySelections((current) => ({
-                          ...current,
-                          [key]: {
-                            quantity: nextQuantity,
-                          },
-                        }));
+                        setQuantitySelections((current) => {
+                          const existing = current[key] || {
+                            quantity: selectedQuantity,
+                          };
+                          const quantity =
+                            inputValue !== ''
+                            && Number.isFinite(parsedQuantity)
+                            && parsedQuantity >= minQuantity
+                            && parsedQuantity <= maxQuantity
+                              ? parsedQuantity
+                              : existing.quantity;
+
+                          return {
+                            ...current,
+                            [key]: {
+                              quantity,
+                              inputValue,
+                            },
+                          };
+                        });
+                      }}
+                      onBlur={(blurEvent) => {
+                        const inputValue = blurEvent.currentTarget.value.trim();
+
+                        setQuantitySelections((current) => {
+                          const existing = current[key];
+
+                          if (!existing || existing.inputValue === undefined) {
+                            return current;
+                          }
+
+                          const parsedQuantity =
+                            inputValue === ''
+                              ? minQuantity
+                              : Number(inputValue);
+                          const quantity = Number.isFinite(parsedQuantity)
+                            ? Math.max(
+                                minQuantity,
+                                Math.min(maxQuantity, parsedQuantity),
+                              )
+                            : minQuantity;
+
+                          return {
+                            ...current,
+                            [key]: {
+                              quantity,
+                            },
+                          };
+                        });
                       }}
                       required
                     />
