@@ -45,7 +45,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
       quantityAvailable: ticket.quantityAvailable,
       availabilityStatus: ticket.availabilityStatus || null,
       status: ticket.status,
-      checkoutEnabled: ticket.checkoutEnabled !== false,
+      checkoutEnabled: ticket.checkoutEnabled,
       action: ticket.action
         ? {
             enabled: ticket.action.enabled !== false,
