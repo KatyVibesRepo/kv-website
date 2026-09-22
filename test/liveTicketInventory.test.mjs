@@ -83,8 +83,13 @@ test('live reductions preserve original intent across repeated inventory changes
 test('manual quantity edits replace stale automatic intent', () => {
   assert.match(
     checkoutCardsSource,
-    /const inputValue = changeEvent\.currentTarget\.value;[\s\S]{0,700}\[key\]: \{[\s\S]{0,100}quantity,[\s\S]{0,100}inputValue,[\s\S]{0,100}\},/,
-    'a manual edit must write fresh quantity/input state without carrying requestedQuantity forward',
+    /const inputValue = changeEvent\.currentTarget\.value;/,
+    'manual edits must capture a fresh raw input value',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /\[key\]: \{\s*quantity,\s*inputValue,\s*\}/,
+    'manual edit state must carry only quantity/inputValue and therefore clear stale requestedQuantity',
   );
 });
 
