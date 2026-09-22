@@ -365,15 +365,17 @@ function isFreeReservationChoice(event: PublicEvent, ticket: TicketChoice) {
   );
 }
 
-function ticketPrice(event: PublicEvent, ticket: TicketChoice) {
+function ticketTotalPrice(event: PublicEvent, ticket: TicketChoice, quantity = 1) {
   if (ticket) {
-    return ticket.priceCents > 0 ? formatMoney(ticket.priceCents, ticket.currency) : 'Free';
+    return ticket.priceCents > 0
+      ? formatMoney(ticket.priceCents * Math.max(1, quantity), ticket.currency)
+      : 'Free';
   }
 
   if (isFreeReservationChoice(event, ticket)) return 'Free';
 
   const lowestPrice = event.ticketSummary?.lowestPriceCents || 0;
-  if (lowestPrice > 0) return formatMoney(lowestPrice);
+  if (lowestPrice > 0) return formatMoney(lowestPrice * Math.max(1, quantity));
   return event.priceDisplay || event.coverText || 'See details';
 }
 
@@ -392,12 +394,20 @@ function isGeneralAdmissionTicket(ticket: TicketChoice) {
   return ticket?.type === 'general_admission';
 }
 
+function isTableOrVipTicket(ticket: TicketChoice) {
+  return ticket?.type === 'table' || ticket?.type === 'vip_table';
+}
+
+function supportsPaidQuantitySelection(ticket: TicketChoice) {
+  return isGeneralAdmissionTicket(ticket) || isTableOrVipTicket(ticket);
+}
+
 function quantityMin(event: PublicEvent, ticket: TicketChoice) {
   if (isFreeReservationChoice(event, ticket)) {
     return Math.max(1, ticket?.minQuantity || 1);
   }
 
-  if (!ticket || !isGeneralAdmissionTicket(ticket)) return 1;
+  if (!ticket || !supportsPaidQuantitySelection(ticket)) return 1;
   return Math.max(1, ticket.minQuantity || 1);
 }
 
@@ -420,7 +430,7 @@ function quantityMax(event: PublicEvent, ticket: TicketChoice) {
     return configuredMax;
   }
 
-  if (!ticket || !isGeneralAdmissionTicket(ticket)) return 1;
+  if (!ticket || !supportsPaidQuantitySelection(ticket)) return 1;
 
   const configuredMax = Math.max(min, ticket.maxQuantity || min);
 
@@ -501,6 +511,7 @@ function checkoutErrorMessage(data: unknown, fallback: string) {
 export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketCheckoutCardsProps) {
   const [messages, setMessages] = useState<Record<string, FormMessage>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [pendingSubmissions, setPendingSubmissions] = useState<
     Record<string, { key: string; serializedPayload: string }>
   >({});
@@ -694,6 +705,10 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
               || 'Your RSVP request was received. Katy Vibes management will review it before confirmation.',
           },
         }));
+        setQuantities((current) => ({
+          ...current,
+          [key]: quantityMin(event, ticket),
+        }));
         form.reset();
         return;
       }
@@ -772,6 +787,10 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           const isPending = Boolean(pending[key]);
           const minQuantity = quantityMin(event, ticket);
           const maxQuantity = quantityMax(event, ticket);
+          const selectedQuantity = Math.max(
+            minQuantity,
+            Math.min(maxQuantity, quantities[key] ?? minQuantity),
+          );
           const showCoverage = ticketShowCoverage(event, ticket);
           const selectableShows = ticketSelectableShows(event, ticket);
           const freeReservation = isFreeReservationChoice(event, ticket);
@@ -795,7 +814,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   <h3>{ticketName(event, ticket)}</h3>
                   {ticketDescription(event, ticket) && <p>{ticketDescription(event, ticket)}</p>}
                 </div>
-                <strong className="ticket-purchase-price">{ticketPrice(event, ticket)}</strong>
+                <strong className="ticket-purchase-price">
+                  {ticket?.priceCents && ticket.priceCents > 0
+                    ? `Total: ${ticketTotalPrice(event, ticket, selectedQuantity)}`
+                    : ticketTotalPrice(event, ticket, selectedQuantity)}
+                </strong>
               </div>
 
               <div className="ticket-purchase-meta" aria-label="Ticket details">
@@ -851,7 +874,18 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                       inputMode="numeric"
                       min={minQuantity}
                       max={maxQuantity}
-                      defaultValue={minQuantity}
+                      value={selectedQuantity}
+                      onChange={(changeEvent) => {
+                        const requestedQuantity = Number(changeEvent.currentTarget.value);
+                        const nextQuantity = Number.isFinite(requestedQuantity)
+                          ? Math.max(minQuantity, Math.min(maxQuantity, requestedQuantity))
+                          : minQuantity;
+
+                        setQuantities((current) => ({
+                          ...current,
+                          [key]: nextQuantity,
+                        }));
+                      }}
                       required
                     />
                   </label>
