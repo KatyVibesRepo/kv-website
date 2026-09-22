@@ -1000,6 +1000,9 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
             minQuantity,
             Math.min(maxQuantity, quantitySelection?.quantity ?? minQuantity),
           );
+          const showCoverage = ticketShowCoverage(event, ticket);
+          const selectableShows = ticketSelectableShows(event, ticket);
+          const freeReservation = isFreeReservationChoice(event, ticket);
           const automaticAdjustment =
             !freeReservation
             && quantitySelection?.requestedQuantity
@@ -1009,9 +1012,6 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   adjustedQuantity: selectedQuantity,
                 }
               : null;
-          const showCoverage = ticketShowCoverage(event, ticket);
-          const selectableShows = ticketSelectableShows(event, ticket);
-          const freeReservation = isFreeReservationChoice(event, ticket);
           const ticketScope = String(ticket?.scope || 'EVENT').toUpperCase();
           const requiresShowSelection =
             Boolean(
