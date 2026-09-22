@@ -79,8 +79,63 @@ test('displayed paid total reacts to selected quantity', () => {
   );
   assert.match(
     checkoutCardsSource,
-    /setQuantitySelections\(\(current\) => \(\{[\s\S]{0,160}\[key\]: \{[\s\S]{0,80}quantity: nextQuantity/,
-    'manual quantity changes must update per-card quantity state',
+    /value=\{quantityInputValue\}/,
+    'quantity input must render the customer editing value instead of an immediately clamped number',
+  );
+});
+
+test('quantity input supports natural intermediate editing before bounded commit', () => {
+  assert.match(
+    checkoutCardsSource,
+    /inputValue\?: string;/,
+    'quantity state must preserve a temporary raw editing value',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /onFocus=\{\(focusEvent\) => \{[\s\S]{0,100}focusEvent\.currentTarget\.select\(\)/,
+    'focusing an existing quantity should select it so typing 2 replaces the initial 1',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /const inputValue = changeEvent\.currentTarget\.value;/,
+    'onChange must retain the raw editing value, including an empty intermediate state',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /inputValue !== ''[\s\S]{0,180}parsedQuantity >= minQuantity[\s\S]{0,180}parsedQuantity <= maxQuantity/,
+    'only an already-valid edit should update the committed numeric quantity during typing',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /existing\.inputValue === undefined[\s\S]{0,260}inputValue === ''[\s\S]{0,260}Math\.max\([\s\S]{0,120}Math\.min\(maxQuantity, parsedQuantity\)/,
+    'blur must commit blank to min and clamp the final edited value to current min/max',
+  );
+  assert.doesNotMatch(
+    checkoutCardsSource,
+    /const requestedQuantity = Number\(changeEvent\.currentTarget\.value\);[\s\S]{0,180}Math\.max\(minQuantity, Math\.min\(maxQuantity, requestedQuantity\)\)/,
+    'onChange must not immediately clamp 12 to max while the customer is editing',
+  );
+});
+
+test('free RSVP submission uses the final edited quantity and bounds it at submit time', () => {
+  assert.match(
+    checkoutCardsSource,
+    /const rawQuantity = readFormValue\(formData, 'quantity'\);/,
+  );
+  assert.match(
+    checkoutCardsSource,
+    /rawQuantity === ''[\s\S]{0,120}quantitySelection\?\.quantity \?\? min/,
+    'blank editing state must fall back to the committed/min quantity at submission',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /const safeQuantity = Math\.max\(min, Math\.min\(max, quantity\)\);/,
+    'final submit must still enforce current min/max/availability bounds',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /partySize: safeQuantity/,
+    'Free RSVP must submit the final bounded customer quantity as partySize',
   );
 });
 
