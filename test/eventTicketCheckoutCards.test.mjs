@@ -43,21 +43,44 @@ test('multi-show whole-night products submit no singular show selection', () => 
   );
 });
 
-test('non-GA paid products submit one inventory unit per checkout', () => {
+test('GA, table, and VIP quantity are bounded by configured max and current availability', () => {
   assert.match(
     checkoutCardsSource,
-    /if \(!ticket \|\| !isGeneralAdmissionTicket\(ticket\)\) return 1;/,
-    'table, VIP, patio, and other non-GA products must be fixed to quantity 1',
+    /ticket\?\.type === 'table' \|\| ticket\?\.type === 'vip_table'/,
+    'table and VIP products must participate in paid quantity selection',
   );
   assert.match(
     checkoutCardsSource,
-    /if \(!ticket \|\| !isGeneralAdmissionTicket\(ticket\)\) return 1;/,
-    'paid non-GA products remain fixed to one inventory unit',
+    /return isGeneralAdmissionTicket\(ticket\) \|\| isTableOrVipTicket\(ticket\);/,
+    'GA and table/VIP products must share the bounded paid-quantity path',
   );
   assert.match(
     checkoutCardsSource,
-    /function shouldShowQuantity\(event: PublicEvent, ticket: TicketChoice\)/,
-    'quantity presentation distinguishes paid checkout from free reservation party size',
+    /Math\.min\(configuredMax, ticket\.quantityAvailable\)/,
+    'maximum quantity must never exceed current public availability or configured max',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /quantity: safeQuantity/,
+    'checkout payload must submit the selected bounded quantity unchanged as quantity',
+  );
+});
+
+test('displayed paid total reacts to selected quantity', () => {
+  assert.match(
+    checkoutCardsSource,
+    /ticket\.priceCents \* Math\.max\(1, quantity\)/,
+    'displayed total must multiply unit price by selected quantity',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /Total: \$\{ticketTotalPrice\(event, ticket, selectedQuantity\)\}/,
+    'paid cards must render the reactive total price',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /setQuantities\(\(current\) => \(\{[\s\S]{0,120}\[key\]: nextQuantity/,
+    'quantity changes must update per-card quantity state',
   );
 });
 
