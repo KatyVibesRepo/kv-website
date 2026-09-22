@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   PublicEvent,
   PublicEventShow,
@@ -28,6 +28,26 @@ type TicketShowGroup = {
 type FormMessage = {
   tone: 'success' | 'muted' | 'error';
   text: string;
+};
+
+type TicketInventorySnapshot = {
+  id: string;
+  minQuantity: number;
+  maxQuantity: number;
+  quantityAvailable: number;
+  availabilityStatus?: string | null;
+  status: string;
+  checkoutEnabled?: boolean;
+  action?: {
+    enabled?: boolean;
+    status?: string | null;
+    reason?: string | null;
+  } | null;
+};
+
+type TicketInventoryResponse = {
+  ok?: boolean;
+  ticketTypes?: TicketInventorySnapshot[];
 };
 
 const inactiveSaleStatuses: PublicSaleStatus[] = [
@@ -386,7 +406,11 @@ function ticketGuestText(ticket: TicketChoice) {
 
 function ticketAvailableText(ticket: TicketChoice) {
   if (!ticket) return 'Available while supplies last';
-  if (ticket.quantityAvailable <= 0) return 'No remaining inventory listed';
+  if (ticket.quantityAvailable <= 0) {
+    return ticket.availabilityStatus
+      ? titleCaseStatus(ticket.availabilityStatus)
+      : 'Sold Out';
+  }
   return `${ticket.quantityAvailable} available`;
 }
 
@@ -445,10 +469,15 @@ function shouldShowQuantity(event: PublicEvent, ticket: TicketChoice) {
   return quantityMax(event, ticket) > quantityMin(event, ticket);
 }
 
+function ticketAvailabilityLabel(event: PublicEvent, ticket: TicketChoice) {
+  const status = ticket?.availabilityStatus || ticket?.action?.status || event.saleStatus;
+  return titleCaseStatus(status);
+}
+
 function buttonLabel(event: PublicEvent, ticket: TicketChoice) {
   if (isCheckoutDisabled(event, ticket)) {
     if (!ticket?.id && (event.isTicketed || event.ticketSummary?.isTicketed)) return 'Ticket Unavailable';
-    return titleCaseStatus(event.saleStatus);
+    return ticketAvailabilityLabel(event, ticket);
   }
 
   return isFreeReservationChoice(event, ticket)
@@ -509,6 +538,9 @@ function checkoutErrorMessage(data: unknown, fallback: string) {
 }
 
 export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketCheckoutCardsProps) {
+  const inventorySectionRef = useRef<HTMLElement | null>(null);
+  const [inventorySectionVisible, setInventorySectionVisible] = useState(false);
+  const [liveTicketTypes, setLiveTicketTypes] = useState(ticketTypes);
   const [messages, setMessages] = useState<Record<string, FormMessage>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [quantities, setQuantities] = useState<Record<string, number>>({});
@@ -516,8 +548,148 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     Record<string, { key: string; serializedPayload: string }>
   >({});
 
+  useEffect(() => {
+    setLiveTicketTypes(ticketTypes);
+  }, [ticketTypes]);
+
+  useEffect(() => {
+    const node = inventorySectionRef.current;
+    if (!node) return;
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setInventorySectionVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setInventorySectionVisible(entries.some((entry) => entry.isIntersecting));
+      },
+      {
+        rootMargin: '300px 0px',
+        threshold: 0.01,
+      },
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inventorySectionVisible) return;
+
+    let cancelled = false;
+    let requestInFlight = false;
+
+    async function refreshInventory() {
+      if (cancelled || requestInFlight || document.visibilityState === 'hidden') return;
+      requestInFlight = true;
+
+      try {
+        const response = await fetch(
+          `/api/events/${encodeURIComponent(event.slug)}/ticket-inventory`,
+          {
+            cache: 'no-store',
+            headers: {
+              Accept: 'application/json',
+            },
+          },
+        );
+
+        const data = (await response.json().catch(() => null)) as TicketInventoryResponse | null;
+
+        if (!response.ok || data?.ok !== true || !Array.isArray(data.ticketTypes)) return;
+
+        const freshById = new Map(data.ticketTypes.map((ticket) => [ticket.id, ticket]));
+
+        setLiveTicketTypes((current) =>
+          current.map((ticket) => {
+            const fresh = freshById.get(ticket.id);
+            if (!fresh) return ticket;
+
+            const nextAction = fresh.action
+              ? {
+                  ...(ticket.action || {}),
+                  enabled: fresh.action.enabled,
+                  status: fresh.action.status,
+                  reason: fresh.action.reason,
+                }
+              : ticket.action;
+
+            return {
+              ...ticket,
+              minQuantity: fresh.minQuantity,
+              maxQuantity: fresh.maxQuantity,
+              quantityAvailable: fresh.quantityAvailable,
+              availabilityStatus: fresh.availabilityStatus,
+              status: fresh.status,
+              checkoutEnabled: fresh.checkoutEnabled,
+              action: nextAction,
+            };
+          }),
+        );
+
+        setQuantities((current) => {
+          let changed = false;
+          const next = { ...current };
+
+          for (const fresh of data.ticketTypes || []) {
+            const selected = current[fresh.id];
+            if (selected == null) continue;
+
+            const min = Math.max(1, fresh.minQuantity || 1);
+            const configuredMax = Math.max(min, fresh.maxQuantity || min);
+            const availableMax =
+              fresh.quantityAvailable > 0
+                ? Math.min(configuredMax, fresh.quantityAvailable)
+                : min;
+            const bounded = Math.max(min, Math.min(availableMax, selected));
+
+            if (bounded !== selected) {
+              next[fresh.id] = bounded;
+              changed = true;
+            }
+          }
+
+          return changed ? next : current;
+        });
+      } catch {
+        // Keep the last known server snapshot if the freshness request temporarily fails.
+      } finally {
+        requestInFlight = false;
+      }
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshInventory();
+      }
+    };
+
+    const handleFocus = () => {
+      void refreshInventory();
+    };
+
+    void refreshInventory();
+
+    const interval = window.setInterval(() => {
+      void refreshInventory();
+    }, 4_000);
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [event.slug, inventorySectionVisible]);
+
   const choices = useMemo<TicketChoice[]>(() => {
-    if (ticketTypes.length > 0) return ticketTypes;
+    if (liveTicketTypes.length > 0) return liveTicketTypes;
     if (event.isTicketed || event.ticketSummary?.isTicketed) return [null];
     if (
       event.saleStatus === 'rsvp_only'
@@ -532,7 +704,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     event.isTicketed,
     event.saleStatus,
     event.ticketSummary?.isTicketed,
-    ticketTypes,
+    liveTicketTypes,
   ]);
 
   const showGroups = useMemo(
@@ -558,7 +730,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
             ? freeReservation
               ? 'This RSVP option is not available online right now. Please call 832-437-2807 and we can help.'
               : 'This event is missing a selectable ticket type. Please call 832-437-2807 and we can help you finish booking.'
-            : `${ticketName(event, ticket)} is currently marked ${titleCaseStatus(event.saleStatus)}.`,
+            : `${ticketName(event, ticket)} is currently marked ${ticketAvailabilityLabel(event, ticket)}.`,
         },
       }));
       return;
@@ -746,7 +918,12 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
   }
 
   return (
-    <section className="event-ticket-options-section stack" id="event-ticket-options" aria-label="Ticket options">
+    <section
+      ref={inventorySectionRef}
+      className="event-ticket-options-section stack"
+      id="event-ticket-options"
+      aria-label="Ticket options"
+    >
       <div className="row-between event-ticket-options-heading">
         <div>
           <div className="eyebrow">Tickets & Tables</div>
