@@ -50,6 +50,11 @@ type TicketInventoryResponse = {
   ticketTypes?: TicketInventorySnapshot[];
 };
 
+type QuantitySelection = {
+  quantity: number;
+  requestedQuantity?: number;
+};
+
 const inactiveSaleStatuses: PublicSaleStatus[] = [
   'coming_soon',
   'sold_out',
@@ -543,7 +548,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
   const [liveTicketTypes, setLiveTicketTypes] = useState(ticketTypes);
   const [messages, setMessages] = useState<Record<string, FormMessage>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [quantitySelections, setQuantitySelections] = useState<Record<string, QuantitySelection>>({});
   const [pendingSubmissions, setPendingSubmissions] = useState<
     Record<string, { key: string; serializedPayload: string }>
   >({});
@@ -630,13 +635,13 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           }),
         );
 
-        setQuantities((current) => {
+        setQuantitySelections((current) => {
           let changed = false;
           const next = { ...current };
 
           for (const fresh of data.ticketTypes || []) {
-            const selected = current[fresh.id];
-            if (selected == null) continue;
+            const existing = current[fresh.id];
+            if (!existing) continue;
 
             const min = Math.max(1, fresh.minQuantity || 1);
             const configuredMax = Math.max(min, fresh.maxQuantity || min);
@@ -644,10 +649,26 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
               fresh.quantityAvailable > 0
                 ? Math.min(configuredMax, fresh.quantityAvailable)
                 : min;
-            const bounded = Math.max(min, Math.min(availableMax, selected));
+            const originalRequested = existing.requestedQuantity ?? existing.quantity;
+            const adjustedQuantity = Math.max(
+              min,
+              Math.min(availableMax, originalRequested),
+            );
+            const nextSelection: QuantitySelection =
+              adjustedQuantity < originalRequested
+                ? {
+                    quantity: adjustedQuantity,
+                    requestedQuantity: originalRequested,
+                  }
+                : {
+                    quantity: adjustedQuantity,
+                  };
 
-            if (bounded !== selected) {
-              next[fresh.id] = bounded;
+            if (
+              nextSelection.quantity !== existing.quantity
+              || nextSelection.requestedQuantity !== existing.requestedQuantity
+            ) {
+              next[fresh.id] = nextSelection;
               changed = true;
             }
           }
@@ -742,6 +763,13 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     const min = quantityMin(event, ticket);
     const max = quantityMax(event, ticket);
     const safeQuantity = Math.max(min, Math.min(max, quantity));
+    const quantitySelection = quantitySelections[key];
+    const requestedQuantity =
+      !freeReservation
+      && quantitySelection?.requestedQuantity
+      && quantitySelection.requestedQuantity > safeQuantity
+        ? quantitySelection.requestedQuantity
+        : undefined;
     const showId = readFormValue(formData, 'showId');
     const selectableShows = ticketSelectableShows(event, ticket);
 
@@ -792,6 +820,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           ticketTypeId: ticket?.id,
           showId: showId || null,
           quantity: safeQuantity,
+          ...(requestedQuantity ? { requestedQuantity } : {}),
           customerName: guestName,
           customerEmail: guestEmail,
           customerPhone: guestPhone,
@@ -877,9 +906,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
               || 'Your RSVP request was received. Katy Vibes management will review it before confirmation.',
           },
         }));
-        setQuantities((current) => ({
+        setQuantitySelections((current) => ({
           ...current,
-          [key]: quantityMin(event, ticket),
+          [key]: {
+            quantity: quantityMin(event, ticket),
+          },
         }));
         form.reset();
         return;
@@ -964,10 +995,20 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           const isPending = Boolean(pending[key]);
           const minQuantity = quantityMin(event, ticket);
           const maxQuantity = quantityMax(event, ticket);
+          const quantitySelection = quantitySelections[key];
           const selectedQuantity = Math.max(
             minQuantity,
-            Math.min(maxQuantity, quantities[key] ?? minQuantity),
+            Math.min(maxQuantity, quantitySelection?.quantity ?? minQuantity),
           );
+          const automaticAdjustment =
+            !freeReservation
+            && quantitySelection?.requestedQuantity
+            && quantitySelection.requestedQuantity > selectedQuantity
+              ? {
+                  requestedQuantity: quantitySelection.requestedQuantity,
+                  adjustedQuantity: selectedQuantity,
+                }
+              : null;
           const showCoverage = ticketShowCoverage(event, ticket);
           const selectableShows = ticketSelectableShows(event, ticket);
           const freeReservation = isFreeReservationChoice(event, ticket);
@@ -1058,9 +1099,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                           ? Math.max(minQuantity, Math.min(maxQuantity, requestedQuantity))
                           : minQuantity;
 
-                        setQuantities((current) => ({
+                        setQuantitySelections((current) => ({
                           ...current,
-                          [key]: nextQuantity,
+                          [key]: {
+                            quantity: nextQuantity,
+                          },
                         }));
                       }}
                       required
@@ -1094,6 +1137,16 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                       placeholder="Anything our team should know?"
                     />
                   </label>
+                ) : null}
+
+                {automaticAdjustment ? (
+                  <p className="ticket-form-message error" role="status" aria-live="polite">
+                    Availability changed while you were checking out. You requested{' '}
+                    {automaticAdjustment.requestedQuantity} × {ticketName(event, ticket)}, but only{' '}
+                    {automaticAdjustment.adjustedQuantity}{' '}
+                    {automaticAdjustment.adjustedQuantity === 1 ? 'is' : 'are'} still available. Your
+                    checkout quantity has been adjusted to {automaticAdjustment.adjustedQuantity}.
+                  </p>
                 ) : null}
 
                 <button className="button" type="submit" disabled={disabled || isPending}>
