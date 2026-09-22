@@ -615,7 +615,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   status: fresh.action.status,
                   reason: fresh.action.reason,
                 }
-              : ticket.action;
+              : null;
 
             return {
               ...ticket,
