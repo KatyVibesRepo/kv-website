@@ -79,8 +79,31 @@ test('displayed paid total reacts to selected quantity', () => {
   );
   assert.match(
     checkoutCardsSource,
-    /setQuantities\(\(current\) => \(\{[\s\S]{0,120}\[key\]: nextQuantity/,
-    'quantity changes must update per-card quantity state',
+    /setQuantitySelections\(\(current\) => \(\{[\s\S]{0,160}\[key\]: \{[\s\S]{0,80}quantity: nextQuantity/,
+    'manual quantity changes must update per-card quantity state',
+  );
+});
+
+test('paid checkout preserves an automatically reduced requested quantity', () => {
+  assert.match(
+    checkoutCardsSource,
+    /type QuantitySelection = \{[\s\S]{0,120}quantity: number;[\s\S]{0,120}requestedQuantity\?: number;/,
+    'quantity state must retain the original request separately from the adjusted transaction quantity',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /quantity: safeQuantity,[\s\S]{0,120}\{ requestedQuantity \}/,
+    'paid checkout must send the adjusted quantity plus optional requestedQuantity',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /!freeReservation[\s\S]{0,180}quantitySelection\?\.requestedQuantity[\s\S]{0,180}quantitySelection\.requestedQuantity > safeQuantity/,
+    'requestedQuantity must be emitted only for a paid checkout that remains reduced',
+  );
+  assert.match(
+    checkoutCardsSource,
+    /Availability changed while you were checking out\./,
+    'the affected paid form must show the automatic adjustment warning',
   );
 });
 
