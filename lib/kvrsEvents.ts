@@ -64,6 +64,7 @@ export type PublicTicketType = {
   minQuantity: number;
   maxQuantity: number;
   quantityAvailable: number;
+  availabilityStatus?: string | null;
   status: string;
   checkoutEnabled?: boolean;
   checkoutUrl?: string | null;
