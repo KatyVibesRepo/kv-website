@@ -17,7 +17,7 @@ const specialDays: SpecialDay[] = [
     note: 'Tacos, happy hour drinks, and early-week specials.',
     specials: [
       { title: '$5 Taco Tuesday', time: '5:00 PM – 10:00 PM', tag: 'Food Special' },
-      { title: 'Happy Hour Food', time: 'Early evening', detail: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more.', tag: 'Food Deals' },
+      { title: 'Happy Hour Food', time: '3:00 PM – 7:00 PM', detail: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more.', tag: 'Food Deals' },
       { title: 'Happy Hour Drinks', time: 'All day Tuesday', detail: '$6 house wine, frozen house margarita, Tito’s, Crown, Jack Daniel’s, Bacardi, and 1800 tequila.', tag: 'Drink Deals' },
     ],
   },
@@ -25,27 +25,27 @@ const specialDays: SpecialDay[] = [
     day: 'Wednesday',
     note: 'Whiskey, wings, and midweek happy hour.',
     specials: [
-      { title: 'Whiskey & Wing Wednesdays', time: '5:00 PM – 12:00 AM', detail: '$5 whiskeys, $8 Old Fashioneds, and wing specials.', tag: 'Weekly Feature' },
-      { title: 'Happy Hour Food', time: '5:00 PM – 7:00 PM', detail: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more.', tag: 'Food Deals' },
-      { title: 'Happy Hour Drinks', time: '5:00 PM – 7:00 PM', detail: '$6 house wine, frozen house margarita, Tito’s, Crown, Jack Daniel’s, Bacardi, and 1800 tequila.', tag: 'Drink Deals' },
+      { title: 'Whiskey & Wing Wednesdays', time: '5:00 PM – 12:00 AM', detail: '$5 whiskeys, $8 Old Fashioneds, and $0.99 bone-in wings.', tag: 'Weekly Feature' },
+      { title: 'Happy Hour Food', time: '3:00 PM – 7:00 PM', detail: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more.', tag: 'Food Deals' },
+      { title: 'Happy Hour Drinks', time: '2:00 PM – 7:00 PM', detail: '$6 house wine, frozen house margarita, Tito’s, Crown, Jack Daniel’s, Bacardi, and 1800 tequila.', tag: 'Drink Deals' },
     ],
   },
   {
     day: 'Thursday',
     note: 'Dinner specials, martinis, and happy hour before the night picks up.',
     specials: [
-      { title: 'Ribeye Night + Select Martinis', time: '5:00 PM – 11:00 PM', detail: '10 oz ribeye special and select martinis.', tag: 'Dinner Feature' },
-      { title: 'Happy Hour Food', time: '5:00 PM – 7:00 PM', detail: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more.', tag: 'Food Deals' },
-      { title: 'Happy Hour Drinks', time: '5:00 PM – 7:00 PM', detail: '$6 house wine, frozen house margarita, Tito’s, Crown, Jack Daniel’s, Bacardi, and 1800 tequila.', tag: 'Drink Deals' },
+      { title: 'Ribeye Night + Select Martinis', time: '5:00 PM – 11:00 PM', detail: '10 oz ribeye — $25. Select martinis — $7.', tag: 'Dinner Feature' },
+      { title: 'Happy Hour Food', time: '3:00 PM – 7:00 PM', detail: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more.', tag: 'Food Deals' },
+      { title: 'Happy Hour Drinks', time: '2:00 PM – 7:00 PM', detail: '$6 house wine, frozen house margarita, Tito’s, Crown, Jack Daniel’s, Bacardi, and 1800 tequila.', tag: 'Drink Deals' },
     ],
   },
   {
     day: 'Friday',
     note: 'Start the weekend with happy hour and the full Katy Vibes energy.',
     specials: [
-      { title: '$6 Happy Hour', time: '5:00 PM – 7:00 PM', tag: 'Weekend Kickoff' },
-      { title: 'Happy Hour Food', time: '5:00 PM – 7:00 PM', detail: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more.', tag: 'Food Deals' },
-      { title: 'Happy Hour Drinks', time: '5:00 PM – 7:00 PM', detail: '$6 house wine, frozen house margarita, Tito’s, Crown, Jack Daniel’s, Bacardi, and 1800 tequila.', tag: 'Drink Deals' },
+      { title: '$6 Happy Hour', time: '2:00 PM – 7:00 PM', tag: 'Weekend Kickoff' },
+      { title: 'Happy Hour Food', time: '3:00 PM – 7:00 PM', detail: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more.', tag: 'Food Deals' },
+      { title: 'Happy Hour Drinks', time: '2:00 PM – 7:00 PM', detail: '$6 house wine, frozen house margarita, Tito’s, Crown, Jack Daniel’s, Bacardi, and 1800 tequila.', tag: 'Drink Deals' },
     ],
   },
 ];
