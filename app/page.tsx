@@ -136,7 +136,19 @@ return (
           <div className="eyebrow">About Katy Vibes</div>
           <h2>Unwind. Relax. Enjoy.</h2>
           <p className="muted">
-            Katy Vibes is more than a restaurant, bar, or live music venue. It is a community destination built around food, music, culture, local talent, and unforgettable nights in Katy, Texas.
+            At Katy Vibes, we’re more than a restaurant, bar, or live music venue — we’re a movement rooted in community, culture, and connection. Located in the heart of Katy, Texas, we’ve created a one-of-a-kind destination where food, music, and people come together to create unforgettable experiences.
+          </p>
+          <p className="muted">
+            Our mission is simple: make Katy Vibes the number one spot in town by serving the community, celebrating its heroes, and uplifting local talent. From the up-and-coming singer on our stage to the everyday heroes who serve our city, we’re proud to be a space where everyone belongs, and every voice is heard.
+          </p>
+          <p className="muted">
+            We host everything from high-energy DJ nights and tribute shows to family-friendly events, karaoke, and cultural celebrations. No matter the vibe, our goal stays the same — to bring people together, one event and one smile at a time.
+          </p>
+          <p className="muted">
+            With delicious food, creative drinks, and a calendar full of diverse entertainment, Katy Vibes is where memories are made, connections are built, and the community thrives.
+          </p>
+          <p className="muted">
+            Come see what the vibe is all about. You’re not just a guest — you’re part of the family.
           </p>
           <a className="button ghost" href="/about">Read About Us</a>
         </div>
