@@ -29,7 +29,7 @@ const initialValues: FormValues = {
   reservationTime: '',
   guestCount: '2',
   reservationType: 'Dinner reservation',
-  seatingPreference: '',
+  seatingPreference: 'Inside',
   occasion: '',
   notes: '',
 };
@@ -112,14 +112,14 @@ export function ReserveRequestForm() {
     <form className="reserve-request-form" onSubmit={handleSubmit}>
       <div className="reserve-form-grid">
         <label>
-          <span>Name *</span>
+          <span>First / Last Name *</span>
           <input
             required
             autoComplete="name"
             name="guestName"
             value={values.guestName}
             onChange={(event) => updateValue('guestName', event.target.value)}
-            placeholder="Your name"
+            placeholder="First / Last Name"
           />
         </label>
 
@@ -208,12 +208,9 @@ export function ReserveRequestForm() {
             value={values.seatingPreference}
             onChange={(event) => updateValue('seatingPreference', event.target.value)}
           >
-            <option value="">No preference</option>
-            <option>Dining room</option>
-            <option>Patio</option>
-            <option>Bar area</option>
-            <option>Near the stage</option>
-            <option>VIP / bottle service</option>
+            <option>Inside</option>
+            <option>Outside</option>
+            <option>Bar</option>
           </select>
         </label>
 
