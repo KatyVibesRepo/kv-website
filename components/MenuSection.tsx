@@ -1,5 +1,6 @@
 import type { MenuSection as MenuSectionType } from '@/lib/siteContent';
 import type { SiteGalleryImage } from '@/lib/siteImages';
+import { MenuImageLightbox } from '@/components/MenuImageLightbox';
 
 function normalizeMenuName(value: string) {
   return value
@@ -86,7 +87,6 @@ export function MenuSection({
               <div className="menu-item-copy">
                 <div className="row-between menu-item-heading">
                   <h3>{item.name}</h3>
-                  {item.price && <span className="price-chip">{item.price}</span>}
                 </div>
 
                 {item.badge && <span className="badge hot">{item.badge}</span>}
@@ -97,10 +97,9 @@ export function MenuSection({
                 <div className="menu-item-media-grid" aria-label={`${item.name} photos`}>
                   {itemImages.map((image, index) => (
                     <figure className="menu-item-media" key={`${image.src}-${index}`}>
-                      <img
+                      <MenuImageLightbox
                         src={image.src}
                         alt={image.title || `${item.name} photo`}
-                        loading="lazy"
                       />
                       {image.title && <figcaption>{image.title}</figcaption>}
                     </figure>
