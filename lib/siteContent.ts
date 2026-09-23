@@ -199,7 +199,7 @@ export const foodSections: MenuSection[] = [
   },
   {
     title: 'Happy Hour Food',
-    kicker: 'Tuesday through Friday, 5 PM to 7 PM.',
+    kicker: 'Tuesday through Friday, 3 PM to 7 PM.',
     items: [
       { name: 'Boneless Wings', description: 'Boneless wings in one of our house-made sauces and served with ranch or bleu cheese.' },
       { name: 'Tacos', description: 'Corn or flour tacos with chicken or beef, topped with diced onions and cilantro.' },
@@ -228,7 +228,7 @@ export const foodSections: MenuSection[] = [
   },
   {
     title: 'Happy Hour Drinks',
-    kicker: 'Tuesday all day. Wednesday through Friday, 5 PM to 7 PM.',
+    kicker: 'Tuesday all day. Wednesday through Friday, 2 PM to 7 PM.',
     items: [
       { name: 'House Wine', price: '$6' },
       { name: 'Frozen House Margarita', price: '$6' },
@@ -291,11 +291,11 @@ export const drinkSections: MenuSection[] = [
 
 export const specials = [
   { day: 'Tuesday', title: '$5 Taco Tuesday', time: '5:00 PM – 10:00 PM' },
-  { day: 'Wednesday', title: 'Whiskey & Wing Wednesdays', time: '5:00 PM – 12:00 AM', detail: '$5 whiskeys, $8 Old Fashioneds, and wing specials.' },
-  { day: 'Thursday', title: 'Ribeye Night + Select Martinis', time: '5:00 PM – 11:00 PM', detail: '10 oz ribeye special and select martinis.' },
-  { day: 'Friday', title: '$6 Happy Hour', time: '5:00 PM – 7:00 PM' },
-  { day: 'Happy Hour Food', title: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more', time: 'Tue–Fri early evening' },
-  { day: 'Happy Hour Drinks', title: '$6 house wine, frozen house margarita, Tito’s, Crown, Jack Daniel’s, Bacardi, and 1800 tequila', time: 'Tuesday all day / Wed–Fri 5:00 PM – 7:00 PM' },
+  { day: 'Wednesday', title: 'Whiskey & Wing Wednesdays', time: '5:00 PM – 12:00 AM', detail: '$5 whiskeys, $8 Old Fashioneds, and $0.99 bone-in wings.' },
+  { day: 'Thursday', title: 'Ribeye Night + Select Martinis', time: '5:00 PM – 11:00 PM', detail: '10 oz ribeye — $25. Select martinis — $7.' },
+  { day: 'Friday', title: '$6 Happy Hour', time: '2:00 PM – 7:00 PM' },
+  { day: 'Happy Hour Food', title: 'Bites, sliders, wings, tacos, queso, crawfish rice, and more', time: 'Tue–Fri 3:00 PM – 7:00 PM' },
+  { day: 'Happy Hour Drinks', title: '$6 house wine, frozen house margarita, Tito’s, Crown, Jack Daniel’s, Bacardi, and 1800 tequila', time: 'Tuesday all day / Wed–Fri 2:00 PM – 7:00 PM' },
 ];
 
 export const partyPackages = [
