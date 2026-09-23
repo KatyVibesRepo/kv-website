@@ -6,7 +6,7 @@ export default function ContactPage() {
       <div className="hero page-hero">
         <div className="eyebrow">Contact & Location</div>
         <h1><span className="gradient-text">Come catch</span><br />the vibe.</h1>
-        <p>Find us on Katy Freeway for food, drinks, dancing, live events, private parties, catering, and community nights.</p>
+        <p>Find us on Katy Freeway for food, drinks, dancing, live bands, private parties, catering, and community nights.</p>
       </div>
 
       <section className="contact-section card">
