@@ -167,7 +167,7 @@ export const enhancedDrinkSections: MenuSection[] = [
       },
       {
         name: 'Upgrade Your Liqueur',
-        description: 'House Triple Sec, Cointreau +$1, or Grand Marnier +$1.',
+        description: 'House Triple Sec, Cointreau, or Grand Marnier.',
       },
       {
         name: 'Fruit Flavors',
