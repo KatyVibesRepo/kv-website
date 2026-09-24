@@ -10524,3 +10524,21 @@ nav a,
   }
 }
 /* end menu-image-lightbox-20260922 */
+
+/* home-flyer-intrinsic-ratio-selection: respect the dimensions of the actual KVRS flyer. */
+.home-events-flyer-only-carousel .home-event-flyer-only-link.home-event-flyer-portrait-link {
+  aspect-ratio: 9 / 16 !important;
+}
+
+.home-events-flyer-only-carousel .home-event-flyer-only-link.home-event-flyer-fallback-link {
+  aspect-ratio: 5 / 6 !important;
+}
+
+.home-events-flyer-only-carousel .home-event-flyer-only-link .home-event-flyer-only-image {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+}
+/* end home-flyer-intrinsic-ratio-selection */
