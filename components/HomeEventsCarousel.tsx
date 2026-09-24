@@ -1,26 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PublicEvent } from '@/lib/kvrsEvents';
 import { eventFlyerImage, resolveKvrsAssetUrl } from '@/lib/kvrsEvents';
+import { selectHomeFlyer } from '@/lib/homeFlyerSelection.mjs';
+import type { HomeFlyerCandidate, HomeFlyerSelection } from '@/lib/homeFlyerSelection.mjs';
 
 function getCardsPerPage(width: number) {
   if (width >= 980) return 4;
   if (width >= 760) return 3;
   if (width >= 640) return 2;
   return 1;
-}
-
-const truePortraitFlyerPattern = /(1080[-_\s]*(?:x|by)[-_\s]*1920|1080[-_\s]*1920|9[-_\s]*(?:x|by)[-_\s]*16|9[-_\s]*16)/i;
-const fiveBySixFlyerPattern = /(1500[-_\s]*(?:x|by)[-_\s]*1800|1500[-_\s]*1800)/i;
-
-function isTruePortraitFlyer(url?: string | null) {
-  if (!url) return false;
-
-  const normalized = url.toLowerCase();
-  if (truePortraitFlyerPattern.test(normalized)) return true;
-
-  return normalized.includes('portrait') && !fiveBySixFlyerPattern.test(normalized);
 }
 
 function cleanImageCandidates(values: Array<string | null | undefined>) {
@@ -36,16 +26,12 @@ function cleanImageCandidates(values: Array<string | null | undefined>) {
     });
 }
 
-type HomeFlyerCandidate = {
-  imageUrl: string;
-  shouldContain: boolean;
-};
-
-function homepageCarouselFlyerCandidates(event: PublicEvent): HomeFlyerCandidate[] {
+function homepageCarouselFlyerCandidates(event: PublicEvent): string[] {
   const flyerImages = event.flyerImages || {};
-  const priorityCandidates = cleanImageCandidates([
-    flyerImages.portrait,
+
+  return cleanImageCandidates([
     flyerImages.tall,
+    flyerImages.portrait,
     flyerImages.default,
     event.flyerImageUrl,
     flyerImages.square,
@@ -54,44 +40,85 @@ function homepageCarouselFlyerCandidates(event: PublicEvent): HomeFlyerCandidate
     event.heroImageUrl,
     flyerImages.landscape,
     flyerImages.wide,
-    eventFlyerImage(event, 'portrait'),
     eventFlyerImage(event, 'tall'),
+    eventFlyerImage(event, 'portrait'),
     eventFlyerImage(event, 'default'),
     eventFlyerImage(event, 'square'),
   ]);
+}
 
-  const truePortraits = priorityCandidates
-    .filter(isTruePortraitFlyer)
-    .map((imageUrl) => ({ imageUrl, shouldContain: false }));
-
-  const fallbacks = priorityCandidates
-    .filter((imageUrl) => !isTruePortraitFlyer(imageUrl))
-    .map((imageUrl) => ({ imageUrl, shouldContain: true }));
-
-  return [...truePortraits, ...fallbacks];
+function probeFlyerDimensions(imageUrl: string): Promise<HomeFlyerCandidate | null> {
+  return new Promise((resolve) => {
+    const image = new window.Image();
+    image.onload = () => {
+      resolve({
+        imageUrl,
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+      });
+    };
+    image.onerror = () => resolve(null);
+    image.src = imageUrl;
+  });
 }
 
 function HomeEventCard({ event, flexBasis }: { event: PublicEvent; flexBasis: string }) {
-  const [imageIndex, setImageIndex] = useState(0);
-  const imageCandidates = homepageCarouselFlyerCandidates(event);
-  const activeImage = imageCandidates[imageIndex] || null;
-  const imageClassName = `home-event-flyer home-event-flyer-only-image ${
-    activeImage?.shouldContain ? 'home-event-flyer-fallback-contain' : 'home-event-flyer-true-portrait'
-  }`;
+  const imageCandidates = useMemo(() => homepageCarouselFlyerCandidates(event), [event]);
+  const [activeImage, setActiveImage] = useState<HomeFlyerSelection | null>(() =>
+    imageCandidates[0]
+      ? { imageUrl: imageCandidates[0], frame: 'five-six' }
+      : null
+  );
 
   useEffect(() => {
-    setImageIndex(0);
-  }, [event.id]);
+    let cancelled = false;
+    const loadedCandidates: HomeFlyerCandidate[] = [];
+
+    // The first flyer renders on the server in a safe, contained 5:6 frame.
+    // Check intrinsic dimensions on the client: SHA-based filenames do not
+    // identify the 9:16 variant. Switch to it if KVRS supplies one.
+    setActiveImage(imageCandidates[0]
+      ? { imageUrl: imageCandidates[0], frame: 'five-six' }
+      : null
+    );
+
+    async function findPreferredFlyer() {
+      for (const imageUrl of imageCandidates) {
+        const candidate = await probeFlyerDimensions(imageUrl);
+        if (cancelled) return;
+        if (!candidate) continue;
+
+        loadedCandidates.push(candidate);
+        const selection = selectHomeFlyer(loadedCandidates);
+        setActiveImage(selection);
+
+        if (selection?.frame === 'nine-sixteen') return;
+      }
+
+      if (!cancelled) setActiveImage(selectHomeFlyer(loadedCandidates));
+    }
+
+    void findPreferredFlyer();
+    return () => { cancelled = true; };
+  }, [imageCandidates]);
+
+  const isTruePortrait = activeImage?.frame === 'nine-sixteen';
+  const linkClassName = `home-event-flyer-only-link ${
+    isTruePortrait ? 'home-event-flyer-portrait-link' : 'home-event-flyer-fallback-link'
+  }`;
+  const imageClassName = `home-event-flyer home-event-flyer-only-image ${
+    isTruePortrait ? 'home-event-flyer-true-portrait' : 'home-event-flyer-fallback-contain'
+  }`;
 
   return (
     <article className="home-event-card home-event-flyer-only-card" style={{ flexBasis }}>
-      <a className="home-event-flyer-only-link" href={`/events/${event.slug}`} aria-label={`View ${event.title}`}>
+      <a className={linkClassName} href={`/events/${event.slug}`} aria-label={`View ${event.title}`}>
         {activeImage ? (
           <img
             className={imageClassName}
             src={activeImage.imageUrl}
             alt={event.flyerAlt || `${event.title} flyer`}
-            onError={() => setImageIndex((current) => current + 1)}
+            onError={() => setActiveImage(null)}
           />
         ) : (
           <div className="home-event-flyer home-event-flyer-placeholder home-event-flyer-only-placeholder">
