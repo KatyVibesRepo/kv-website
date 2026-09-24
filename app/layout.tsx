@@ -4,6 +4,7 @@ import { SiteBackdrop } from '@/components/SiteBackdrop';
 import type { ReactNode } from 'react';
 import { katyVibesInfo, primaryNav } from '@/lib/siteContent';
 import { SiteFooter } from '@/components/SiteFooter';
+import { MenuImageLightboxProvider } from '@/components/MenuImageLightbox';
 
 export const metadata = {
   title: 'Katy Vibes | Events, Reservations, Food & Live Entertainment',
@@ -34,7 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             ))}
           </nav>
         </header>
-        <main>{children}</main>
+        <main><MenuImageLightboxProvider>{children}</MenuImageLightboxProvider></main>
         <SiteFooter />
       </body>
     </html>
