@@ -90,8 +90,8 @@ export default function TermsPage() {
         <section>
           <h2>Transactional SMS terms</h2>
           <p>
-            Katy Vibes offers an optional Katy Vibes Reservation & Ticket Messaging
-            Program for transactional customer communications. SMS participation is
+            Katy Vibes offers an optional Katy Vibes Customer Request Messaging
+            Program for transactional reservation, ticket, and catering communications. SMS participation is
             voluntary and is not a condition of purchasing a ticket, making a
             reservation, or otherwise doing business with Katy Vibes.
           </p>
@@ -99,7 +99,7 @@ export default function TermsPage() {
             If you choose to opt in, messages may relate to reservation requests,
             separate reservation confirmations after management approval, tickets,
             order confirmations, event or service information, and
-            customer-service-related transactional communications. Message frequency
+            customer-service-related transactional communications, including catering inquiries and follow-ups. Message frequency
             may vary based on your interactions with Katy Vibes.
           </p>
           <p>
