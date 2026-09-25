@@ -15,6 +15,7 @@ test('local defaults preserve Website 3000 -> KVRS 3001 split', () => {
   assert.equal(config.checkoutUrl, `${LOCAL_KVRS_ORIGIN}/api/checkout`);
   assert.equal(config.reservationRequestUrl, `${LOCAL_KVRS_ORIGIN}/api/public/reservations/request`);
   assert.equal(config.jobApplicationsUrl, `${LOCAL_KVRS_ORIGIN}/api/public/job-applications`);
+  assert.equal(config.cateringRequestsUrl, `${LOCAL_KVRS_ORIGIN}/api/public/catering-requests`);
   assert.equal(config.orderLookupUrl, `${LOCAL_KVRS_ORIGIN}/api/orders/by-session`);
   assert.equal(config.adminLoginUrl, `${LOCAL_KVRS_ORIGIN}/admin/login`);
 });
@@ -32,6 +33,7 @@ test('canonical Production variables resolve every Website KVRS path to admin.ka
   assert.equal(config.checkoutUrl, `${APPROVED_PRODUCTION_KVRS_ORIGIN}/api/checkout`);
   assert.equal(config.orderLookupUrl, `${APPROVED_PRODUCTION_KVRS_ORIGIN}/api/orders/by-session`);
   assert.equal(config.reservationRequestUrl, `${APPROVED_PRODUCTION_KVRS_ORIGIN}/api/public/reservations/request`);
+  assert.equal(config.cateringRequestsUrl, `${APPROVED_PRODUCTION_KVRS_ORIGIN}/api/public/catering-requests`);
   assert.equal(config.adminLoginUrl, `${APPROVED_PRODUCTION_KVRS_ORIGIN}/admin/login`);
 });
 

@@ -1,4 +1,4 @@
-import { InquiryForm } from '@/components/InquiryForm';
+import { CateringRequestForm } from '@/components/CateringRequestForm';
 import { katyVibesInfo } from '@/lib/siteContent';
 import { getCuratedFoodGalleryImages } from '@/lib/siteImages';
 
@@ -173,7 +173,7 @@ export default function CateringPage() {
       </section>
 
       <div id="catering-form" className="catering-form-anchor">
-        <InquiryForm title="Request catering information" subjectHint="Catering Inquiry" submitLabel="Request Catering" />
+        <CateringRequestForm />
       </div>
     </section>
   );

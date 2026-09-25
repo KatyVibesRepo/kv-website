@@ -20,6 +20,7 @@ export type KvrsResolvedConfig = {
   orderLookupUrl: string;
   reservationRequestUrl: string;
   jobApplicationsUrl: string;
+  cateringRequestsUrl: string;
   adminLoginUrl: string;
   configured: KvrsConfiguredEntry[];
   invalidEntries: KvrsConfiguredEntry[];
