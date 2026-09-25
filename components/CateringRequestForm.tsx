@@ -31,6 +31,7 @@ export function CateringRequestForm() {
       budgetRange: value(data, 'budgetRange'),
       menuRequests: value(data, 'menuRequests'),
       details: value(data, 'details'),
+      smsConsent: data.get('smsConsent') === 'on',
     };
     setStatus('submitting');
     setMessage('');
@@ -73,9 +74,9 @@ export function CateringRequestForm() {
           <input name="contactPhone" required type="tel" minLength={7} maxLength={40}
             autoComplete="tel" placeholder="Best number to reach you" />
         </label>
-        <label className="span-two">Email
+        <label className="span-two">Email (required for an automatic receipt)
           <input name="contactEmail" type="email" maxLength={200} autoComplete="email"
-            placeholder="you@example.com (optional)" />
+            placeholder="you@example.com (optional if you prefer phone follow-up)" />
         </label>
         <label>Event date
           <input name="eventDate" type="date" />
@@ -108,6 +109,17 @@ export function CateringRequestForm() {
           <textarea name="details" rows={5} required minLength={10} maxLength={4000}
             placeholder="Tell us the time, occasion, guest count, delivery/pickup needs, and anything else we should know." />
         </label>
+        <div className="span-two catering-sms-consent">
+          <label className="catering-sms-consent-choice">
+            <input name="smsConsent" type="checkbox" value="on" />
+            <span>I agree to receive optional text messages from Katy Vibes about this catering request.
+              Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help.
+              SMS consent is not required to submit a catering inquiry.</span>
+          </label>
+          <p>Read the <a href="/terms" target="_blank" rel="noreferrer">Terms</a> and{' '}
+            <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
+            Text messaging is not yet active and will remain disabled until required registration is complete.</p>
+        </div>
         <button className="hot span-two" type="submit" disabled={submitting}>
           {submitting ? 'Submitting Request…' : 'Send Catering Request'}
         </button>
