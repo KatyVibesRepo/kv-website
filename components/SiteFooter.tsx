@@ -13,6 +13,9 @@ const footerLinks = [
 
 export function SiteFooter() {
   const adminLoginHref = getKvrsServerConfig().adminLoginUrl;
+  const venueMapQuery = `${katyVibesInfo.name} Restaurant & Bar, ${katyVibesInfo.addressLines.join(', ')}`;
+  const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(venueMapQuery)}&z=16&output=embed`;
+  const mapPageUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venueMapQuery)}`;
 
   return (
     <footer className="site-footer">
@@ -42,7 +45,25 @@ export function SiteFooter() {
           <div className="footer-column">
             <h3>Location</h3>
             <p>{katyVibesInfo.addressLines[0]}<br />{katyVibesInfo.addressLines[1]}</p>
-            <a className="footer-link" href="/contact">Map & contact</a>
+            <a className="footer-link" href="/contact">Map & Contact</a>
+            <div className="footer-location-map">
+              <iframe
+                className="footer-location-map-embed"
+                src={mapEmbedUrl}
+                title="Interactive Google Map showing Katy Vibes Restaurant & Bar"
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            </div>
+            <a
+              className="footer-map-external-link"
+              href={mapPageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open in Google Maps ↗
+            </a>
           </div>
 
           <div className="footer-column">
