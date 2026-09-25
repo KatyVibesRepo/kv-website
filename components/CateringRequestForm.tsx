@@ -46,7 +46,7 @@ export function CateringRequestForm() {
         throw new Error(result?.error || 'We could not submit your request. Please try again.');
       }
       setStatus('success');
-      setMessage('Your catering request has been received by Katy Vibes. Our team will review it and follow up.');
+      setMessage('Katy Vibes received your catering inquiry. It is not a confirmed booking, quote, or order. Our team will review it and follow up. If you provided an email address, we will prepare an acknowledgment email.');
       form.reset();
     } catch (error) {
       setStatus('error');
@@ -118,7 +118,7 @@ export function CateringRequestForm() {
           </label>
           <p>Read the <a href="/terms" target="_blank" rel="noreferrer">Terms</a> and{' '}
             <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
-            Text messaging is not yet active and will remain disabled until required registration is complete.</p>
+            We will send texts only if this optional service becomes available and you have consented.</p>
         </div>
         <button className="hot span-two" type="submit" disabled={submitting}>
           {submitting ? 'Submitting Request…' : 'Send Catering Request'}
