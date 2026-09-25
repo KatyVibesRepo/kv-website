@@ -66,7 +66,7 @@ export function SiteFooter() {
             </a>
           </div>
 
-          <div className="footer-column">
+          <div className="footer-column footer-hours-column">
             <h3>Hours</h3>
             <dl className="footer-hours">
               {katyVibesInfo.hours.map((row) => (
