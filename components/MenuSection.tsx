@@ -1,6 +1,10 @@
 import type { MenuSection as MenuSectionType } from '@/lib/siteContent';
 import type { SiteGalleryImage } from '@/lib/siteImages';
 import { MenuImageLightbox } from '@/components/MenuImageLightbox';
+import {
+  selectedMenuPhotos,
+  type PublicMenuPhotoItem,
+} from '@/lib/menuPhotoOverrides.mjs';
 
 function normalizeMenuName(value: string) {
   return value
@@ -66,9 +70,11 @@ function getImagesForMenuItem(itemName: string, images: SiteGalleryImage[]) {
 export function MenuSection({
   section,
   images = [],
+  photoItems,
 }: {
   section: MenuSectionType;
   images?: SiteGalleryImage[];
+  photoItems?: ReadonlyMap<string, PublicMenuPhotoItem>;
 }) {
   return (
     <section className={`menu-section menu-section-${menuSectionSlug(section.title)} card stack`}>
@@ -80,7 +86,10 @@ export function MenuSection({
 
       <div className="menu-item-grid">
         {section.items.map((item) => {
-          const itemImages = getImagesForMenuItem(item.name, images);
+          const localImages = getImagesForMenuItem(item.name, images);
+          const itemImages = photoItems
+            ? selectedMenuPhotos(item, localImages, photoItems)
+            : localImages;
 
           return (
             <article className={itemImages.length > 0 ? "menu-item menu-item-has-media" : "menu-item"} key={`${section.title}-${item.name}`}>
