@@ -2,9 +2,14 @@ import { MenuSection } from '@/components/MenuSection';
 import { enhancedDrinkSections } from '@/lib/drinkMenuContent';
 import { getCuratedDrinkGalleryImages } from '@/lib/siteImages';
 import { balanceMenuSectionsIntoColumns } from '@/lib/menuColumnLayout';
+import { getKvrsMenuPhotoCatalog } from '@/lib/kvrsMenuPhotos';
 
-export default function DrinksPage() {
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function DrinksPage() {
   const images = getCuratedDrinkGalleryImages();
+  const photoItems = await getKvrsMenuPhotoCatalog('drink_menu_photos', enhancedDrinkSections);
 
   const columns = balanceMenuSectionsIntoColumns(enhancedDrinkSections, 3);
 
@@ -24,7 +29,7 @@ export default function DrinksPage() {
         {columns.map((column, columnIndex) => (
           <div className="menu-section-column" key={`drinks-column-${columnIndex}`}>
             {column.map((section) => (
-              <MenuSection key={section.title} section={section} images={images} />
+              <MenuSection key={section.title} section={section} images={images} photoItems={photoItems} />
             ))}
           </div>
         ))}
