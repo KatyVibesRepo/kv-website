@@ -2,6 +2,7 @@ import { MenuSection } from '@/components/MenuSection';
 import { foodSections } from '@/lib/siteContent';
 import { getCuratedFoodGalleryImages } from '@/lib/siteImages';
 import { balanceMenuSectionsIntoColumns } from '@/lib/menuColumnLayout';
+import { getKvrsMenuPhotoCatalog } from '@/lib/kvrsMenuPhotos';
 import type { MenuSection as MenuSectionType } from '@/lib/siteContent';
 
 function shouldHideFoodSection(section: MenuSectionType) {
@@ -15,9 +16,13 @@ function shouldHideFoodSection(section: MenuSectionType) {
   );
 }
 
-export default function FoodPage() {
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function FoodPage() {
   const images = getCuratedFoodGalleryImages();
   const visibleFoodSections = foodSections.filter((section) => !shouldHideFoodSection(section));
+  const photoItems = await getKvrsMenuPhotoCatalog('food_menu_photos', visibleFoodSections);
 
   const columns = balanceMenuSectionsIntoColumns(visibleFoodSections, 3);
 
@@ -37,7 +42,7 @@ export default function FoodPage() {
         {columns.map((column, columnIndex) => (
           <div className="menu-section-column" key={`food-column-${columnIndex}`}>
             {column.map((section) => (
-              <MenuSection key={section.title} section={section} images={images} />
+              <MenuSection key={section.title} section={section} images={images} photoItems={photoItems} />
             ))}
           </div>
         ))}
