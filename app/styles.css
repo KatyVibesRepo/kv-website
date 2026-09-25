@@ -10620,3 +10620,65 @@ nav a,
   }
 }
 /* end footer-interactive-google-map */
+
+/* footer-hours-card-responsive */
+/* Keep the hours card only as tall as its own content, not the map card beside it. */
+.site-footer .footer-hours-column {
+  align-self: start;
+  min-width: 0;
+}
+
+/* The rows respond to their own available space, including browser zoom. */
+.site-footer .footer-hours {
+  container: footer-hours / inline-size;
+  min-width: 0;
+}
+
+.site-footer .footer-hours > div {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: start;
+  gap: 0.15rem !important;
+}
+
+.site-footer .footer-hours dt,
+.site-footer .footer-hours dd {
+  min-width: 0;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: none;
+}
+
+.site-footer .footer-hours dt {
+  white-space: nowrap;
+}
+
+.site-footer .footer-hours dd {
+  margin: 0;
+  text-align: left !important;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+/* Side-by-side only when the Hours card itself can fit both complete strings. */
+@container footer-hours (min-width: 34rem) {
+  .site-footer .footer-hours > div {
+    grid-template-columns: minmax(0, 1fr) max-content !important;
+    align-items: baseline;
+    column-gap: 0.75rem !important;
+  }
+
+  .site-footer .footer-hours dd {
+    text-align: right !important;
+    white-space: nowrap;
+  }
+}
+
+/* Keep day labels intact even in very narrow multi-column footer layouts. */
+@container footer-hours (max-width: 13rem) {
+  .site-footer .footer-hours dt,
+  .site-footer .footer-hours dd {
+    font-size: 0.9rem;
+  }
+}
+/* end footer-hours-card-responsive */
