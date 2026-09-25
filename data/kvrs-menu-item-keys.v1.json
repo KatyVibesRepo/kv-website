@@ -1,0 +1,763 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "kv-website-menu-v1",
+  "sourceRevision": "1e99cd338d29dd34d8af0ef98bf5dce650da0486",
+  "items": [
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Coconut Shrimp",
+      "itemKey": "web-v1-food-bites-and-shareables-coconut-shrimp"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Spinach Dip",
+      "itemKey": "web-v1-food-bites-and-shareables-spinach-dip"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Salmon Sliders",
+      "itemKey": "web-v1-food-bites-and-shareables-salmon-sliders"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Party Sampler",
+      "itemKey": "web-v1-food-bites-and-shareables-party-sampler"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Tex-Mex Sampler",
+      "itemKey": "web-v1-food-bites-and-shareables-tex-mex-sampler"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Crawfish Rice",
+      "itemKey": "web-v1-food-bites-and-shareables-crawfish-rice"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Fried Rice",
+      "itemKey": "web-v1-food-bites-and-shareables-fried-rice"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Crab Stuffed Mushrooms",
+      "itemKey": "web-v1-food-bites-and-shareables-crab-stuffed-mushrooms"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Loaded Nachos",
+      "itemKey": "web-v1-food-bites-and-shareables-loaded-nachos"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Fried Pickles & Peppers",
+      "itemKey": "web-v1-food-bites-and-shareables-fried-pickles-and-peppers"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Cheese Curds",
+      "itemKey": "web-v1-food-bites-and-shareables-cheese-curds"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Bites & Shareables",
+      "itemLabel": "Chips & Queso",
+      "itemKey": "web-v1-food-bites-and-shareables-chips-and-queso"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Salads",
+      "itemLabel": "Chicken Caesar Salad",
+      "itemKey": "web-v1-food-salads-chicken-caesar-salad"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Salads",
+      "itemLabel": "Grilled Chicken Salad",
+      "itemKey": "web-v1-food-salads-grilled-chicken-salad"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Salads",
+      "itemLabel": "Caesar Salad",
+      "itemKey": "web-v1-food-salads-caesar-salad"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Salads",
+      "itemLabel": "House Side Salad",
+      "itemKey": "web-v1-food-salads-house-side-salad"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sandwiches & Burgers",
+      "itemLabel": "The Vibe Burger",
+      "itemKey": "web-v1-food-sandwiches-and-burgers-the-vibe-burger"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sandwiches & Burgers",
+      "itemLabel": "Texas Smash Burger",
+      "itemKey": "web-v1-food-sandwiches-and-burgers-texas-smash-burger"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sandwiches & Burgers",
+      "itemLabel": "Club Sandwich",
+      "itemKey": "web-v1-food-sandwiches-and-burgers-club-sandwich"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sandwiches & Burgers",
+      "itemLabel": "Chicken Sandwich",
+      "itemKey": "web-v1-food-sandwiches-and-burgers-chicken-sandwich"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sandwiches & Burgers",
+      "itemLabel": "The Monte Cristo",
+      "itemKey": "web-v1-food-sandwiches-and-burgers-the-monte-cristo"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sandwiches & Burgers",
+      "itemLabel": "Philly Cheese Steak",
+      "itemKey": "web-v1-food-sandwiches-and-burgers-philly-cheese-steak"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Wings",
+      "itemLabel": "Bone-In Wings",
+      "itemKey": "web-v1-food-wings-bone-in-wings"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Wings",
+      "itemLabel": "Boneless Wings",
+      "itemKey": "web-v1-food-wings-boneless-wings"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Wings",
+      "itemLabel": "Wings Tray Special",
+      "itemKey": "web-v1-food-wings-wings-tray-special"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Wings",
+      "itemLabel": "Wing Sauces",
+      "itemKey": "web-v1-food-wings-wing-sauces"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Wings",
+      "itemLabel": "Dry Rubs",
+      "itemKey": "web-v1-food-wings-dry-rubs"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Wings",
+      "itemLabel": "Wing Prep Options",
+      "itemKey": "web-v1-food-wings-wing-prep-options"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Entrées",
+      "itemLabel": "Molcajete",
+      "itemKey": "web-v1-food-entrees-molcajete"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Entrées",
+      "itemLabel": "Hanging Skewer",
+      "itemKey": "web-v1-food-entrees-hanging-skewer"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Entrées",
+      "itemLabel": "Ribeye",
+      "itemKey": "web-v1-food-entrees-ribeye"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Entrées",
+      "itemLabel": "Lamb Chop Lollipops",
+      "itemKey": "web-v1-food-entrees-lamb-chop-lollipops"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Entrées",
+      "itemLabel": "Fajitas",
+      "itemKey": "web-v1-food-entrees-fajitas"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Entrées",
+      "itemLabel": "Tacos",
+      "itemKey": "web-v1-food-entrees-tacos"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Entrées",
+      "itemLabel": "Quesadillas",
+      "itemKey": "web-v1-food-entrees-quesadillas"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Seafood",
+      "itemLabel": "Deep Sea Sampler",
+      "itemKey": "web-v1-food-seafood-deep-sea-sampler"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Seafood",
+      "itemLabel": "The Crab Trap",
+      "itemKey": "web-v1-food-seafood-the-crab-trap"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Seafood",
+      "itemLabel": "Peel & Eat Shrimp",
+      "itemKey": "web-v1-food-seafood-peel-and-eat-shrimp"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Seafood",
+      "itemLabel": "Seared Salmon",
+      "itemKey": "web-v1-food-seafood-seared-salmon"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Seafood",
+      "itemLabel": "Fried Shrimp",
+      "itemKey": "web-v1-food-seafood-fried-shrimp"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Seasoned Fries",
+      "itemKey": "web-v1-food-sides-seasoned-fries"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Sweet Potato Fries",
+      "itemKey": "web-v1-food-sides-sweet-potato-fries"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Onion Rings",
+      "itemKey": "web-v1-food-sides-onion-rings"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Mac & Cheese",
+      "itemKey": "web-v1-food-sides-mac-and-cheese"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Roasted Garlic Mashed Potatoes",
+      "itemKey": "web-v1-food-sides-roasted-garlic-mashed-potatoes"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Roasted Red Potatoes",
+      "itemKey": "web-v1-food-sides-roasted-red-potatoes"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Asparagus",
+      "itemKey": "web-v1-food-sides-asparagus"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Sautéed Broccolini",
+      "itemKey": "web-v1-food-sides-sauteed-broccolini"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Spanish Rice",
+      "itemKey": "web-v1-food-sides-spanish-rice"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "White Rice",
+      "itemKey": "web-v1-food-sides-white-rice"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Coleslaw",
+      "itemKey": "web-v1-food-sides-coleslaw"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "House Veggies",
+      "itemKey": "web-v1-food-sides-house-veggies"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Sides",
+      "itemLabel": "Black Beans",
+      "itemKey": "web-v1-food-sides-black-beans"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Desserts",
+      "itemLabel": "Caramel Pecan Cheesecake",
+      "itemKey": "web-v1-food-desserts-caramel-pecan-cheesecake"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Desserts",
+      "itemLabel": "Raspberry Hill",
+      "itemKey": "web-v1-food-desserts-raspberry-hill"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Desserts",
+      "itemLabel": "Cream Caramel Flan",
+      "itemKey": "web-v1-food-desserts-cream-caramel-flan"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "2 Beef Sliders",
+      "itemKey": "web-v1-food-happy-hour-food-2-beef-sliders"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "2 Chicken Sliders",
+      "itemKey": "web-v1-food-happy-hour-food-2-chicken-sliders"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "2 Tacos",
+      "itemKey": "web-v1-food-happy-hour-food-2-tacos"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "4 Flautas",
+      "itemKey": "web-v1-food-happy-hour-food-4-flautas"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "Basket of French Fries",
+      "itemKey": "web-v1-food-happy-hour-food-basket-of-french-fries"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "5 Bone-In Wings",
+      "itemKey": "web-v1-food-happy-hour-food-5-bone-in-wings"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "5 Boneless Wings",
+      "itemKey": "web-v1-food-happy-hour-food-5-boneless-wings"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "Chips & Queso",
+      "itemKey": "web-v1-food-happy-hour-food-chips-and-queso"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "4 Coconut Shrimp",
+      "itemKey": "web-v1-food-happy-hour-food-4-coconut-shrimp"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "Crawfish Rice",
+      "itemKey": "web-v1-food-happy-hour-food-crawfish-rice"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "Fried Pickles & Peppers",
+      "itemKey": "web-v1-food-happy-hour-food-fried-pickles-and-peppers"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "Spinach Dip",
+      "itemKey": "web-v1-food-happy-hour-food-spinach-dip"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Happy Hour Food",
+      "itemLabel": "2 Salmon Sliders",
+      "itemKey": "web-v1-food-happy-hour-food-2-salmon-sliders"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Lunch Menu",
+      "itemLabel": "Vibe Burger",
+      "itemKey": "web-v1-food-lunch-menu-vibe-burger"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Lunch Menu",
+      "itemLabel": "Texas Smash Burger",
+      "itemKey": "web-v1-food-lunch-menu-texas-smash-burger"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Lunch Menu",
+      "itemLabel": "Bone-In Wings",
+      "itemKey": "web-v1-food-lunch-menu-bone-in-wings"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Lunch Menu",
+      "itemLabel": "Flatbread Pizza",
+      "itemKey": "web-v1-food-lunch-menu-flatbread-pizza"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Lunch Menu",
+      "itemLabel": "Seasoned Fries",
+      "itemKey": "web-v1-food-lunch-menu-seasoned-fries"
+    },
+    {
+      "placement": "food_menu_photos",
+      "sectionLabel": "Lunch Menu",
+      "itemLabel": "Sweet Potato Fries",
+      "itemKey": "web-v1-food-lunch-menu-sweet-potato-fries"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Signature Cocktails",
+      "itemLabel": "Classic Old Fashioned",
+      "itemKey": "web-v1-drink-signature-cocktails-classic-old-fashioned"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Signature Cocktails",
+      "itemLabel": "Blackberry Martini",
+      "itemKey": "web-v1-drink-signature-cocktails-blackberry-martini"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Signature Cocktails",
+      "itemLabel": "Strawberry-Kiwi Lemonade",
+      "itemKey": "web-v1-drink-signature-cocktails-strawberry-kiwi-lemonade"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Signature Cocktails",
+      "itemLabel": "Peach Sidecar",
+      "itemKey": "web-v1-drink-signature-cocktails-peach-sidecar"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Signature Cocktails",
+      "itemLabel": "Passion Fruit Hurricane",
+      "itemKey": "web-v1-drink-signature-cocktails-passion-fruit-hurricane"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Signature Cocktails",
+      "itemLabel": "Perfect Margarita",
+      "itemKey": "web-v1-drink-signature-cocktails-perfect-margarita"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Signature Cocktails",
+      "itemLabel": "Cucumber Martini",
+      "itemKey": "web-v1-drink-signature-cocktails-cucumber-martini"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Signature Cocktails",
+      "itemLabel": "Licor 43 Lemon Drop",
+      "itemKey": "web-v1-drink-signature-cocktails-licor-43-lemon-drop"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Specialty Shots",
+      "itemLabel": "Green Tea",
+      "itemKey": "web-v1-drink-specialty-shots-green-tea"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Specialty Shots",
+      "itemLabel": "Classic Mexican Candy",
+      "itemKey": "web-v1-drink-specialty-shots-classic-mexican-candy"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Specialty Shots",
+      "itemLabel": "Licor 43 Lemon Drop Shot",
+      "itemKey": "web-v1-drink-specialty-shots-licor-43-lemon-drop-shot"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Specialty Shots",
+      "itemLabel": "Painkiller Shot",
+      "itemKey": "web-v1-drink-specialty-shots-painkiller-shot"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Beer",
+      "itemLabel": "Bottled Beer",
+      "itemKey": "web-v1-drink-beer-bottled-beer"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Beer",
+      "itemLabel": "Domestic Drafts",
+      "itemKey": "web-v1-drink-beer-domestic-drafts"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Beer",
+      "itemLabel": "Premium Drafts",
+      "itemKey": "web-v1-drink-beer-premium-drafts"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Beer",
+      "itemLabel": "Kona Big Wave",
+      "itemKey": "web-v1-drink-beer-kona-big-wave"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Beer",
+      "itemLabel": "Guinness",
+      "itemKey": "web-v1-drink-beer-guinness"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Beer",
+      "itemLabel": "Stella Artois",
+      "itemKey": "web-v1-drink-beer-stella-artois"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Beer",
+      "itemLabel": "Ghost in the Machine IPA",
+      "itemKey": "web-v1-drink-beer-ghost-in-the-machine-ipa"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Beer",
+      "itemLabel": "Seltzers",
+      "itemKey": "web-v1-drink-beer-seltzers"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Wine",
+      "itemLabel": "House Pinot Grigio",
+      "itemKey": "web-v1-drink-wine-house-pinot-grigio"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Wine",
+      "itemLabel": "House Chardonnay",
+      "itemKey": "web-v1-drink-wine-house-chardonnay"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Wine",
+      "itemLabel": "House Pinot Noir",
+      "itemKey": "web-v1-drink-wine-house-pinot-noir"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Wine",
+      "itemLabel": "House Merlot",
+      "itemKey": "web-v1-drink-wine-house-merlot"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Wine",
+      "itemLabel": "House Cabernet Sauvignon",
+      "itemKey": "web-v1-drink-wine-house-cabernet-sauvignon"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Wine",
+      "itemLabel": "House Rosé",
+      "itemKey": "web-v1-drink-wine-house-rose"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Wine",
+      "itemLabel": "House Moscato",
+      "itemKey": "web-v1-drink-wine-house-moscato"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Wine",
+      "itemLabel": "House Champagne",
+      "itemKey": "web-v1-drink-wine-house-champagne"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Build Your Own Margarita",
+      "itemLabel": "House & Classic Tequilas",
+      "itemKey": "web-v1-drink-build-your-own-margarita-house-and-classic-tequilas"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Build Your Own Margarita",
+      "itemLabel": "Reposado, Añejo & Mezcal",
+      "itemKey": "web-v1-drink-build-your-own-margarita-reposado-anejo-and-mezcal"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Build Your Own Margarita",
+      "itemLabel": "Premium Tequilas",
+      "itemKey": "web-v1-drink-build-your-own-margarita-premium-tequilas"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Build Your Own Margarita",
+      "itemLabel": "Upgrade Your Liqueur",
+      "itemKey": "web-v1-drink-build-your-own-margarita-upgrade-your-liqueur"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Build Your Own Margarita",
+      "itemLabel": "Fruit Flavors",
+      "itemKey": "web-v1-drink-build-your-own-margarita-fruit-flavors"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Build Your Own Margarita",
+      "itemLabel": "Spicy Flavor",
+      "itemKey": "web-v1-drink-build-your-own-margarita-spicy-flavor"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Tea",
+      "itemKey": "web-v1-drink-soda-tea-tea"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Lemonade",
+      "itemKey": "web-v1-drink-soda-tea-lemonade"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Orange Fanta",
+      "itemKey": "web-v1-drink-soda-tea-orange-fanta"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Powerade",
+      "itemKey": "web-v1-drink-soda-tea-powerade"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Root Beer",
+      "itemKey": "web-v1-drink-soda-tea-root-beer"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Coke",
+      "itemKey": "web-v1-drink-soda-tea-coke"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Diet Coke",
+      "itemKey": "web-v1-drink-soda-tea-diet-coke"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Dr. Pepper",
+      "itemKey": "web-v1-drink-soda-tea-dr-pepper"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Sprite",
+      "itemKey": "web-v1-drink-soda-tea-sprite"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Coffee",
+      "itemKey": "web-v1-drink-soda-tea-coffee"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Hot Tea",
+      "itemKey": "web-v1-drink-soda-tea-hot-tea"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "FIJI Water",
+      "itemKey": "web-v1-drink-soda-tea-fiji-water"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Soda / Tea",
+      "itemLabel": "Juices & Mixers",
+      "itemKey": "web-v1-drink-soda-tea-juices-and-mixers"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Mocktails",
+      "itemLabel": "Virgin Piña Colada",
+      "itemKey": "web-v1-drink-mocktails-virgin-pina-colada"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Mocktails",
+      "itemLabel": "Peach Mule",
+      "itemKey": "web-v1-drink-mocktails-peach-mule"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Mocktails",
+      "itemLabel": "Kiss on the Beach",
+      "itemKey": "web-v1-drink-mocktails-kiss-on-the-beach"
+    },
+    {
+      "placement": "drink_menu_photos",
+      "sectionLabel": "Mocktails",
+      "itemLabel": "Strawberry Not-a-Rita",
+      "itemKey": "web-v1-drink-mocktails-strawberry-not-a-rita"
+    }
+  ]
+}
