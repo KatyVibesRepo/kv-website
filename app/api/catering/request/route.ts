@@ -13,6 +13,7 @@ type Payload = {
   budgetRange?: string;
   menuRequests?: string;
   details?: string;
+  smsConsent?: boolean;
 };
 
 function clean(value: unknown) {
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
     budgetRange: clean(raw.budgetRange),
     menuRequests: clean(raw.menuRequests),
     details,
+    smsConsent: raw.smsConsent === true,
   };
   try {
     const response = await fetch(getKvrsServerConfig().cateringRequestsUrl, {
