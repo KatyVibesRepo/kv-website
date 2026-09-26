@@ -40,6 +40,7 @@ export function JobApplicationForm() {
       hasTabcCertification: formData.get('hasTabcCertification') === 'on',
       previousRestaurantExperience: stringValue(formData, 'previousRestaurantExperience'),
       message: stringValue(formData, 'message'),
+      smsConsent: formData.get('smsConsent') === 'on',
     };
 
     setStatus('submitting');
@@ -62,7 +63,7 @@ export function JobApplicationForm() {
       }
 
       setStatus('success');
-      setMessage('Thanks for applying. We received your application and our team will review it.');
+      setMessage('Your application has been received. We will send an acknowledgment email and review your submission. This is not an interview invitation or job offer.');
       form.reset();
     } catch (error) {
       setStatus('error');
@@ -190,6 +191,21 @@ export function JobApplicationForm() {
           />
         </label>
       </fieldset>
+
+      <div className="job-sms-consent">
+        <label className="job-sms-consent-choice">
+          <input type="checkbox" name="smsConsent" value="on" />
+          <span>
+            I agree to receive optional transactional texts from Katy Vibes about my job application.
+            Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help.
+            SMS consent is not required to apply.
+          </span>
+        </label>
+        <p>Read the <a href="/terms" target="_blank" rel="noreferrer">Terms</a> and{' '}
+          <a href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
+          We will send texts only when the service is available and required registration is complete.
+        </p>
+      </div>
 
       <button className="button hot job-submit-button" type="submit" disabled={isSubmitting}>
         {isSubmitting ? 'Submitting Application…' : 'Submit Application'}
