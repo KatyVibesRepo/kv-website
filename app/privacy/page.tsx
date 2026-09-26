@@ -81,9 +81,9 @@ export default function PrivacyPage() {
           <p>
             We may use that information to send transactional text messages about
             reservations, tickets, confirmations, event or service information, and
-            customer-service-related matters, including catering-request follow-ups. Choosing not to opt in to SMS does not
-            prevent you from purchasing a ticket, requesting a reservation, or
-            otherwise doing business with Katy Vibes.
+            customer-service-related matters, including catering-request and job-application follow-ups. Choosing not to opt in to SMS does not
+            prevent you from purchasing a ticket, requesting a reservation, submitting
+            a job application, or otherwise doing business with Katy Vibes.
           </p>
           <p>
             <strong>
