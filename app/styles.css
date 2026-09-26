@@ -10715,3 +10715,36 @@ nav a,
   .catering-sms-consent { padding: 12px; }
   .catering-sms-consent p { margin-left: 0; }
 }
+
+/* Job-specific, optional and unchecked transactional SMS consent. */
+.job-sms-consent {
+  border: 1px solid rgba(132, 169, 212, 0.3);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: rgba(8, 20, 40, 0.52);
+}
+.job-sms-consent-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  line-height: 1.55;
+}
+.job-sms-consent-choice input[type="checkbox"] {
+  width: 19px;
+  height: 19px;
+  min-width: 19px;
+  margin: 2px 0 0;
+  accent-color: #30d7ff;
+}
+.job-sms-consent p {
+  margin: 10px 0 0 31px;
+  font-size: 12px;
+  color: #b9c8df;
+  line-height: 1.5;
+}
+.job-sms-consent a { color: #83e6ff; text-decoration: underline; }
+@media (max-width: 700px) {
+  .job-sms-consent { padding: 12px; }
+  .job-sms-consent p { margin-left: 0; }
+}
