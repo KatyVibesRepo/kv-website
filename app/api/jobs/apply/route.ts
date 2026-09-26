@@ -14,6 +14,7 @@ type JobApplicationPayload = {
   hasTabcCertification?: boolean;
   previousRestaurantExperience?: string;
   message?: string;
+  smsConsent?: boolean;
 };
 
 function cleanText(value: unknown) {
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
     hasTabcCertification: cleanBool(rawPayload.hasTabcCertification),
     previousRestaurantExperience: cleanText(rawPayload.previousRestaurantExperience),
     message: cleanText(rawPayload.message),
+    smsConsent: rawPayload.smsConsent === true,
   };
 
   try {
