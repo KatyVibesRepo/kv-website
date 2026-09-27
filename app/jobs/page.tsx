@@ -24,16 +24,20 @@ const hiringHighlights = [
 export default function JobsPage() {
   return (
     <main className="page-shell jobs-page">
-      <section className="page-hero compact-page-hero jobs-hero">
+      <section className="hero page-hero compact-page-hero jobs-hero">
         <div className="eyebrow">Careers at Katy Vibes</div>
-        <h1>Join the Katy Vibes Team</h1>
+        <h1><span className="gradient-text">Join the Katy Vibes</span>{' '}<br />Team.</h1>
         <p>
           We are looking for dependable, upbeat people who can help create a
           great restaurant, bar, patio, and live entertainment experience for Katy.
         </p>
+        <div className="button-row">
+          <a className="button hot" href="#apply">Apply Now</a>
+          <a className="button ghost" href="#hiring-areas">Explore Hiring Areas</a>
+        </div>
       </section>
 
-      <section className="section jobs-hiring-section">
+      <section className="section jobs-hiring-section" id="hiring-areas">
         <div className="section-heading jobs-section-heading">
           <p className="eyebrow">Now accepting applications</p>
           <h2>Tell us where you fit best</h2>
