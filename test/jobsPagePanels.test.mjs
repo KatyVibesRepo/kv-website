@@ -4,28 +4,41 @@ import test from 'node:test';
 
 const css = readFileSync(new URL('../app/styles.css', import.meta.url), 'utf8');
 const page = readFileSync(new URL('../app/jobs/page.tsx', import.meta.url), 'utf8');
-const rules = css.split('/* jobs-page-panel-contrast */')[1]?.split('/* end jobs-page-panel-contrast */')[0] ?? '';
+const parties = readFileSync(new URL('../app/parties/page.tsx', import.meta.url), 'utf8');
+const rules = css.split('/* jobs-hero-matches-parties */')[1]?.split('/* end jobs-hero-matches-parties */')[0] ?? '';
 
-test('Jobs hero has a solid dark card surface and readable copy', () => {
-  assert.match(page, /className="page-hero compact-page-hero jobs-hero"/);
-  assert.match(rules, /\.jobs-page \.jobs-hero\s*\{[^}]*border:\s*1px solid[^;]+;[^}]*background:\s*linear-gradient/s);
-  assert.match(rules, /\.jobs-page \.jobs-hero h1\s*\{[^}]*color:\s*#fff/s);
-  assert.match(rules, /\.jobs-page \.jobs-hero > p\s*\{[^}]*color:\s*rgba\(/s);
+test('Jobs uses the exact shared Groups & Parties hero surface and gradient heading', () => {
+  assert.match(parties, /className="hero page-hero"/);
+  assert.match(page, /className="hero page-hero compact-page-hero jobs-hero"/);
+  assert.match(page, /<h1><span className="gradient-text">Join the Katy Vibes<\/span>/);
+  assert.match(css, /\.hero\s*\{[^}]*background:\s*linear-gradient/s);
+  assert.match(css, /\.hero::before\s*\{[^}]*linear-gradient/s);
+  assert.doesNotMatch(css, /\.jobs-page \.jobs-hero\s*\{[^}]*background:/s);
+  assert.doesNotMatch(css, /jobs-page-panel-contrast/);
 });
 
-test('Now accepting applications has a distinct dark, responsive panel', () => {
+test('Jobs hero uses working calls to action without modifying the application form', () => {
+  assert.match(page, /className="button hot" href="#apply">Apply Now<\/a>/);
+  assert.match(page, /className="button ghost" href="#hiring-areas">Explore Hiring Areas<\/a>/);
+  assert.match(page, /className="section jobs-hiring-section" id="hiring-areas"/);
+  assert.match(page, /className="section jobs-application-section" id="apply"/);
+  assert.match(rules, /scroll-margin-top:\s*110px/);
+});
+
+test('Now accepting applications is a simple heading rather than a separate card', () => {
   assert.match(page, /className="section-heading jobs-section-heading"/);
   assert.match(page, /Now accepting applications/);
   assert.match(page, /Tell us where you fit best/);
-  assert.match(rules, /\.jobs-page \.jobs-hiring-section \.jobs-section-heading\s*\{[^}]*width:\s*min\(100%, 980px\);[^}]*border:\s*1px solid[^;]+;[^}]*border-radius:\s*28px;[^}]*background:\s*linear-gradient/s);
-  assert.match(rules, /\.jobs-page \.jobs-section-heading > p:last-child\s*\{[^}]*max-width:\s*760px;/s);
-  assert.match(rules, /@media \(max-width: 640px\)[\s\S]*\.jobs-page \.jobs-hiring-section \.jobs-section-heading/);
+  assert.doesNotMatch(rules, /\.jobs-hiring-section \.jobs-section-heading\s*\{/);
+  assert.doesNotMatch(rules, /(?:border|background|box-shadow|border-radius):/);
+  assert.match(rules, /\.jobs-page \.jobs-section-heading > p:last-child/);
 });
 
-test('role cards and application form remain part of the Jobs page', () => {
+test('all role cards, explanatory copy and the existing form remain present', () => {
   for (const name of ['Front of House', 'Kitchen Team', 'Events & Nightlife']) {
     assert.ok(page.includes(name));
   }
+  assert.match(page, /This is a job application request, not a reservation form/);
   assert.match(page, /<JobApplicationForm\s*\/>/);
   assert.doesNotMatch(rules, /job-application-form|job-sms-consent|jobs-highlight-card/);
 });
