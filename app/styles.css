@@ -10749,59 +10749,10 @@ nav a,
   .job-sms-consent p { margin-left: 0; }
 }
 
-/* jobs-page-panel-contrast */
-/* Give the Jobs introduction and hiring invitation the same defined dark
-   surfaces as the role cards, instead of exposing the photographic backdrop. */
-.jobs-page .jobs-hero {
-  position: relative;
-  isolation: isolate;
-  display: block;
-  width: 100%;
-  min-width: 0;
-  padding: clamp(28px, 4vw, 54px);
-  border: 1px solid rgba(160, 174, 212, 0.28);
-  border-radius: 28px;
-  background: linear-gradient(
-    130deg,
-    rgba(12, 11, 25, 0.98) 0%,
-    rgba(26, 13, 42, 0.97) 55%,
-    rgba(10, 23, 39, 0.98) 100%
-  );
-  box-shadow: 0 22px 65px rgba(0, 0, 0, 0.45),
-    0 0 24px rgba(32, 217, 255, 0.07),
-    inset 0 1px rgba(255, 255, 255, 0.055);
-}
-
-.jobs-page .jobs-hero h1 {
-  max-width: 100%;
-  color: #fff;
-  line-height: 1.08;
-}
-
-.jobs-page .jobs-hero > p {
-  max-width: 920px;
-  color: rgba(238, 244, 255, 0.88);
-  line-height: 1.55;
-}
-
-.jobs-page .jobs-hiring-section .jobs-section-heading {
-  box-sizing: border-box;
-  width: min(100%, 980px);
-  max-width: 980px;
-  margin-inline: auto;
-  padding: clamp(26px, 3.1vw, 44px);
-  border: 1px solid rgba(160, 174, 212, 0.26);
-  border-radius: 28px;
-  background: linear-gradient(
-    140deg,
-    rgba(13, 10, 26, 0.98) 0%,
-    rgba(32, 14, 51, 0.96) 62%,
-    rgba(13, 19, 37, 0.98) 100%
-  );
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.40),
-    inset 0 1px rgba(255, 255, 255, 0.05);
-}
-
+/* jobs-hero-matches-parties */
+/* The Jobs introduction shares the Groups & Parties hero's background,
+   diagonal color accents, border and button styling through .hero.page-hero.
+   Keep the hiring introduction as plain text above the role cards. */
 .jobs-page .jobs-section-heading h2 {
   margin: 0.6rem 0 0.8rem;
   color: #fff;
@@ -10815,21 +10766,14 @@ nav a,
   line-height: 1.55;
 }
 
+.jobs-page #hiring-areas,
+.jobs-page #apply {
+  scroll-margin-top: 110px;
+}
+
 @media (max-width: 900px) {
   .jobs-page .jobs-section-heading > p:last-child {
     margin-inline: 0;
   }
 }
-
-@media (max-width: 640px) {
-  .jobs-page .jobs-hero {
-    padding: 22px !important;
-    border-radius: 22px;
-  }
-
-  .jobs-page .jobs-hiring-section .jobs-section-heading {
-    padding: 22px;
-    border-radius: 22px;
-  }
-}
-/* end jobs-page-panel-contrast */
+/* end jobs-hero-matches-parties */
