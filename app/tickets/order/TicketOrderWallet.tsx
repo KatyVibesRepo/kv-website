@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import styles from './TicketOrderWallet.module.css';
+import { KvrsPaymentStatus, type KvrsPublicPaymentSummary } from '@/components/KvrsPaymentStatus';
 
 type TicketWalletEvent = {
   id?: string | null;
@@ -47,6 +48,7 @@ type TicketWalletOrder = {
   guestCount?: number | null;
   amountTotalCents?: number | null;
   paidAt?: string | null;
+  paymentSummary?: KvrsPublicPaymentSummary | null;
   event?: TicketWalletEvent | null;
   ticketType?: TicketWalletTicketType | null;
   reservation?: TicketWalletReservation | null;
@@ -383,6 +385,9 @@ export function TicketOrderWallet() {
           </div>
         )}
       </section>
+
+      {/* Only render group coverage when KVRS returns a complete, validated public summary. */}
+      <KvrsPaymentStatus summary={order.paymentSummary} />
 
       <section className={styles.ticketGrid} aria-label="QR tickets">
         {tickets.map((ticket, index) => {
