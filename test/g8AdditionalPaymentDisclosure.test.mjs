@@ -48,11 +48,11 @@ test('additional payment controls do not submit payment or alter legacy checkout
 test('eligible alternative choices stay within the initial one-unit G8 contract', () => {
   assert.match(planner, /const singleUnit = quantity === 1;/);
   assert.match(planner, /const canSplitGuests = isTable && singleUnit && guests > 1;/);
-  assert.match(planner, /const canInstallment = isTable && singleUnit;/);
   assert.match(planner, /const canPayAtDoor = singleUnit;/);
   assert.match(planner, /Pay Individually/);
   assert.match(planner, /Pay at Door/);
-  assert.match(planner, /Partial Table Payment/);
+  assert.doesNotMatch(planner, /Partial Table Payment|installment|PACKAGE_INSTALLMENTS/i);
+  assert.doesNotMatch(checkout, /installmentAmounts|onInstallmentAmountChange/);
 });
 
 test('production never renders preview-only alternative payment controls', () => {
