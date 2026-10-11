@@ -10920,3 +10920,65 @@ nav a,
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Customer reservation warnings and backend-verified payment coverage */
+.reserve-ticket-warning-acknowledgment {
+  display: flex !important;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+  color: #fff;
+  font-weight: 700;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.reserve-ticket-warning-acknowledgment input[type="checkbox"] {
+  flex: 0 0 1.2rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: #2fd5ff;
+}
+
+.kvrs-payment-status {
+  margin: 1.5rem 0;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid rgba(47, 213, 255, 0.22);
+  border-radius: 18px;
+  background: rgba(6, 12, 29, 0.9);
+  color: #fff;
+}
+
+.kvrs-payment-status h2 {
+  margin: 0 0 0.5rem;
+}
+
+.kvrs-payment-status p {
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.6;
+}
+
+.kvrs-payment-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 0.7rem;
+}
+
+.kvrs-payment-status-row {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.8rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.065);
+}
+
+.kvrs-payment-status-row span {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+}
+
+.kvrs-payment-status-row strong {
+  overflow-wrap: anywhere;
+}
