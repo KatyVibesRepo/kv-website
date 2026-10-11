@@ -81,7 +81,7 @@ export function MixedPaymentPlanner({
               </label>
               <p>
                 {paidNow} to pay online · {guests - paidNow} to pay at the door.
-                KVRS will confirm each guest&apos;s share and payment deadline.
+                Individual payment amounts and deadlines will be confirmed before booking.
               </p>
             </div>
           )}
@@ -93,8 +93,6 @@ export function MixedPaymentPlanner({
               and the confirmed payment deadline.
             </p>
           )}
-
-
         </>
       )}
 
