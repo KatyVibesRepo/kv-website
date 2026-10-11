@@ -1137,6 +1137,17 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                         const inputValue = changeEvent.currentTarget.value;
                         const parsedQuantity = Number(inputValue);
 
+                        // Split/instalment plans are limited to one table until KVRS
+                        // defines a guest-safe multi-table allocation contract.
+                        if (inputValue !== '' && parsedQuantity > 1) {
+                          setPaymentModes((current) => {
+                            const mode = current[key];
+                            return mode === 'guest_split' || mode === 'installment'
+                              ? { ...current, [key]: 'full' }
+                              : current;
+                          });
+                        }
+
                         setQuantitySelections((current) => {
                           const existing = current[key] || {
                             quantity: selectedQuantity,
