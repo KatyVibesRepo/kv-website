@@ -553,6 +553,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [quantitySelections, setQuantitySelections] = useState<Record<string, QuantitySelection>>({});
   const [paymentModes, setPaymentModes] = useState<Record<string, MixedPaymentMode>>({});
+  const [additionalPaymentOpen, setAdditionalPaymentOpen] = useState<Record<string, boolean>>({});
   const [guestSplitCounts, setGuestSplitCounts] = useState<Record<string, number>>({});
   const [installmentAmounts, setInstallmentAmounts] = useState<Record<string, string>>({});
   const [pendingSubmissions, setPendingSubmissions] = useState<
@@ -747,17 +748,9 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
     const form = formEvent.currentTarget;
     const key = ticketKey(event, ticket);
     const freeReservation = isFreeReservationChoice(event, ticket);
-    const paymentMode = paymentModes[key] || 'full';
 
-    // No public KVRS mixed-payment write API is approved. Never send a mixed
-    // selection through the legacy full-price checkout contract.
-    if (previewMixedPayments && !freeReservation && paymentMode !== 'full') {
-      setMessages((current) => ({
-        ...current,
-        [key]: { tone: 'error', text: 'This payment method is not available for online booking yet. Call 832-437-2807.' },
-      }));
-      return;
-    }
+    // This form is always the original full-price KVRS checkout or free RSVP.
+    // Alternative methods are preview-only and never change this payload.
 
     if (isCheckoutDisabled(event, ticket)) {
       setMessages((current) => ({
@@ -983,7 +976,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
           <div className="eyebrow">Tickets & Tables</div>
           <h2>Choose your spot.</h2>
           <p className="muted">
-            Choose your event ticket or table, then complete secure checkout or submit your free RSVP request.
+            Pick an option, enter your contact information, and complete checkout or submit your RSVP request.
           </p>
         </div>
       </div>
@@ -1070,19 +1063,6 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                 <span>{ticketAvailableText(ticket)}</span>
                 {ticket?.type && <span>{ticket.type.replace(/_/g, ' ')}</span>}
               </div>
-              {isGeneralAdmissionTicket(ticket) && (
-                <p className="ticket-purchase-coverage-note">
-                  General Admission covers entry for each purchased guest. Seating and tables are not guaranteed.
-                </p>
-              )}
-              {isTableOrVipTicket(ticket) && (
-                <p className="ticket-purchase-coverage-note">
-                  Each fully paid {ticketName(event, ticket)} covers {ticketGuestText(ticket)}.
-                  One table counts as one package, not one ticket per guest. A physical
-                  table number is assigned by the Katy Vibes team.
-                </p>
-              )}
-
               <form className="ticket-purchase-form" onSubmit={(formEvent) => handleSubmit(ticket, formEvent)}>
                 <input type="hidden" name="eventId" value={event.id} />
                 <input type="hidden" name="eventSlug" value={event.slug} />
@@ -1136,17 +1116,6 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                       onChange={(changeEvent) => {
                         const inputValue = changeEvent.currentTarget.value;
                         const parsedQuantity = Number(inputValue);
-
-                        // Split/instalment plans are limited to one table until KVRS
-                        // defines a guest-safe multi-table allocation contract.
-                        if (inputValue !== '' && parsedQuantity > 1) {
-                          setPaymentModes((current) => {
-                            const mode = current[key];
-                            return mode === 'guest_split' || mode === 'installment'
-                              ? { ...current, [key]: 'full' }
-                              : current;
-                          });
-                        }
 
                         setQuantitySelections((current) => {
                           const existing = current[key] || {
@@ -1205,19 +1174,6 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                   <input type="hidden" name="quantity" value={minQuantity} />
                 )}
 
-                {previewMixedPayments && ticket && !freeReservation && (
-                  <MixedPaymentPlanner
-                    ticket={ticket}
-                    quantity={selectedQuantity}
-                    mode={paymentModes[key] || 'full'}
-                    onModeChange={(mode) => setPaymentModes((current) => ({ ...current, [key]: mode }))}
-                    guestsPayingNow={guestSplitCounts[key] ?? 1}
-                    onGuestsPayingNowChange={(count) => setGuestSplitCounts((current) => ({ ...current, [key]: count }))}
-                    installmentAmount={installmentAmounts[key] || ''}
-                    onInstallmentAmountChange={(amount) => setInstallmentAmounts((current) => ({ ...current, [key]: amount }))}
-                  />
-                )}
-
                 <label>
                   <span>Name</span>
                   <input name="customerName" type="text" autoComplete="name" required />
@@ -1254,19 +1210,13 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                   </p>
                 ) : null}
 
-                {previewMixedPayments && ticket && !freeReservation && (paymentModes[key] || 'full') !== 'full' ? (
-                  <a className="button ghost" href="tel:18324372807">Call About Payment Options</a>
-                ) : (
-                  <button className="button" type="submit" disabled={disabled || isPending}>
-                    {isPending
-                      ? freeReservation
-                        ? 'Submitting RSVP…'
-                        : 'Opening Checkout…'
-                      : previewMixedPayments && !freeReservation
-                        ? 'Pay in Full — Secure Checkout'
-                        : buttonLabel(event, ticket)}
-                  </button>
-                )}
+                <button className="button" type="submit" disabled={disabled || isPending}>
+                  {isPending
+                    ? freeReservation
+                      ? 'Submitting RSVP…'
+                      : 'Opening Checkout…'
+                    : buttonLabel(event, ticket)}
+                </button>
 
                 {message && (
                   <p
@@ -1278,6 +1228,46 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                   </p>
                 )}
               </form>
+              {previewMixedPayments && ticket && !freeReservation && (
+                <div className="ticket-additional-payment">
+                  <button
+                    className="ticket-additional-payment-toggle"
+                    type="button"
+                    id={`additional-payment-toggle-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
+                    aria-expanded={Boolean(additionalPaymentOpen[key])}
+                    aria-controls={`additional-payment-panel-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
+                    onClick={() => setAdditionalPaymentOpen((current) => ({
+                      ...current,
+                      [key]: !current[key],
+                    }))}
+                  >
+                    Additional Payment Options
+                    <span className="ticket-additional-payment-chevron" aria-hidden="true">
+                      {additionalPaymentOpen[key] ? '−' : '+'}
+                    </span>
+                  </button>
+                  <div
+                    className="ticket-additional-payment-panel"
+                    id={`additional-payment-panel-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
+                    role="region"
+                    aria-labelledby={`additional-payment-toggle-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
+                    hidden={!additionalPaymentOpen[key]}
+                  >
+                    {additionalPaymentOpen[key] && (
+                      <MixedPaymentPlanner
+                        ticket={ticket}
+                        quantity={selectedQuantity}
+                        mode={paymentModes[key] || null}
+                        onModeChange={(mode) => setPaymentModes((current) => ({ ...current, [key]: mode }))}
+                        guestsPayingNow={guestSplitCounts[key] ?? 1}
+                        onGuestsPayingNowChange={(count) => setGuestSplitCounts((current) => ({ ...current, [key]: count }))}
+                        installmentAmount={installmentAmounts[key] || ''}
+                        onInstallmentAmountChange={(amount) => setInstallmentAmounts((current) => ({ ...current, [key]: amount }))}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
             </article>
           );
               })}
