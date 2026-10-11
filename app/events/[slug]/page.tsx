@@ -29,6 +29,13 @@ function firstValue(...values: Array<string | null | undefined>) {
   return values.find((value): value is string => Boolean(value)) || null;
 }
 
+function publicEventDescription(...values: Array<string | null | undefined>) {
+  return values.find((value): value is string => Boolean(
+    value?.trim()
+    && !/EventsManager\.Next|end[ -]to[ -]end KVRS prototype|prototype event used to prove/i.test(value),
+  )) || null;
+}
+
 function eventImage(event: EventDetail, preferred: FlyerPreference) {
   const variantImages = flyerFallbacks[preferred].map((key) => event.flyerImages?.[key]);
 
@@ -113,7 +120,8 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
   const heroImage = eventImage(event, 'landscape');
   const flyerImage = eventImage(event, 'portrait');
-  const description = event.fullDescription || event.shortDescription || event.subtitle;
+  const description = publicEventDescription(event.fullDescription, event.shortDescription, event.subtitle);
+  const subtitle = publicEventDescription(event.subtitle);
   const ticketTypes = event.ticketTypes || [];
   const isTicketedEvent =
     event.isTicketed
@@ -145,7 +153,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             </div>
 
             <h1>{event.title}</h1>
-            {event.subtitle && <p className="lead">{event.subtitle}</p>}
+            {subtitle && <p className="lead">{subtitle}</p>}
 
             <div className="event-detail-facts event-detail-facts-compact">
               <span>
