@@ -58,5 +58,8 @@ test('eligible alternative choices stay within the initial one-unit G8 contract'
 test('production never renders preview-only alternative payment controls', () => {
   assert.match(detail, /process\.env\.NODE_ENV === 'development' \|\| process\.env\.VERCEL_ENV === 'preview'/);
   assert.match(checkout, /previewMixedPayments && ticket && !freeReservation/);
-  assert.match(planner, /No payment or hold is created here/);
+  assert.match(planner, /These options can&apos;t be booked online yet/);
+  assert.doesNotMatch(planner, /KVRS will|development|debug|prototype|preview-only|No payment or hold is created here/i);
+  assert.doesNotMatch(checkout, /missing its KVRS|missing a selectable ticket type/);
+  assert.match(checkout, /The regular/);
 });
