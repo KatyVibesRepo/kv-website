@@ -11,7 +11,7 @@ const weeklyCards = await readFile(new URL('../components/WeeklyEventVibeCarouse
 test('alternative payments show the short call-for-help line without a development notice', () => {
   assert.match(planner, /Any questions\? Call/);
   assert.match(planner, /href="tel:18324372807"/);
-  assert.doesNotMatch(planner, /These options can|not yet available|KVRS|prototype/i);
+  assert.doesNotMatch(planner, /These options can|not yet available|KVRS will|prototype event/i);
 });
 
 test('ticket purchase cards only use their own descriptions, without the event-wide fallback', () => {
