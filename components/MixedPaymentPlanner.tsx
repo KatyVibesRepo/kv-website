@@ -2,7 +2,7 @@
 
 import type { PublicTicketType } from '@/lib/kvrsEvents';
 
-export type MixedPaymentMode = 'guest_split' | 'installment' | 'at_door';
+export type MixedPaymentMode = 'guest_split' | 'at_door';
 
 type Props = {
   ticket: PublicTicketType;
@@ -11,16 +11,7 @@ type Props = {
   onModeChange: (mode: MixedPaymentMode) => void;
   guestsPayingNow: number;
   onGuestsPayingNowChange: (count: number) => void;
-  installmentAmount: string;
-  onInstallmentAmountChange: (amount: string) => void;
 };
-
-function money(cents: number, currency: string) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-  }).format(cents / 100);
-}
 
 export function MixedPaymentPlanner({
   ticket,
@@ -29,26 +20,17 @@ export function MixedPaymentPlanner({
   onModeChange,
   guestsPayingNow,
   onGuestsPayingNowChange,
-  installmentAmount,
-  onInstallmentAmountChange,
 }: Props) {
   const isTable = ticket.type === 'table' || ticket.type === 'vip_table';
   const guests = Math.max(1, ticket.guestCount);
   const singleUnit = quantity === 1;
   const canSplitGuests = isTable && singleUnit && guests > 1;
-  const canInstallment = isTable && singleUnit;
   const canPayAtDoor = singleUnit;
   const paidNow = Math.max(1, Math.min(guests - 1, guestsPayingNow));
-  const installmentCents = Math.round(Number(installmentAmount) * 100);
-  const validInstallment = installmentAmount.trim() !== ''
-    && Number.isFinite(installmentCents)
-    && installmentCents > 0
-    && installmentCents < ticket.priceCents;
 
   const choices: Array<{ value: MixedPaymentMode; label: string; eligible: boolean }> = [
     { value: 'guest_split', label: 'Pay Individually', eligible: canSplitGuests },
     { value: 'at_door', label: 'Pay at Door', eligible: canPayAtDoor },
-    { value: 'installment', label: 'Partial Table Payment', eligible: canInstallment },
   ];
   const eligible = choices.filter((choice) => choice.eligible);
 
@@ -112,33 +94,7 @@ export function MixedPaymentPlanner({
             </p>
           )}
 
-          {mode === 'installment' && canInstallment && (
-            <div className="mixed-payment-details">
-              <label>
-                <span>Proposed payment toward the table ($)</span>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  step="0.01"
-                  min="0.01"
-                  value={installmentAmount}
-                  onChange={(event) => onInstallmentAmountChange(event.target.value)}
-                  placeholder="Enter amount"
-                />
-              </label>
-              {validInstallment ? (
-                <p>
-                  {money(installmentCents, ticket.currency)} proposed toward
-                  the listed {money(ticket.priceCents, ticket.currency)} table price;
-                  {money(ticket.priceCents - installmentCents, ticket.currency)} remaining
-                  before any applicable fees. Final amounts come from KVRS.
-                </p>
-              ) : (
-                <p>Enter an amount below the listed table price to preview a balance.</p>
-              )}
-              <p>Partial table payments do not automatically cover individual guest admission.</p>
-            </div>
-          )}
+
         </>
       )}
 
