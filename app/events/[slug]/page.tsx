@@ -263,7 +263,11 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
       </section>
 
       {hasEventTransactionForm && (
-        <EventTicketCheckoutCards event={event} ticketTypes={ticketTypes} />
+        <EventTicketCheckoutCards
+          event={event}
+          ticketTypes={ticketTypes}
+          previewMixedPayments={process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview'}
+        />
       )}
     </section>
   );
