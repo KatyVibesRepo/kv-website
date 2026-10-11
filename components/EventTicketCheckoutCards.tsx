@@ -752,9 +752,22 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
     const form = formEvent.currentTarget;
     const key = ticketKey(event, ticket);
     const freeReservation = isFreeReservationChoice(event, ticket);
+    const selectedPaymentMode = previewMixedPayments && !freeReservation
+      ? paymentModes[key]
+      : null;
 
-    // This form is always the original full-price KVRS checkout or free RSVP.
-    // Alternative methods are preview-only and never change this payload.
+    // Mixed-payment public reservation writes are not yet authorized by KVRS.
+    // Never submit a selected alternative through the full-price checkout.
+    if (selectedPaymentMode === 'at_door' || selectedPaymentMode === 'guest_split') {
+      setMessages((current) => ({
+        ...current,
+        [key]: {
+          tone: 'muted',
+          text: 'Please call (832) 437-2807 to arrange this payment option.',
+        },
+      }));
+      return;
+    }
 
     if (isCheckoutDisabled(event, ticket)) {
       setMessages((current) => ({
@@ -1025,6 +1038,9 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
           const showCoverage = ticketShowCoverage(event, ticket);
           const selectableShows = ticketSelectableShows(event, ticket);
           const freeReservation = isFreeReservationChoice(event, ticket);
+          const selectedPaymentMode = previewMixedPayments && !freeReservation && selectedQuantity === 1
+            ? paymentModes[key]
+            : null;
           const automaticAdjustment =
             !freeReservation
             && quantitySelection?.requestedQuantity
@@ -1120,6 +1136,16 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                       onChange={(changeEvent) => {
                         const inputValue = changeEvent.currentTarget.value;
                         const parsedQuantity = Number(inputValue);
+
+                        // One product per alternative plan until KVRS approves more.
+                        if (inputValue !== '' && Number.isFinite(parsedQuantity) && parsedQuantity > 1) {
+                          setPaymentModes((current) => {
+                            if (!current[key]) return current;
+                            const next = { ...current };
+                            delete next[key];
+                            return next;
+                          });
+                        }
 
                         setQuantitySelections((current) => {
                           const existing = current[key] || {
@@ -1219,7 +1245,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                     ? freeReservation
                       ? 'Submitting RSVP…'
                       : 'Opening Checkout…'
-                    : buttonLabel(event, ticket)}
+                    : selectedPaymentMode === 'at_door'
+                      ? 'Reserve Tickets'
+                      : selectedPaymentMode === 'guest_split'
+                        ? 'Continue'
+                        : buttonLabel(event, ticket)}
                 </button>
 
                 {message && (
@@ -1240,10 +1270,27 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                     id={`additional-payment-toggle-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
                     aria-expanded={Boolean(additionalPaymentOpen[key])}
                     aria-controls={`additional-payment-panel-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
-                    onClick={() => setAdditionalPaymentOpen((current) => ({
-                      ...current,
-                      [key]: !current[key],
-                    }))}
+                    onClick={() => {
+                      // Closing payment options restores the normal Checkout choice.
+                      if (additionalPaymentOpen[key]) {
+                        setPaymentModes((current) => {
+                          if (!current[key]) return current;
+                          const next = { ...current };
+                          delete next[key];
+                          return next;
+                        });
+                        setMessages((current) => {
+                          if (!current[key] || current[key].tone !== 'muted') return current;
+                          const next = { ...current };
+                          delete next[key];
+                          return next;
+                        });
+                      }
+                      setAdditionalPaymentOpen((current) => ({
+                        ...current,
+                        [key]: !current[key],
+                      }));
+                    }}
                   >
                     Additional Payment Options
                     <span className="ticket-additional-payment-chevron" aria-hidden="true">
