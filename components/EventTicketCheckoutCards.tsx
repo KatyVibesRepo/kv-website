@@ -537,9 +537,14 @@ function checkoutErrorMessage(data: unknown, fallback: string) {
   if (data && typeof data === 'object') {
     const maybeError = 'error' in data ? data.error : null;
     const maybeMessage = 'message' in data ? data.message : null;
-
-    if (typeof maybeError === 'string' && maybeError.trim()) return maybeError;
-    if (typeof maybeMessage === 'string' && maybeMessage.trim()) return maybeMessage;
+    // Only pass through short, customer-readable errors. Technical identifiers,
+    // API paths and diagnostics should never appear on the public ticket page.
+    const technical = /\b(?:KVRS|Prisma|SQL|stack trace|traceback|debug|internal server error|database|serverless)\b|\/api\/|\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b/i;
+    for (const message of [maybeMessage, maybeError]) {
+      if (typeof message === 'string' && message.trim() && message.length < 240 && !technical.test(message)) {
+        return message.trim();
+      }
+    }
   }
 
   return fallback;
@@ -759,7 +764,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
           text: !ticket?.id
             ? freeReservation
               ? 'This RSVP option is not available online right now. Please call 832-437-2807 and we can help.'
-              : 'This event is missing a selectable ticket type. Please call 832-437-2807 and we can help you finish booking.'
+              : 'Online booking is not available for this option right now. Call (832) 437-2807 for help.'
             : `${ticketName(event, ticket)} is currently marked ${ticketAvailabilityLabel(event, ticket)}.`,
         },
       }));
@@ -846,7 +851,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
         ...current,
         [key]: {
           tone: 'error',
-          text: 'This ticket option is missing its KVRS ticket type ID. Please refresh or call 832-437-2807.',
+          text: 'Online booking is not available for this option right now. Please call (832) 437-2807.',
         },
       }));
       return;
