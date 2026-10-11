@@ -8,10 +8,12 @@ import type {
   PublicTicketType,
 } from '@/lib/kvrsEvents';
 import { resolveKvrsConfig } from '@/lib/kvrsConfig.mjs';
+import { MixedPaymentPlanner, type MixedPaymentMode } from '@/components/MixedPaymentPlanner';
 
 type EventTicketCheckoutCardsProps = {
   event: PublicEvent;
   ticketTypes: PublicTicketType[];
+  previewMixedPayments?: boolean;
 };
 
 type TicketChoice = PublicTicketType | null;
@@ -543,13 +545,16 @@ function checkoutErrorMessage(data: unknown, fallback: string) {
   return fallback;
 }
 
-export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketCheckoutCardsProps) {
+export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayments = false }: EventTicketCheckoutCardsProps) {
   const inventorySectionRef = useRef<HTMLElement | null>(null);
   const [inventorySectionVisible, setInventorySectionVisible] = useState(false);
   const [liveTicketTypes, setLiveTicketTypes] = useState(ticketTypes);
   const [messages, setMessages] = useState<Record<string, FormMessage>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [quantitySelections, setQuantitySelections] = useState<Record<string, QuantitySelection>>({});
+  const [paymentModes, setPaymentModes] = useState<Record<string, MixedPaymentMode>>({});
+  const [guestSplitCounts, setGuestSplitCounts] = useState<Record<string, number>>({});
+  const [installmentAmounts, setInstallmentAmounts] = useState<Record<string, string>>({});
   const [pendingSubmissions, setPendingSubmissions] = useState<
     Record<string, { key: string; serializedPayload: string }>
   >({});
@@ -742,6 +747,17 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     const form = formEvent.currentTarget;
     const key = ticketKey(event, ticket);
     const freeReservation = isFreeReservationChoice(event, ticket);
+    const paymentMode = paymentModes[key] || 'full';
+
+    // No public KVRS mixed-payment write API is approved. Never send a mixed
+    // selection through the legacy full-price checkout contract.
+    if (previewMixedPayments && !freeReservation && paymentMode !== 'full') {
+      setMessages((current) => ({
+        ...current,
+        [key]: { tone: 'error', text: 'This payment method is not available for online booking yet. Call 832-437-2807.' },
+      }));
+      return;
+    }
 
     if (isCheckoutDisabled(event, ticket)) {
       setMessages((current) => ({
@@ -967,7 +983,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           <div className="eyebrow">Tickets & Tables</div>
           <h2>Choose your spot.</h2>
           <p className="muted">
-            Pick an option, enter your contact information, and complete checkout or submit your RSVP request.
+            Choose your event ticket or table, then complete secure checkout or submit your free RSVP request.
           </p>
         </div>
       </div>
@@ -1054,6 +1070,18 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                 <span>{ticketAvailableText(ticket)}</span>
                 {ticket?.type && <span>{ticket.type.replace(/_/g, ' ')}</span>}
               </div>
+              {isGeneralAdmissionTicket(ticket) && (
+                <p className="ticket-purchase-coverage-note">
+                  General Admission covers entry for each purchased guest. Seating and tables are not guaranteed.
+                </p>
+              )}
+              {isTableOrVipTicket(ticket) && (
+                <p className="ticket-purchase-coverage-note">
+                  Each fully paid {ticketName(event, ticket)} covers {ticketGuestText(ticket)}.
+                  One table counts as one package, not one ticket per guest. A physical
+                  table number is assigned by the Katy Vibes team.
+                </p>
+              )}
 
               <form className="ticket-purchase-form" onSubmit={(formEvent) => handleSubmit(ticket, formEvent)}>
                 <input type="hidden" name="eventId" value={event.id} />
@@ -1166,6 +1194,19 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   <input type="hidden" name="quantity" value={minQuantity} />
                 )}
 
+                {previewMixedPayments && ticket && !freeReservation && (
+                  <MixedPaymentPlanner
+                    ticket={ticket}
+                    quantity={selectedQuantity}
+                    mode={paymentModes[key] || 'full'}
+                    onModeChange={(mode) => setPaymentModes((current) => ({ ...current, [key]: mode }))}
+                    guestsPayingNow={guestSplitCounts[key] ?? 1}
+                    onGuestsPayingNowChange={(count) => setGuestSplitCounts((current) => ({ ...current, [key]: count }))}
+                    installmentAmount={installmentAmounts[key] || ''}
+                    onInstallmentAmountChange={(amount) => setInstallmentAmounts((current) => ({ ...current, [key]: amount }))}
+                  />
+                )}
+
                 <label>
                   <span>Name</span>
                   <input name="customerName" type="text" autoComplete="name" required />
@@ -1202,13 +1243,19 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   </p>
                 ) : null}
 
-                <button className="button" type="submit" disabled={disabled || isPending}>
-                  {isPending
-                    ? freeReservation
-                      ? 'Submitting RSVP…'
-                      : 'Opening Checkout…'
-                    : buttonLabel(event, ticket)}
-                </button>
+                {previewMixedPayments && ticket && !freeReservation && (paymentModes[key] || 'full') !== 'full' ? (
+                  <a className="button ghost" href="tel:18324372807">Call About Payment Options</a>
+                ) : (
+                  <button className="button" type="submit" disabled={disabled || isPending}>
+                    {isPending
+                      ? freeReservation
+                        ? 'Submitting RSVP…'
+                        : 'Opening Checkout…'
+                      : previewMixedPayments && !freeReservation
+                        ? 'Pay in Full — Secure Checkout'
+                        : buttonLabel(event, ticket)}
+                  </button>
+                )}
 
                 {message && (
                   <p
