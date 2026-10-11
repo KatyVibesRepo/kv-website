@@ -120,8 +120,14 @@ function ticketName(event: PublicEvent, ticket: TicketChoice) {
   return 'General Admission';
 }
 
-function ticketDescription(event: PublicEvent, ticket: TicketChoice) {
-  return ticket?.description || event.shortDescription || event.subtitle || '';
+function ticketDescription(_event: PublicEvent, ticket: TicketChoice) {
+  // Ticket cards only show product-specific details, never an event-level
+  // description repeated on every card. Filter source-system placeholder copy.
+  const description = ticket?.description?.trim() || '';
+  if (/EventsManager\.Next|end[ -]to[ -]end KVRS prototype|prototype event used to prove/i.test(description)) {
+    return '';
+  }
+  return description;
 }
 
 function formatShowClockTime(value: string, timezone: string) {
