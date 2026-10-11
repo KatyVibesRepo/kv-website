@@ -13,9 +13,28 @@ Website feature branch: `feat/g8-mixed-payment-preview`
 - The website preview demonstrates prospective payment choices; only Pay in Full sends the existing checkout request. Other choices never create a hold, charge a card, or confirm payment.
 - Production environment does not render the preview-only payment picker. Changes must not be merged or promoted without approval.
 
+## KVRS response received: selected public contract (October 10, 2026)
+
+KVRS has selected the following **target** guest-safe routes. None is considered an active public API until KVRS explicitly verifies the new endpoint in isolated staging and approves Website use.
+
+| Method | Selected path | Purpose |
+|---|---|---|
+| POST | `/api/public/m1/quotes` | Confirm payment eligibility, show scope, price and availability without holding inventory |
+| POST | `/api/public/m1/reservations` | Idempotently create one reservation and admission plan |
+| POST | `/api/public/m1/checkouts` | One Stripe guest share or package contribution at a time |
+| GET | `/api/public/m1/reservations/{publicRef}/status` | Bearer-authorized customer payment/admission status |
+| POST | `/api/public/reservations/ticketed-warning/evaluate` | Authoritative ticketed-event dining warning |
+| POST | `/api/public/reservations/request` | Existing dining form, to gain backend warning revalidation |
+
+Selected constraints: quote TTL proposed at 5 minutes; initial customer scoped token lifetime proposed at 2 hours; one product unit per G8 plan; one outstanding Stripe Checkout at a time; one guest share per Checkout; unpaid grace default 60 minutes **from reservation creation** subject to event policy. No multi-table or Both Shows G8 flow is authorized yet: these continue through existing Pay in Full checkout. Pay at Door maps to `PER_GUEST_SPLIT` with zero initial online guest payments; individual payments use `PER_GUEST_SPLIT`, package payments use `PACKAGE_INSTALLMENTS`. Never mix the last two within one plan. Customer-safe status requires a scoped bearer token; credentials must not enter URLs or logs.
+
+**UX decision:** The initial ticket card remains the original Pay in Full checkout form. A subtle collapsed "Additional Payment Options" button reveals optional G8 preview planning. This panel performs no reservation or payment network writes. The public-domain deployment must not display preview-only options.
+
+KVRS public staging fixture, approved website origin allowlist, exact response examples, anti-abuse controls, warning acknowledgment semantics and end-to-end acceptance are still pending. The prior internal G8 fixture must not be used as public traffic.
+
 ## Required guest-safe KVRS endpoints and response semantics
 
-Endpoint names below are **proposed responsibilities**, not claims that these routes exist. KVRS coordinator should choose canonical routes and specify exact schemas.
+The sections below remain Website requirements and rationale; the selected target paths and restrictions above take precedence.
 
 ### 1. Quote and eligibility (read-only)
 
