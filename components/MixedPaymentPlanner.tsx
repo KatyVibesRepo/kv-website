@@ -37,13 +37,12 @@ export function MixedPaymentPlanner({
   return (
     <div className="mixed-payment-planner">
       <p className="mixed-payment-intro">
-        Prefer to pay another way? Explore these options for a single ticket or table.
+        Interested in paying separately or at the door?
       </p>
 
       {eligible.length === 0 ? (
         <p className="mixed-payment-notice">
-          Additional payment options are for one ticket or table at a time.
-          The regular checkout above still supports multiple quantities.
+          For multiple tickets or tables, please call us to discuss payment options.
         </p>
       ) : (
         <>
@@ -81,24 +80,23 @@ export function MixedPaymentPlanner({
               </label>
               <p>
                 {paidNow} to pay online · {guests - paidNow} to pay at the door.
-                Individual payment amounts and deadlines will be confirmed before booking.
+                Call us to confirm the amounts and arrangements for your group.
               </p>
             </div>
           )}
 
           {mode === 'at_door' && canPayAtDoor && (
             <p className="mixed-payment-details">
-              All {guests} {guests === 1 ? 'admission remains' : 'admissions remain'} unpaid
-              until payment is recorded. A reservation hold is subject to event eligibility
-              and the confirmed payment deadline.
+              Ask us whether paying at the door is available for this event.
+              Availability may vary by event.
             </p>
           )}
         </>
       )}
 
       <p className="mixed-payment-notice">
-        Additional methods are not yet available for online reservations.
-        No payment or hold is created here. <a href="tel:18324372807">Call 832-437-2807</a> for help.
+        These options can&apos;t be booked online yet.
+        <a href="tel:18324372807"> Call (832) 437-2807</a> for assistance.
       </p>
     </div>
   );
