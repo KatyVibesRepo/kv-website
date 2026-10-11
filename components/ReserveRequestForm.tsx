@@ -115,7 +115,17 @@ export function ReserveRequestForm({ ticketedWindows = [] }: { ticketedWindows?:
     serializedPayload: string;
   } | null>(null);
 
-  const minDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const minDate = useMemo(() => {
+    const parts = Object.fromEntries(
+      new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Chicago',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).formatToParts(new Date()).map((part) => [part.type, part.value]),
+    );
+    return parts.year + '-' + parts.month + '-' + parts.day;
+  }, []);
 
   function updateValue<K extends keyof FormValues>(key: K, value: FormValues[K]) {
     setValues((current) => ({ ...current, [key]: value }));
