@@ -50,7 +50,7 @@ function Row({ title, value }: { title: string; value: ReactNode }) {
 }
 
 export function KvrsPaymentStatus({ summary }: { summary?: KvrsPublicPaymentSummary | null }) {
-  if (!summary || !(summary.state in labels)) return null;
+  if (!summary || !Object.prototype.hasOwnProperty.call(labels, summary.state)) return null;
   if (![
     summary.guestCount,
     summary.onlinePaidAdmissions,
@@ -60,6 +60,9 @@ export function KvrsPaymentStatus({ summary }: { summary?: KvrsPublicPaymentSumm
   ].every(validCount)) return null;
 
   const totalPaid = summary.onlinePaidAdmissions + summary.venueAcknowledgedAdmissions;
+  if (totalPaid + summary.unpaidAdmissions > summary.guestCount) return null;
+  if (summary.admittedAdmissions > summary.guestCount) return null;
+  if (summary.state === 'fully_paid' && summary.unpaidAdmissions > 0) return null;
   const remainingAdmissions = Math.max(0, summary.guestCount - summary.admittedAdmissions);
   const expiresAt = summary.holdExpiresAt ? new Date(summary.holdExpiresAt) : null;
   const hasDeadline = expiresAt && Number.isFinite(expiresAt.getTime());
