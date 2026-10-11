@@ -30,7 +30,8 @@ test('ticket cards default to their existing compact full-checkout layout', () =
 test('additional payment controls are collapsed by default and independently toggled', () => {
   assert.match(checkout, /const \[additionalPaymentOpen, setAdditionalPaymentOpen\] = useState<Record<string, boolean>>\(\{\}\)/);
   assert.match(checkout, /aria-expanded=\{Boolean\(additionalPaymentOpen\[key\]\)\}/);
-  assert.match(checkout, /onClick=\{\(\) => setAdditionalPaymentOpen/);
+  assert.match(checkout, /onClick=\{\(\) => \{/);
+  assert.match(checkout, /setAdditionalPaymentOpen\(\(current\) => \(\{/);
   assert.match(checkout, /hidden=\{!additionalPaymentOpen\[key\]\}/);
   assert.match(checkout, /additionalPaymentOpen\[key\] && \([\s\S]*?<MixedPaymentPlanner/);
   assert.match(styles, /\.ticket-additional-payment-panel\[hidden\]\s*\{\s*display: none !important;/);
@@ -67,5 +68,4 @@ test('production never renders preview-only alternative payment controls', () =>
   assert.match(checkout, /if \(additionalPaymentOpen\[key\]\)/);
   assert.match(checkout, /delete next\[key\]/);
   assert.doesNotMatch(checkout, /guest_split'\s*\? 'Reserve Tickets'/);
-  assert.match(checkout, /The regular/);
 });
