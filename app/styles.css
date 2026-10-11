@@ -10779,116 +10779,153 @@ nav a,
 /* end jobs-hero-matches-parties */
 
 
-/* G8 admission guidance and guarded mixed-payment preview */
-.ticket-purchase-coverage-note {
-  margin: 0;
-  padding: 0.65rem 0.8rem;
-  border-left: 3px solid rgba(47, 213, 255, 0.8);
-  border-radius: 0 10px 10px 0;
-  background: rgba(47, 213, 255, 0.065);
-  color: rgba(255, 255, 255, 0.83);
-  font-size: 0.78rem;
-  line-height: 1.55;
-}
-
-.ticket-purchase-form .mixed-payment-planner {
+/* G8: keep the original ticket layout; reveal alternative payments only on request. */
+.ticket-additional-payment {
   min-width: 0;
-  margin: 0.35rem 0;
-  padding: 0.95rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 18px;
-  background: rgba(4, 3, 10, 0.45);
+  margin-top: 0.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 0.35rem;
 }
 
-.mixed-payment-planner legend {
-  padding: 0 0.35rem;
+.ticket-additional-payment-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 34px;
+  padding: 0.35rem 0.55rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.25;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.24);
+  text-underline-offset: 3px;
+}
+
+.ticket-additional-payment-toggle:hover,
+.ticket-additional-payment-toggle:focus-visible {
   color: #fff;
-  font-size: 0.85rem;
-  font-weight: 800;
+  text-decoration-color: rgba(47, 213, 255, 0.8);
+}
+
+.ticket-additional-payment-toggle:focus-visible {
+  outline: 2px solid rgba(47, 213, 255, 0.7);
+  outline-offset: 2px;
+}
+
+.ticket-additional-payment-chevron {
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.ticket-additional-payment-panel[hidden] {
+  display: none !important;
+}
+
+.ticket-additional-payment-panel {
+  min-width: 0;
+  padding: 0.55rem 0.1rem 0;
+}
+
+.mixed-payment-planner {
+  min-width: 0;
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 13px;
+  background: rgba(4, 3, 10, 0.32);
+}
+
+.mixed-payment-intro {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.79);
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 .mixed-payment-options {
   display: grid;
-  gap: 0.45rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.3rem;
 }
 
-.ticket-purchase-form .mixed-payment-choice {
+.mixed-payment-choice {
   display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
+  align-items: center;
   min-width: 0;
-  padding: 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 13px;
-  background: rgba(255, 255, 255, 0.045);
-  letter-spacing: normal;
-  text-transform: none;
-  font-weight: 400;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 9px;
+  color: rgba(255, 255, 255, 0.88);
   cursor: pointer;
+  font-size: 0.79rem;
 }
 
-.ticket-purchase-form .mixed-payment-choice:has(input:checked) {
-  border-color: rgba(47, 213, 255, 0.6);
-  background: rgba(47, 213, 255, 0.09);
+.mixed-payment-choice:has(input:checked) {
+  border-color: rgba(47, 213, 255, 0.5);
+  background: rgba(47, 213, 255, 0.065);
 }
 
-.ticket-purchase-form .mixed-payment-choice input[type="radio"] {
+.mixed-payment-choice input[type="radio"] {
   flex: 0 0 1rem;
   width: 1rem;
-  min-height: 1rem;
   height: 1rem;
-  margin: 0.12rem 0 0;
-  padding: 0;
+  margin: 0;
   accent-color: #2fd5ff;
 }
 
-.mixed-payment-choice strong,
-.mixed-payment-choice small {
-  display: block;
-  overflow-wrap: anywhere;
-}
-
-.mixed-payment-choice strong {
-  color: #fff;
-  font-size: 0.78rem;
-}
-
-.mixed-payment-choice small {
-  margin-top: 0.2rem;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.7rem;
-  font-weight: 400;
-  line-height: 1.45;
-}
-
-.ticket-purchase-form .mixed-payment-count {
-  margin-top: 0.7rem;
-}
-
-.mixed-payment-summary {
-  margin-top: 0.75rem;
-  padding: 0.8rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.065);
-}
-
-.mixed-payment-summary strong {
-  color: #fff;
-  font-size: 0.85rem;
-}
-
-.mixed-payment-summary p,
-.mixed-payment-notice,
-.mixed-payment-footnote {
-  margin: 0.35rem 0 0;
-  color: rgba(255, 255, 255, 0.77);
+.mixed-payment-details {
+  min-width: 0;
+  margin: 0;
+  padding: 0.5rem 0.6rem;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.83);
   font-size: 0.78rem;
   line-height: 1.5;
 }
 
+.mixed-payment-details label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.76rem;
+}
+
+.mixed-payment-details input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9px;
+  background: rgba(4, 3, 10, 0.58);
+  color: #fff;
+  font: inherit;
+}
+
+.mixed-payment-details p {
+  margin: 0.35rem 0 0;
+}
+
 .mixed-payment-notice {
-  color: #ffe6b7;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.69);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.mixed-payment-notice a {
+  color: #8be6ff;
+  text-decoration: underline;
 }
 
 .reserve-ticketed-warning {
@@ -10913,12 +10950,6 @@ nav a,
 .reserve-ticketed-warning a {
   color: #8be6ff;
   text-decoration: underline;
-}
-
-@media (max-width: 720px) {
-  .mixed-payment-options {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 
