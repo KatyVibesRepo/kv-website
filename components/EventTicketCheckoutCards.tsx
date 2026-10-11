@@ -555,7 +555,6 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
   const [paymentModes, setPaymentModes] = useState<Record<string, MixedPaymentMode>>({});
   const [additionalPaymentOpen, setAdditionalPaymentOpen] = useState<Record<string, boolean>>({});
   const [guestSplitCounts, setGuestSplitCounts] = useState<Record<string, number>>({});
-  const [installmentAmounts, setInstallmentAmounts] = useState<Record<string, string>>({});
   const [pendingSubmissions, setPendingSubmissions] = useState<
     Record<string, { key: string; serializedPayload: string }>
   >({});
@@ -1261,8 +1260,6 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                         onModeChange={(mode) => setPaymentModes((current) => ({ ...current, [key]: mode }))}
                         guestsPayingNow={guestSplitCounts[key] ?? 1}
                         onGuestsPayingNowChange={(count) => setGuestSplitCounts((current) => ({ ...current, [key]: count }))}
-                        installmentAmount={installmentAmounts[key] || ''}
-                        onInstallmentAmountChange={(amount) => setInstallmentAmounts((current) => ({ ...current, [key]: amount }))}
                       />
                     )}
                   </div>
