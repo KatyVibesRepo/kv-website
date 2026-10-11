@@ -94,6 +94,9 @@ export function MixedPaymentPlanner({
         </>
       )}
 
+      <p className="mixed-payment-notice">
+        Any questions? Call <a href="tel:18324372807">(832) 437-2807</a>.
+      </p>
     </div>
   );
 }
