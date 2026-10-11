@@ -13,6 +13,39 @@ Website feature branch: `feat/g8-mixed-payment-preview`
 - The website preview demonstrates prospective payment choices; only Pay in Full sends the existing checkout request. Other choices never create a hold, charge a card, or confirm payment.
 - Production environment does not render the preview-only payment picker. Changes must not be merged or promoted without approval.
 
+## October 11 staging checkpoint — read-only integration audit
+
+KVRS staging source checkpoint: `149e345139b9526a287b29c11abef07ae86981e6` on `staging/g8-mixed-admission`. The KVRS coordinator reports live isolated public creation/status tests, three independently settled Stripe TEST guest contributions, and a passing disposable-PostgreSQL G8 lifecycle GitHub Actions test. The website coordinator inspected the routes at that source commit, **but has not independently replayed the protected end-to-end staging sequence or verified that a particular preview deployment runs this exact commit**.
+
+### Backend source routes now implemented (synthetic staging only)
+
+- `POST /api/public/m1/quotes`: available at source; strictly accepts quantity `1`, paymentChoice `PAY_PER_GUEST`/`PAY_AT_DOOR`/`PACKAGE_INSTALLMENT`. Resolves one public event selector, product, optional single show, server-quoted shares and five-minute quote token; no inventory hold.
+- `POST /api/public/m1/reservations`: available at source; requires signed quote, true acknowledgment, contact information and Idempotency-Key. Returns `publicReservationRef`, `customerAccessToken`, expiration, hold information and counts. `PAY_AT_DOOR` returns `nextAction: PAY_AT_DOOR`.
+- `POST /api/public/m1/checkouts`: available at source; requires customer-scoped bearer token, Idempotency-Key, one `GUEST_SHARE` or `PACKAGE_BALANCE` contribution and controlled Stripe TEST checkout redirects. Guest-share checkout handles **one share per checkout** and refuses near-expired holds (currently <=32 minutes remaining).
+- `GET /api/public/m1/reservations/{publicRef}/status`: available at source; requires scoped bearer token. Returns separate `reservationState`, `canonicalReservationStatus`, `paymentState`, `admissionPlanState`, `statusRevision`, and nested `coverage`, `payment` and `guestShares` objects. Does not expose a QR credential.
+- All four public M1 routes explicitly require staging and an approved exact browser Origin. Their quote/reservation/status flows reject events unless `event.externalSource === 'KVRS_G8_STAGING_SYNTHETIC'`; these **are not yet usable for public Website events**.
+- Existing normal dining `POST /api/public/reservations/request` is present, but the target `POST /api/public/reservations/ticketed-warning/evaluate` route was **not present** at this source checkpoint. The existing dining request schema does not yet accept the proposed ticket-warning acknowledgment token.
+
+### Website state at checkpoint
+
+- Feature branch `feat/g8-mixed-payment-preview` and **draft** PR #14 stay isolated; `main` and production remain unchanged.
+- Ticket cards show original Checkout by default, with a subtle opt-in Additional Payment Options disclosure. The user-approved choices are **Pay Individually** and **Pay at Door** only. The **Partial Table Payment** UI was explicitly removed; do not reintroduce it merely because KVRS supports a package-installment backend mode.
+- Pay at Door changes the CTA label to **Reserve Tickets**, while Pay Individually displays **Continue**. Both are intentionally blocked from reservation/checkout submission until the coordinator authorizes guarded staging integration. Existing full-price checkout and free RSVP are unchanged.
+- A customer-safe status adapter and resilient access recovery are not yet connected to the actual nested status response. Previous provisional UI types must be reconciled against the deployed contract before display.
+
+### Website ↔ KVRS items to resolve before any network-mutation integration
+
+1. **Staging authorization:** KVRS must provide the exact, immutable READY staging deployment/commit, allowed website preview origin(s), and fresh public API fixture with real event/product IDs and isolated capacity. The previously used disposable/fully-admitted fixture must not be reused. The website must use a staging-only API base; never direct staging mutations to Production or use customer data.
+2. **Payment selection feasibility:** Verify backend eligibility per selected single product, especially `PAY_AT_DOOR`; do not infer eligibility from the presence of frontend controls. G8 cannot accept multi-table quantity or full Both Shows bundle flows; those remain on established full-price checkout.
+3. **One-at-a-time guest checkout UX:** `PAY_PER_GUEST` quotes may propose multiple guests paying online, but the API can create only **one outstanding checkout** and exactly one guest share per session. Define post-Stripe return, status refresh, and sequential next-share navigation without promising one grouped payment.
+4. **Pricing and state shape:** Build typed adapters for `quoteToken`, `guestShares`, scoped access, nested `coverage`/`payment`/`guestShares`, allowed mode, and canonical vs derived payment status. The public reservation response omits some previously requested aggregate price fields, while the checkout response omits `checkoutExpiresAt`; confirm whether clients should obtain these via status or whether KVRS will add them.
+5. **Hold expiry and recovery:** Explain the confirmed 60-minute default from reservation creation, separate from the 5-minute quote token. Current guest-share payment creation requires over 32 minutes of hold time. Establish customer-friendly behavior when that threshold blocks new sessions, expired customer token recovery, and permitted revisit after Stripe redirect. Never use a bearer token in URLs, analytics or referrers.
+6. **Dining ticket warning:** Confirm that KVRS implements the server-side evaluation route, acknowledgment-token validation and recheck on existing dining reservation submission. Until then the Website warning is advisory only.
+7. **Customer QR, admission and staff:** The authenticated status currently reports `groupCredentialIssued` but `groupCredentialValue: null`. Request the approved customer-safe credential delivery/recovery contract and complete physical host tablet interoperability testing separately; do not call admin credential issuance.
+8. **Operational acceptance:** Obtain KVRS authorization for website-origin public pilot mutations after isolated acceptance. Perform full Website automated tests, responsive interaction checks, payment/retry/expired-grace cases and deliberate staged handoff. No production promotion without new approval.
+
+This section records **verified source shape** and coordinator-reported acceptance separately. It does not assert public-production readiness or enable any new payment calls.
+
 ## KVRS response received: selected public contract (October 10, 2026)
 
 KVRS has selected the following **target** guest-safe routes. None is considered an active public API until KVRS explicitly verifies the new endpoint in isolated staging and approves Website use.
