@@ -37,7 +37,7 @@ export function MixedPaymentPlanner({
   return (
     <div className="mixed-payment-planner">
       <p className="mixed-payment-intro">
-        Interested in paying separately or at the door?
+        Choose the payment option that works for your group.
       </p>
 
       {eligible.length === 0 ? (
@@ -80,24 +80,20 @@ export function MixedPaymentPlanner({
               </label>
               <p>
                 {paidNow} to pay online · {guests - paidNow} to pay at the door.
-                Call us to confirm the amounts and arrangements for your group.
+                Final amounts and terms are confirmed before payment.
               </p>
             </div>
           )}
 
           {mode === 'at_door' && canPayAtDoor && (
             <p className="mixed-payment-details">
-              Ask us whether paying at the door is available for this event.
-              Availability may vary by event.
+              Pay at the venue, where this option is offered. Availability and payment
+              terms depend on the event.
             </p>
           )}
         </>
       )}
 
-      <p className="mixed-payment-notice">
-        These options can&apos;t be booked online yet.
-        <a href="tel:18324372807"> Call (832) 437-2807</a> for assistance.
-      </p>
     </div>
   );
 }
