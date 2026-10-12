@@ -63,6 +63,10 @@ export function G8ReservationPage({ reservationRef }: Props) {
       setStatus(result);
       setMessage('');
     } catch (error) {
+      if (error instanceof G8RequestError && (error.httpStatus === 401 || error.httpStatus === 404)) {
+        // Revoked or expired capabilities must not leave stale private data visible.
+        setStatus(null);
+      }
       if (!quiet || error instanceof G8RequestError && error.httpStatus === 401) {
         setMessage(error instanceof Error ? error.message : 'Unable to load your reservation.');
       }
@@ -149,6 +153,7 @@ export function G8ReservationPage({ reservationRef }: Props) {
               <div><span>Awaiting payment</span><strong>{status.coverage.unpaidActive}</strong></div>
               <div><span>Released unpaid</span><strong>{status.coverage.releasedUnpaid}</strong></div>
               <div><span>Checked in</span><strong>{status.coverage.admitted}</strong></div>
+              <div><span>Covered entries remaining</span><strong>{status.coverage.remainingCovered}</strong></div>
               <div><span>Outstanding</span><strong>{money(status.payment.outstandingCents, currency)}</strong></div>
             </div>
             {status.holdExpiresAt && status.coverage.unpaidActive > 0 && (
