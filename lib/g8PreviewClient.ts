@@ -139,6 +139,9 @@ async function requestG8<T extends { ok: true }>(
     credentials: 'omit',
     referrerPolicy: 'no-referrer',
     ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {}),
+  }).catch(() => {
+    throw new G8RequestError('NETWORK_UNAVAILABLE',
+      'Reservations are temporarily unavailable. Please try again.', 0);
   });
   const parsed = (await response.json().catch(() => null)) as T | G8ApiError | null;
   if (!response.ok || !parsed || parsed.ok !== true) {
