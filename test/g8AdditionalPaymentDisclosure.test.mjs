@@ -42,7 +42,11 @@ test('additional payment controls do not submit payment or alter legacy checkout
   assert.match(checkout, /ticketTypeId: ticket\?\.id/);
   assert.match(checkout, /quantity: safeQuantity/);
   assert.match(checkout, /selectedPaymentMode === 'at_door' \|\| selectedPaymentMode === 'guest_split'/);
-  assert.match(checkout, /Never submit a selected alternative through the full-price checkout/);
+  assert.match(checkout, /Never send alternative payment selections through production full checkout/);
+  assert.match(checkout, /!g8PilotApproved \|\| !isG8Fixture\(event\.id, ticket\?\.id\)/);
+  assert.match(checkout, /isG8Fixture\(event\.id\)/);
+  assert.match(checkout, /const quote = await g8Quote\(choice, onlineGuests\)/);
+  assert.match(checkout, /await g8Create\(quote\.quoteToken, choice, contact, stableId\)/);
   assert.doesNotMatch(planner, /fetch\(/);
   assert.doesNotMatch(planner, /<form\b/);
 });
