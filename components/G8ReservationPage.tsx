@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import {
-  G8RequestError, g8Link, g8PayGuest, g8Status, stashCheckoutReturn,
+  G8RequestError, g8Link, g8PayGuest, g8Status, stashCheckoutReturn, takeCheckoutReturn,
   validG8Ref, validG8Token,
   type G8Status,
 } from '@/lib/g8PreviewClient';
@@ -38,8 +38,10 @@ export function G8ReservationPage({ reservationRef }: Props) {
     // The URL fragment is never part of the HTTP request or rendered HTML.
     const fragment = new URLSearchParams(window.location.hash.slice(1));
     const supplied = fragment.get('access') || '';
-    if (supplied && validG8Token(supplied) && validG8Ref(reservationRef)) {
-      setAccessToken(supplied);
+    const pending = supplied ? null : takeCheckoutReturn();
+    const token = supplied || (pending?.ref === reservationRef ? pending.token : '') || '';
+    if (validG8Token(token) && validG8Ref(reservationRef)) {
+      setAccessToken(token);
     } else {
       setMessage('Open your original secure reservation link to view this booking.');
     }
@@ -119,7 +121,9 @@ export function G8ReservationPage({ reservationRef }: Props) {
     s.coverage === 'UNPAID' && s.lifecycle === 'ACTIVE') || [];
   const closed = Boolean(status && (
     status.coverage.unpaidActive === 0 || !status.capacityHeld ||
-    status.reservationState === 'EXPIRED_OR_RELEASED'
+    status.reservationState === 'EXPIRED_OR_RELEASED' ||
+    !status.holdExpiresAt ||
+    new Date(status.holdExpiresAt).getTime() <= Date.now() + 32 * 60_000
   ));
 
   return (
@@ -158,6 +162,9 @@ export function G8ReservationPage({ reservationRef }: Props) {
             )}
             {status.coverage.releasedUnpaid > 0 && (
               <p>Some unpaid places were released. They are no longer reserved.</p>
+            )}
+            {status.coverage.unpaidActive > 0 && closed && (
+              <p>New online payments cannot be started this close to the payment deadline. Please call Katy Vibes for help.</p>
             )}
             <p className="muted">
               Payment and admission are verified by Katy Vibes. A table number is assigned by our team.
