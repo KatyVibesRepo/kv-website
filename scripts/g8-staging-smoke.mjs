@@ -10,8 +10,7 @@ const PRODUCT = 'kvrs_g8_syn_durable_table8_20261012';
 
 if (process.env.G8_AUTHORIZED_STAGING_SMOKE !== '1' ||
     process.env.VERCEL_ENV === 'production' ||
-    process.env.NEXT_PUBLIC_KVRS_BASE_URL === 'https://admin.katyvibes.com' &&
-      process.env.G8_ALLOW_CROSS_ENV !== undefined) {
+    process.env.G8_DISABLE_STAGING_SMOKE === '1') {
   throw new Error('Synthetic staging smoke guard refused execution.');
 }
 const headers = {
