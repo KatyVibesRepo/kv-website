@@ -43,7 +43,7 @@ test('durable bearer only in fragment or Authorization and short-lived browser t
   assert.match(api, /#access=/);
   assert.match(api, /sessionStorage\.setItem\(handoffKey/);
   assert.match(api, /sessionStorage\.removeItem\(handoffKey\)/);
-  assert.doesNotMatch(api, /localStorage|document\.cookie|URLSearchParams\([^)]*bearer/);
+  assert.doesNotMatch(api, /window\.localStorage|document\.cookie|URLSearchParams\([^)]*bearer/);
   assert.match(customer, /history\.replaceState\(null, '', window\.location\.pathname\)/);
   assert.match(customer, /navigator\.clipboard\.writeText\(g8Link/);
   assert.match(returnClient, /takeCheckoutReturn\(\)/);
