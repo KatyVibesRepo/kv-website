@@ -114,7 +114,7 @@ export class G8RequestError extends Error {
 function safeApiMessage(error: G8ApiError | null, status: number) {
   const message = error?.message;
   return typeof message === 'string' && message.length < 200 &&
-    !/\\b(?:SQL|Prisma|stack|debug|internal server error|database)\\b|\\/api\\//i.test(message)
+    !/\b(?:SQL|Prisma|stack|debug|internal server error|database)\b|\/api\//i.test(message)
     ? message : status === 429 ? 'Too many attempts. Please try again shortly.'
     : 'This option is temporarily unavailable. Please try again.';
 }
