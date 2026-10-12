@@ -1,0 +1,36 @@
+name: G8 Website isolated preview validation
+
+on:
+  push:
+    branches:
+      - feat/g8-mixed-payment-preview
+    paths:
+      - 'components/**'
+      - 'lib/**'
+      - 'app/**'
+      - 'test/**'
+      - 'next.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/g8-website-preview-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run all website tests
+        run: npm test
+      - name: Check TypeScript
+        run: npm run typecheck
