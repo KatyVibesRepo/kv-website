@@ -9,11 +9,13 @@ import type {
 } from '@/lib/kvrsEvents';
 import { resolveKvrsConfig } from '@/lib/kvrsConfig.mjs';
 import { MixedPaymentPlanner, type MixedPaymentMode } from '@/components/MixedPaymentPlanner';
+import { g8Quote, g8Create, g8Link, isG8Fixture, validG8Ref, validG8Token, type G8Choice } from '@/lib/g8PreviewClient';
 
 type EventTicketCheckoutCardsProps = {
   event: PublicEvent;
   ticketTypes: PublicTicketType[];
   previewMixedPayments?: boolean;
+  g8PilotApproved?: boolean;
 };
 
 type TicketChoice = PublicTicketType | null;
@@ -556,7 +558,7 @@ function checkoutErrorMessage(data: unknown, fallback: string) {
   return fallback;
 }
 
-export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayments = false }: EventTicketCheckoutCardsProps) {
+export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayments = false, g8PilotApproved = false }: EventTicketCheckoutCardsProps) {
   const inventorySectionRef = useRef<HTMLElement | null>(null);
   const [inventorySectionVisible, setInventorySectionVisible] = useState(false);
   const [liveTicketTypes, setLiveTicketTypes] = useState(ticketTypes);
@@ -599,7 +601,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
   }, []);
 
   useEffect(() => {
-    if (!inventorySectionVisible) return;
+    if (!inventorySectionVisible || isG8Fixture(event.id)) return;
 
     let cancelled = false;
     let requestInFlight = false;
@@ -724,7 +726,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [event.slug, inventorySectionVisible]);
+  }, [event.id, event.slug, inventorySectionVisible]);
 
   const choices = useMemo<TicketChoice[]>(() => {
     if (liveTicketTypes.length > 0) return liveTicketTypes;
@@ -762,16 +764,69 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
       ? paymentModes[key]
       : null;
 
-    // Mixed-payment public reservation writes are not yet authorized by KVRS.
-    // Never submit a selected alternative through the full-price checkout.
+    // Never send alternative payment selections through production full checkout.
     if (selectedPaymentMode === 'at_door' || selectedPaymentMode === 'guest_split') {
-      setMessages((current) => ({
-        ...current,
-        [key]: {
-          tone: 'muted',
-          text: 'Please call (832) 437-2807 to arrange this payment option.',
-        },
-      }));
+      if (!g8PilotApproved || !isG8Fixture(event.id, ticket?.id)) {
+        setMessages((current) => ({
+          ...current, [key]: { tone: 'muted', text: 'Please call (832) 437-2807 to arrange this payment option.' },
+        }));
+        return;
+      }
+      const formData = new FormData(form);
+      const amount = Number(formData.get('quantity') || 1);
+      const choice: G8Choice = selectedPaymentMode === 'at_door' ? 'PAY_AT_DOOR' : 'PAY_PER_GUEST';
+      const onlineGuests = choice === 'PAY_AT_DOOR' ? 0 : guestSplitCounts[key] ?? 1;
+      const contact = {
+        customerName: readFormValue(formData, 'customerName'),
+        customerEmail: readFormValue(formData, 'customerEmail'),
+        customerPhone: readFormValue(formData, 'customerPhone'),
+      };
+      if (amount !== 1 || !ticket || !isG8Fixture(event.id, ticket.id)) {
+        setMessages(current => ({ ...current, [key]: { tone: 'error', text: 'This option is available for one table at a time.' } }));
+        return;
+      }
+      if (formData.get('acceptUnpaidPaymentTerms') !== 'on') {
+        setMessages(current => ({ ...current, [key]: { tone: 'error', text: 'Please agree to the payment terms to continue.' } }));
+        return;
+      }
+      setPending(current => ({ ...current, [key]: true }));
+      setMessages(current => ({ ...current, [key]: { tone: 'muted', text: 'Checking your reservation options…' } }));
+      try {
+        const quote = await g8Quote(choice, onlineGuests);
+        if (quote.event.id !== event.id || quote.product.id !== ticket.id ||
+            quote.guestCount !== ticket.guestCount || quote.product.quantity !== 1 ||
+            quote.totalCents !== ticket.priceCents ||
+            !quote.eligiblePaymentChoices.includes(choice) ||
+            quote.capacityHeld !== false) {
+          throw new Error('Pricing or availability changed. Please refresh your selection.');
+        }
+        const snapshot = JSON.stringify({ choice, contact, guests: onlineGuests });
+        const previous = pendingSubmissions[key];
+        const stableId = previous?.serializedPayload === snapshot ? previous.key : crypto.randomUUID();
+        setPendingSubmissions(current => ({ ...current, [key]: { key: stableId, serializedPayload: snapshot } }));
+        const result = await g8Create(quote.quoteToken, choice, contact, stableId);
+        if (!validG8Ref(result.publicReservationRef) || !validG8Token(result.customerAccessToken) ||
+            result.paymentChoice !== choice) {
+          throw new Error('Your reservation link could not be verified. Please contact Katy Vibes.');
+        }
+        window.location.assign(g8Link(result.publicReservationRef, result.customerAccessToken));
+        return;
+      } catch (error) {
+        setMessages(current => ({
+          ...current,
+          [key]: { tone: 'error', text: error instanceof Error ? error.message : 'Reservation is temporarily unavailable.' },
+        }));
+      } finally {
+        setPending(current => ({ ...current, [key]: false }));
+      }
+      return;
+    }
+
+    // The isolated fixture must never go through the normal production checkout.
+    if (isG8Fixture(event.id)) {
+      setMessages(current => ({ ...current, [key]: {
+        tone: 'muted', text: 'Choose an additional payment option to continue with this reservation.',
+      } }));
       return;
     }
 
@@ -1236,6 +1291,13 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                   </label>
                 ) : null}
 
+                {g8PilotApproved && selectedPaymentMode && (
+                  <label className="g8-payment-terms">
+                    <input type="checkbox" name="acceptUnpaidPaymentTerms" required />
+                    <span>I understand that unpaid guest places have a payment deadline and may be released if not paid in time.</span>
+                  </label>
+                )}
+
                 {automaticAdjustment ? (
                   <p className="ticket-form-message error" role="status" aria-live="polite">
                     Availability changed while you were checking out. You requested{' '}
@@ -1246,7 +1308,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                   </p>
                 ) : null}
 
-                <button className="button" type="submit" disabled={disabled || isPending}>
+                <button className="button" type="submit" disabled={disabled || isPending || (isG8Fixture(event.id) && !selectedPaymentMode)}>
                   {isPending
                     ? freeReservation
                       ? 'Submitting RSVP…'
@@ -1255,7 +1317,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                       ? 'Reserve Tickets'
                       : selectedPaymentMode === 'guest_split'
                         ? 'Continue'
-                        : buttonLabel(event, ticket)}
+                        : isG8Fixture(event.id) ? 'Choose Payment Option' : buttonLabel(event, ticket)}
                 </button>
 
                 {message && (
