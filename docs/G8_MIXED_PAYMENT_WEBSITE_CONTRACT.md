@@ -10,8 +10,28 @@ Website feature branch: `feat/g8-mixed-payment-preview`
 - G8 staging proved mixed settled payments and one-at-a-time group admission through authenticated `/api/admin/m1/*` routes.
 - **Those routes are not customer APIs. Do not proxy or call them from public pages.**
 - Existing full-price KVRS `/api/checkout`, read-only events/ticket inventory, free RSVP behavior and conventional pending dining requests remain unchanged.
-- The website preview demonstrates prospective payment choices; only Pay in Full sends the existing checkout request. Other choices never create a hold, charge a card, or confirm payment.
+- For real public Website events, Pay at Door and Pay Individually remain guarded and cannot create reservations. A dedicated synthetic-only G8 staging page now exercises the newly implemented public APIs. Ordinary Pay in Full still uses the original checkout.
 - Production environment does not render the preview-only payment picker. Changes must not be merged or promoted without approval.
+
+## October 12 Website implementation — durable links + isolated staging acceptance
+
+KVRS backend checkpoint `c1eb809785da5d52e9835e39b0a9dab7f93a3bf9` completed durable access through the event plus 30 days, without sign-in; the staging migration was verified by the KVRS coordinator. `kvrs_ra1_<43 URL-safe chars>` is the only authorized G8 bearer. The Website still does not implement optional lost-link verified email recovery, which requires a separate proof/UX contract.
+
+**Implementation (Website draft PR #14, feature branch only):**
+- Isolated browser API target `https://kv-reservationservice-git-staging-g8-mixed-admission-katy-vibes.vercel.app`, **not** the inherited Production `admin.katyvibes.com` base. Every G8 mutation is guarded by an exact synthetic event/product allowlist and explicit Website preview-only opt-in.
+- `/g8/staging` is a noindex synthetic Table of 8 card (`kvrs_g8_syn_durable_event_20261012` / `kvrs_g8_syn_durable_table8_20261012`). It uses the existing compact card with the user's approved **Pay at Door** and **Pay Individually** controls; **Partial Table Payment remains absent**. Its normal Checkout is disabled to prevent accidentally sending the synthetic selection through Production legacy checkout.
+- The G8 form requires explicit unpaid-terms acknowledgment, server quote price/eligibility validation and an idempotent reservation request. On successful creation, a durable customer-safe link is assembled with the opaque `publicReservationRef` in the path and bearer only in the URL fragment.
+- `/g8/reservations/[publicRef]` consumes the bearer client-side, removes the hash from history, verifies scoped status using `Authorization` and presents payment/admission counts, remaining guest shares, pending Stripe funds and hold deadlines. It permits one guest-share Checkout at a time and does **not** treat Stripe redirect as settlement. There is no public QR issuance in the Website.
+- `/g8/return` supports a temporary **same-tab** sessionStorage handoff for returning from hosted Stripe Checkout; this tab-scoped value is deleted on recovery. Browser `localStorage`, cookies, access-token query parameters, analytics and third-party scripts are not used for the G8 customer page. The Website sets `no-store`, `no-referrer`, CSP script restrictions and `noindex` on `/g8/*`.
+- Normal event Checkout, RSVP, events feed, multiple-table and Both Shows behavior remain unchanged; the G8 staging entry cannot be reached from real public event cards.
+
+**Independently run acceptance:** [GitHub Actions synthetic smoke](https://github.com/KatyVibesRepo/kv-website/actions/runs/38281512468) **PASSED** on October 12. It ran read-only `PAY_AT_DOOR` and `PAY_PER_GUEST` quotes, created exactly **one** synthetic Pay at Door Table of 8 reservation, verified same-key idempotent durable-token replay, and fetched scoped customer status (`8 unpaid`, `0 prepaid`, `$80 outstanding`, 180-minute fixture grace). No Stripe checkout or real payment, live customer, production database or live event was used. The smoke workflow only runs on changes to its own workflow file to prevent unintentionally repeating staging inventory writes. A separate branch-only Website CI workflow runs the complete npm test suite and TypeScript checks.
+
+**Remaining acceptance / coordinator questions:**
+1. Confirm exact configured Stripe TEST success/cancel destination paths on the approved Website preview origin. The Website currently implements `/g8/return`; no end-to-end Stripe return has yet been verified. The original secure reservation link must remain usable even when a browser/tab cannot recover transient checkout state.
+2. Use the exact approved Website preview **branch alias origin** for CORS and interactive testing, not an arbitrary immutable Vercel preview hostname. Only the source/status API and one synthetic reservation have been exercised by the HTTP smoke; actual hydrated browser submission, sequential test Stripe payments and settled-status refresh still need an explicit browser end-to-end acceptance.
+3. KVRS remains responsible for verification/recovery proof issuance and customer-safe group QR credential delivery; no admin credential-issuance or A2 host mutations are authorized from Website pages.
+4. The staging public API still forbids real-event G8 bookings until separately approved. Production activation, staging origin changes, any real Stripe charges and merge of draft PR #14 remain prohibited.
 
 ## October 11 staging checkpoint — read-only integration audit
 
