@@ -5,6 +5,22 @@ Owner: KV Website
 Backend reference: KVRS staging G8-P24, `43af3e21a1bdc04b39c7cd9b9e6d1f1f705b6608`
 Website feature branch: `feat/g8-mixed-payment-preview`
 
+## October 13 — customer admission QR integration (current checkpoint)
+
+**Authoritative backend:** KVRS staging `ea6efa9f9fbe2342c6c65b3242a40594f9ebb398`, [G8 CI run 38354848233](https://github.com/KatyVibesRepo/kv-reservationservice/actions/runs/38354848233) PASS, matching Vercel staging deployment READY. Backend admission QR issuance, simultaneous retrieval, revocation, paid admission, and unpaid denial were tested with the backend's disposable PostgreSQL lifecycle. **These are not Website/TableService end-to-end check-in tests.**
+
+**Website implementation:** Feature branch `feat/g8-mixed-payment-preview` / draft PR #14. Authenticated `/g8/reservations/[publicRef]` now requests `POST /api/public/m1/reservations/{publicRef}/qr` through the existing isolated G8 staging base, with the durable `kvrs_ra1_` customer token **only** in `Authorization: Bearer`. No request body. The response must match `kvrs.m1.customer-group-qr.v1`, the current publicRef, the reservation guestCount and the exact `kvrs_m1_<43 URL-safe>` admission token shape; mismatch fails closed. Customer QR is rendered from **only scanValue** using a locally vendored MIT-licensed QR generator (no third-party image service, tracking request, external script, persistent storage, or bearer in QR). White quiet zone, black squares, phone-sized high-contrast matrix. It shows “Admission subject to verified payment and staff check-in.” Group QR availability does **not** grant admission to unpaid guests or imply physical table assignment.
+
+The QR is fetched again when a durable link is reopened or recovered; repeated QR retrieval is backend-idempotent so the same still-active credential is shown. If QR is unavailable/revoked, show a retry/customer-support message and **do not** derive an alternative QR. Production configuration, normal full-price checkout, free RSVP and the live-event guard are unchanged. Staging full-table checkout is separately enabled for the full $80, while Pay Individually initiates only the first $10 guest-share Stripe TEST payment and Pay at Door creates without Stripe. No Partial Table Payment UI.
+
+**Verification status:**
+- Website source/QR matrix, isolation, privacy, layout and payment regression tests: PASS; current feature Vercel preview is READY.
+- Backend QR service/API tests: **22 passed**, backend deployment READY.
+- [Website one-shot live QR smoke run 38355872107](https://github.com/KatyVibesRepo/kv-website/actions/runs/38355872107): **BLOCKED** by the existing synthetic fixture, which returned `409 INVENTORY_CONFLICT` at the *initial quote*. It created **zero new reservations and zero QR credentials**, so this does not prove the QR endpoint failed. KVRS must provide/refresh isolated synthetic test inventory before browser/API live QR acceptance can finish. Do not clear/change backend inventory from Website.
+- KV TableService has **not yet** demonstrated live `kvrs_m1_` host admission scans. Physical host check-in and paid/unpaid checks are mandatory separate launch acceptance.
+
+**Older sections below are historical snapshots; statements that the Website does not yet show a QR or that staging full Checkout is disabled are superseded by this October 13 checkpoint.**
+
 ## Status and deployment boundaries
 
 - G8 staging proved mixed settled payments and one-at-a-time group admission through authenticated `/api/admin/m1/*` routes.
