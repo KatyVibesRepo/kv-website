@@ -1,0 +1,25 @@
+name: G8 one-shot customer admission QR staging acceptance
+
+on:
+  push:
+    branches:
+      - feat/g8-mixed-payment-preview
+    paths:
+      - '.github/workflows/g8-one-shot-customer-qr.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-qr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      G8_CUSTOMER_QR_SMOKE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify scoped QR provisioning, safe reopen and unpaid coverage
+        run: node scripts/g8-customer-qr-staging-smoke.mjs
