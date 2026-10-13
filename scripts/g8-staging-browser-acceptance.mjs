@@ -74,7 +74,7 @@ async function createFromWebsite(browser, variant) {
   await page.waitForURL(url => url.pathname ===
     '/g8/reservations/' + created.publicReservationRef, { timeout: 25000 });
   await page.getByRole('heading', { name: 'Your reservation' }).waitFor();
-  await page.getByText('Awaiting payment').first().waitFor();
+  await page.getByText(/Awaiting payment/i).first().waitFor();
   const originalLink = WEBSITE + '/g8/reservations/' +
     created.publicReservationRef + '#access=' + created.customerAccessToken;
   await page.goto(originalLink, { waitUntil: 'domcontentloaded' });
