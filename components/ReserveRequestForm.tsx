@@ -135,7 +135,7 @@ export function ReserveRequestForm({
     if (!stagingWarningEnabled) return;
     const { reservationDate: date, reservationTime: time, guestCount } = values;
     const partySize = Number(guestCount);
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date) || !/^\\d{2}:\\d{2}$/.test(time) ||
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time) ||
         !Number.isInteger(partySize) || partySize < 1 || partySize > 100) return;
     const controller = new AbortController();
     const key = `${date}|${time}|${guestCount}`;
