@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { G8RecoveryPanel } from '@/components/G8RecoveryPanel';
 import {
   G8RequestError, g8Link, g8PayGuest, g8Status, stashCheckoutReturn, takeCheckoutReturn,
   validG8Ref, validG8Token,
@@ -66,6 +67,7 @@ export function G8ReservationPage({ reservationRef }: Props) {
       if (error instanceof G8RequestError && (error.httpStatus === 401 || error.httpStatus === 404)) {
         // Revoked or expired capabilities must not leave stale private data visible.
         setStatus(null);
+        setAccessToken('');
       }
       if (!quiet || error instanceof G8RequestError && error.httpStatus === 401) {
         setMessage(error instanceof Error ? error.message : 'Unable to load your reservation.');
@@ -135,6 +137,9 @@ export function G8ReservationPage({ reservationRef }: Props) {
       <div className="eyebrow">Katy Vibes Reservations</div>
       <h1>Your reservation</h1>
       {!initialized || busy && !status ? <p role="status">Loading your reservation…</p> : null}
+      {initialized && !accessToken && !status && (
+        <G8RecoveryPanel reservationRef={reservationRef} />
+      )}
 
       {status && (
         <>
