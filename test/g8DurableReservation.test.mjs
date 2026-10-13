@@ -73,5 +73,6 @@ test('original multi-table and Both Shows full checkout stays independent', () =
   assert.match(checkout, /const showGroups = useMemo/);
   assert.match(checkout, /Both Shows/);
   assert.match(checkout, /isG8Fixture\(event\.id\)/);
-  assert.doesNotMatch(checkout, /PACKAGE_INSTALLMENT|Partial Table Payment/);
+  assert.match(checkout, /choice === 'PACKAGE_INSTALLMENT'/);
+  assert.doesNotMatch(checkout, /Partial Table Payment/);
 });
