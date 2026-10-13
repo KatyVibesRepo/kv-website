@@ -127,10 +127,19 @@ async function settleTestCard(url) {
     await page.waitForTimeout(1600);
     await optionalFill(page, ['input[type="email"]', 'input[autocomplete="email"]'],
       'g8-synthetic@example.com');
-    const card = await visible(page, [
+    const cardSelectors = [
       'input[name="cardNumber"]', 'input[autocomplete="cc-number"]',
       'input[placeholder*="1234 1234"]', 'input[aria-label*="Card number"]',
-    ]);
+    ];
+    let card = await visible(page, cardSelectors);
+    if (!card) {
+      const continueAction = page.getByRole('button', { name: /^(Continue|Use Card|Pay with Card|Card)$/i }).first();
+      if (await continueAction.count() && await continueAction.isVisible()) {
+        await continueAction.click();
+        await page.waitForTimeout(2300);
+        card = await visible(page, cardSelectors);
+      }
+    }
     if (!card) {
       const hints = [];
       for (const frame of page.frames()) {
@@ -142,6 +151,10 @@ async function settleTestCard(url) {
         hints.push(...inputs);
       }
       console.log('Stripe TEST form field names only: ' + JSON.stringify(hints.slice(0, 14)));
+      console.log('Stripe TEST form button labels only: ' +
+        JSON.stringify((await page.getByRole('button').allTextContents()).map(x => x.trim().slice(0, 45)).slice(0, 12)));
+      console.log('Stripe TEST form heading labels only: ' +
+        JSON.stringify((await page.locator('h1,h2').allTextContents()).map(x => x.trim().slice(0, 45)).slice(0, 8)));
       throw new Error('Hosted Stripe TEST card input not found.');
     }
     await card.fill('4242424242424242');
