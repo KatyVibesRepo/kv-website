@@ -193,6 +193,23 @@ export function g8PayGuest(ref: string, token: string, shareRef: string, idempot
   });
 }
 
+export function g8RecoverRequest(ref: string, email: string) {
+  if (!validG8Ref(ref)) throw new Error('Invalid reservation reference.');
+  return requestG8<{ ok: true; notice: string }>('/api/public/m1/recover/request', {
+    body: { publicReservationRef: ref, email },
+  });
+}
+
+export function g8RecoverVerify(ref: string, email: string, proof: string) {
+  if (!validG8Ref(ref)) throw new Error('Invalid reservation reference.');
+  return requestG8<{
+    ok: true; publicReservationRef: string;
+    customerAccessToken: string; accessExpiresAt: string;
+  }>('/api/public/m1/recover/verify', {
+    body: { publicReservationRef: ref, email, proof },
+  });
+}
+
 export function g8Link(ref: string, token: string) {
   if (!validG8Ref(ref) || !validG8Token(token)) throw new Error('Invalid secure reservation link.');
   if (typeof window === 'undefined') throw new Error('Open your reservation in the browser.');
