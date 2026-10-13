@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { G8RecoveryPanel } from '@/components/G8RecoveryPanel';
+import { G8AdmissionQr } from '@/components/G8AdmissionQr';
 import {
   G8RequestError, g8Link, g8PayGuest, g8Status, stashCheckoutReturn, takeCheckoutReturn,
   validG8Ref, validG8Token,
@@ -178,9 +179,15 @@ export function G8ReservationPage({ reservationRef }: Props) {
             )}
             <p className="muted">
               Payment and admission are verified by Katy Vibes. A table number is assigned by our team.
-              {status.groupCredentialIssued ? ' Your group entry credential is managed separately.' : ''}
+
             </p>
           </article>
+          <G8AdmissionQr
+            reservationRef={reservationRef}
+            customerAccessToken={accessToken}
+            guestCount={status.guestCount}
+            enabled={Boolean(accessToken)}
+          />
           <article className="card stack">
             <h2>Guest payments</h2>
             <p className="muted">
