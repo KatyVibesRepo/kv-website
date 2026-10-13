@@ -565,7 +565,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
   const [messages, setMessages] = useState<Record<string, FormMessage>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [quantitySelections, setQuantitySelections] = useState<Record<string, QuantitySelection>>({});
-  const [paymentModes, setPaymentModes] = useState<Record<string, MixedPaymentMode>>({});
+  const [paymentModes, setPaymentModes] = useState<Record<string, MixedPaymentMode | undefined>>({});
   const [additionalPaymentOpen, setAdditionalPaymentOpen] = useState<Record<string, boolean>>({});
   const [guestSplitCounts, setGuestSplitCounts] = useState<Record<string, number>>({});
   const [pendingSubmissions, setPendingSubmissions] = useState<
