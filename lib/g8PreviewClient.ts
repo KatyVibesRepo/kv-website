@@ -190,6 +190,49 @@ export function g8Status(ref: string, token: string) {
   return requestG8<G8Status>(`/api/public/m1/reservations/${ref}/status`, { bearer: token });
 }
 
+export type G8CustomerQr = {
+  ok: true;
+  contract: 'kvrs.m1.customer-group-qr.v1';
+  publicReservationRef: string;
+  scanValue: string;
+  guestCount: number;
+  groupCredentialIssued: true;
+  admissionConfirmed: false;
+  requiresAuthorizedHostCheckIn: true;
+  oneScanAdmitsZeroWithoutHostConfirmation: true;
+};
+
+const groupScanPattern = /^kvrs_m1_[A-Za-z0-9_-]{43}$/;
+
+export function validG8ScanValue(value: string) {
+  return groupScanPattern.test(value);
+}
+
+export async function g8CustomerQr(ref: string, bearer: string, expectedGuestCount: number) {
+  if (!validG8Ref(ref) || !validG8Token(bearer)) {
+    throw new Error('Your secure reservation link is invalid.');
+  }
+  const result = await requestG8<G8CustomerQr>(
+    `/api/public/m1/reservations/${ref}/qr`,
+    { method: 'POST', bearer },
+  );
+  // Never render anything derived from the reservation ref, the access
+  // bearer, or an invalid/mismatched QR payload.
+  if (result.contract !== 'kvrs.m1.customer-group-qr.v1' ||
+      result.publicReservationRef !== ref ||
+      !validG8ScanValue(result.scanValue) ||
+      !Number.isSafeInteger(expectedGuestCount) ||
+      expectedGuestCount < 1 || expectedGuestCount > 8 ||
+      result.guestCount !== expectedGuestCount ||
+      result.groupCredentialIssued !== true ||
+      result.admissionConfirmed !== false ||
+      result.requiresAuthorizedHostCheckIn !== true ||
+      result.oneScanAdmitsZeroWithoutHostConfirmation !== true) {
+    throw new Error('Your admission QR could not be verified. Please contact Katy Vibes.');
+  }
+  return result;
+}
+
 export function g8PayGuest(ref: string, token: string, shareRef: string, idempotencyKey: string) {
   if (!validG8Ref(ref) || !/^guest-[1-8]$/.test(shareRef))
     throw new Error('Invalid guest payment choice.');
