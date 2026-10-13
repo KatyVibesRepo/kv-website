@@ -1,0 +1,33 @@
+name: G8 one-shot Stripe TEST public API settlement
+
+on:
+  push:
+    branches:
+      - feat/g8-mixed-payment-preview
+    paths:
+      - '.github/workflows/g8-one-shot-stripe-api.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  stripe-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    env:
+      G8_STRIPE_TEST_ACCEPTANCE: '1'
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install exact Website dependencies
+        run: npm ci
+      - name: Install Chromium test runner
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify G8 guest payment, pending coverage and Stripe TEST settlement
+        run: node scripts/g8-stripe-api-acceptance.mjs
