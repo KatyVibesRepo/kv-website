@@ -9,7 +9,7 @@ import type {
 } from '@/lib/kvrsEvents';
 import { resolveKvrsConfig } from '@/lib/kvrsConfig.mjs';
 import { MixedPaymentPlanner, type MixedPaymentMode } from '@/components/MixedPaymentPlanner';
-import { g8Quote, g8Create, g8Link, isG8Fixture, validG8Ref, validG8Token, type G8Choice } from '@/lib/g8PreviewClient';
+import { g8Quote, g8Create, g8Link, g8PayGuest, stashCheckoutReturn, isG8Fixture, validG8Ref, validG8Token, type G8Choice } from '@/lib/g8PreviewClient';
 
 type EventTicketCheckoutCardsProps = {
   event: PublicEvent;
@@ -760,9 +760,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
     const form = formEvent.currentTarget;
     const key = ticketKey(event, ticket);
     const freeReservation = isFreeReservationChoice(event, ticket);
-    const selectedPaymentMode = previewMixedPayments && !freeReservation
-      ? paymentModes[key]
-      : null;
+    // On the isolated staging fixture, Checkout defaults to individual
+    // online guest payments; the public site retains its normal full checkout.
+    const selectedPaymentMode = g8PilotApproved && isG8Fixture(event.id, ticket?.id)
+      ? paymentModes[key] || 'guest_split'
+      : previewMixedPayments && !freeReservation ? paymentModes[key] : null;
 
     // Never send alternative payment selections through production full checkout.
     if (selectedPaymentMode === 'at_door' || selectedPaymentMode === 'guest_split') {
@@ -775,7 +777,10 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
       const formData = new FormData(form);
       const amount = Number(formData.get('quantity') || 1);
       const choice: G8Choice = selectedPaymentMode === 'at_door' ? 'PAY_AT_DOOR' : 'PAY_PER_GUEST';
-      const onlineGuests = choice === 'PAY_AT_DOOR' ? 0 : guestSplitCounts[key] ?? 1;
+      const onlineGuests = choice === 'PAY_AT_DOOR' ? 0
+        : paymentModes[key] === 'guest_split'
+          ? guestSplitCounts[key] ?? 1
+          : ticket?.guestCount ?? 1;
       const contact = {
         customerName: readFormValue(formData, 'customerName'),
         customerEmail: readFormValue(formData, 'customerEmail'),
@@ -809,7 +814,47 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
             result.paymentChoice !== choice) {
           throw new Error('Your reservation link could not be verified. Please contact Katy Vibes.');
         }
-        window.location.assign(g8Link(result.publicReservationRef, result.customerAccessToken));
+        const reservationLink = g8Link(result.publicReservationRef, result.customerAccessToken);
+        if (choice === 'PAY_PER_GUEST') {
+          // A table of eight has eight separately payable admissions. Begin
+          // exactly one Stripe TEST guest share now, preserving a same-tab
+          // path back to the durable reservation after Stripe redirects.
+          try {
+            const firstShare = quote.guestShares[0];
+            if (!firstShare || firstShare.shareRef !== 'guest-1') {
+              throw new Error('The first guest payment is unavailable.');
+            }
+            setMessages(current => ({
+              ...current, [key]: { tone: 'muted', text: 'Opening secure payment for Guest 1…' },
+            }));
+            const checkout = await g8PayGuest(
+              result.publicReservationRef,
+              result.customerAccessToken,
+              firstShare.shareRef,
+              stableId + ':guest-1',
+            );
+            const destination = new URL(checkout.checkoutUrl);
+            if (destination.protocol !== 'https:' ||
+                destination.hostname !== 'checkout.stripe.com' ||
+                !destination.pathname.includes('/c/') ||
+                checkout.amountCents !== firstShare.amountCents ||
+                checkout.currency !== quote.currency ||
+                checkout.paymentState !== 'PENDING' ||
+                checkout.coverageGranted !== false) {
+              throw new Error('The secure payment session could not be verified.');
+            }
+            stashCheckoutReturn(result.publicReservationRef, result.customerAccessToken);
+            window.location.assign(destination.toString());
+            return;
+          } catch {
+            // The table reservation already exists. Never submit a second
+            // reservation or send it to normal checkout on payment failure.
+            // The secure page lets the customer retry an eligible guest share.
+            window.location.assign(reservationLink);
+            return;
+          }
+        }
+        window.location.assign(reservationLink);
         return;
       } catch (error) {
         setMessages(current => ({
@@ -1099,9 +1144,10 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
           const showCoverage = ticketShowCoverage(event, ticket);
           const selectableShows = ticketSelectableShows(event, ticket);
           const freeReservation = isFreeReservationChoice(event, ticket);
-          const selectedPaymentMode = previewMixedPayments && !freeReservation && selectedQuantity === 1
-            ? paymentModes[key]
-            : null;
+          const selectedPaymentMode = g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedQuantity === 1
+            ? paymentModes[key] || 'guest_split'
+            : previewMixedPayments && !freeReservation && selectedQuantity === 1
+              ? paymentModes[key] : null;
           const automaticAdjustment =
             !freeReservation
             && quantitySelection?.requestedQuantity
@@ -1291,6 +1337,13 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                   </label>
                 ) : null}
 
+                {g8PilotApproved && isG8Fixture(event.id, ticket?.id) && !freeReservation && (
+                  <p className="muted">
+                    Online payments are processed one guest at a time. Checkout starts with Guest 1.
+                    Your secure reservation link lets the remaining guests pay separately.
+                  </p>
+                )}
+
                 {g8PilotApproved && selectedPaymentMode && (
                   <label className="g8-payment-terms">
                     <input type="checkbox" name="acceptUnpaidPaymentTerms" required />
@@ -1308,16 +1361,18 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                   </p>
                 ) : null}
 
-                <button className="button" type="submit" disabled={disabled || isPending || (isG8Fixture(event.id) && !selectedPaymentMode)}>
+                <button className="button" type="submit" disabled={disabled || isPending}>
                   {isPending
                     ? freeReservation
                       ? 'Submitting RSVP…'
                       : 'Opening Checkout…'
                     : selectedPaymentMode === 'at_door'
                       ? 'Reserve Tickets'
-                      : selectedPaymentMode === 'guest_split'
-                        ? 'Continue'
-                        : isG8Fixture(event.id) ? 'Choose Payment Option' : buttonLabel(event, ticket)}
+                      : g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedPaymentMode === 'guest_split'
+                        ? `Checkout — Guest 1 (${formatMoney(Math.floor(ticket!.priceCents / ticket!.guestCount), ticket!.currency)})`
+                        : selectedPaymentMode === 'guest_split'
+                          ? 'Continue'
+                          : buttonLabel(event, ticket)}
                 </button>
 
                 {message && (
