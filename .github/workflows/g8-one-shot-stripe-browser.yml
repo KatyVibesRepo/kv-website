@@ -1,4 +1,5 @@
 name: G8 one-shot Stripe TEST browser acceptance
+# Rerun with safe landing-page diagnostics before creating any reservation.
 
 on:
   push:
