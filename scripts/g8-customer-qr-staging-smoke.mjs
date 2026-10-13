@@ -55,7 +55,7 @@ const created=expectOk(await request('/api/public/m1/reservations',{
   body,idempotency:key,
 }), 'Synthetic reservation creation');
 assert.match(created.publicReservationRef,/^kvr_[a-f0-9]{40}$/);
-assert.match(created.customerAccessToken,/^kvrs_ra1_[A-Za-z0-9_-]{43}$/);
+assert.ok(/^kvrs_ra1_[A-Za-z0-9_-]{43}$/.test(created.customerAccessToken));
 assert.equal(created.guestCount,8);
 assert.equal(created.capacityHeld,true);
 console.log('PASS: one isolated unpaid Table of 8 reservation created');
@@ -71,17 +71,17 @@ const second=expectOk(results[1],'Concurrent QR retrieval');
 for(const value of [first,second]){
   assert.equal(value.contract,'kvrs.m1.customer-group-qr.v1');
   assert.equal(value.publicReservationRef,created.publicReservationRef);
-  assert.match(value.scanValue,/^kvrs_m1_[A-Za-z0-9_-]{43}$/);
+  assert.ok(/^kvrs_m1_[A-Za-z0-9_-]{43}$/.test(value.scanValue));
   assert.equal(value.guestCount,8);
   assert.equal(value.groupCredentialIssued,true);
   assert.equal(value.admissionConfirmed,false);
   assert.equal(value.requiresAuthorizedHostCheckIn,true);
   assert.equal(value.oneScanAdmitsZeroWithoutHostConfirmation,true);
-  assert.notEqual(value.scanValue,created.customerAccessToken);
+  if (value.scanValue===created.customerAccessToken) throw new Error('Admission QR reused an access credential.');
 }
-assert.equal(first.scanValue,second.scanValue);
+if (first.scanValue!==second.scanValue) throw new Error('Concurrent QR credentials differed.');
 const reopened=expectOk(await request(url,auth),'Reopened customer QR');
-assert.equal(reopened.scanValue,first.scanValue);
+if (reopened.scanValue!==first.scanValue) throw new Error('Reopened QR changed unexpectedly.');
 console.log('PASS: concurrent provisioning and reopening reproduce one separate entry credential');
 
 const state=expectOk(await request(
