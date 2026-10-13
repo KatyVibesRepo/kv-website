@@ -1,4 +1,5 @@
 name: G8 one-shot Stripe TEST public API settlement
+# Retry Stripe TEST form with staged email-entry support.
 
 on:
   push:
