@@ -9,7 +9,7 @@ import type {
 } from '@/lib/kvrsEvents';
 import { resolveKvrsConfig } from '@/lib/kvrsConfig.mjs';
 import { MixedPaymentPlanner, type MixedPaymentMode } from '@/components/MixedPaymentPlanner';
-import { g8Quote, g8Create, g8Link, g8PayGuest, stashCheckoutReturn, isG8Fixture, validG8Ref, validG8Token, type G8Choice } from '@/lib/g8PreviewClient';
+import { g8Quote, g8Create, g8Link, g8PayGuest, g8PayFullTable, stashCheckoutReturn, isG8Fixture, validG8Ref, validG8Token, type G8Choice } from '@/lib/g8PreviewClient';
 
 type EventTicketCheckoutCardsProps = {
   event: PublicEvent;
@@ -760,14 +760,15 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
     const form = formEvent.currentTarget;
     const key = ticketKey(event, ticket);
     const freeReservation = isFreeReservationChoice(event, ticket);
-    // On the isolated staging fixture, Checkout defaults to individual
-    // online guest payments; the public site retains its normal full checkout.
+    // On the isolated staging fixture, Checkout defaults to the full table
+    // balance; other payment choices are explicit. Real-event checkout stays unchanged.
     const selectedPaymentMode = g8PilotApproved && isG8Fixture(event.id, ticket?.id)
-      ? paymentModes[key] || 'guest_split'
+      ? paymentModes[key] || 'full'
       : previewMixedPayments && !freeReservation ? paymentModes[key] : null;
 
     // Never send alternative payment selections through production full checkout.
-    if (selectedPaymentMode === 'at_door' || selectedPaymentMode === 'guest_split') {
+    if (selectedPaymentMode === 'at_door' || selectedPaymentMode === 'guest_split' ||
+        (g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedPaymentMode === 'full')) {
       if (!g8PilotApproved || !isG8Fixture(event.id, ticket?.id)) {
         setMessages((current) => ({
           ...current, [key]: { tone: 'muted', text: 'Please call (832) 437-2807 to arrange this payment option.' },
@@ -776,11 +777,9 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
       }
       const formData = new FormData(form);
       const amount = Number(formData.get('quantity') || 1);
-      const choice: G8Choice = selectedPaymentMode === 'at_door' ? 'PAY_AT_DOOR' : 'PAY_PER_GUEST';
-      const onlineGuests = choice === 'PAY_AT_DOOR' ? 0
-        : paymentModes[key] === 'guest_split'
-          ? guestSplitCounts[key] ?? 1
-          : ticket?.guestCount ?? 1;
+      const choice: G8Choice = selectedPaymentMode === 'at_door' ? 'PAY_AT_DOOR'
+        : selectedPaymentMode === 'full' ? 'PACKAGE_INSTALLMENT' : 'PAY_PER_GUEST';
+      const onlineGuests = choice === 'PAY_PER_GUEST' ? guestSplitCounts[key] ?? 1 : 0;
       const contact = {
         customerName: readFormValue(formData, 'customerName'),
         customerEmail: readFormValue(formData, 'customerEmail'),
@@ -797,12 +796,13 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
       setPending(current => ({ ...current, [key]: true }));
       setMessages(current => ({ ...current, [key]: { tone: 'muted', text: 'Checking your reservation options…' } }));
       try {
-        const quote = await g8Quote(choice, onlineGuests);
+        const quote = await g8Quote(choice, onlineGuests, choice === 'PACKAGE_INSTALLMENT' ? ticket.priceCents : undefined);
         if (quote.event.id !== event.id || quote.product.id !== ticket.id ||
             quote.guestCount !== ticket.guestCount || quote.product.quantity !== 1 ||
             quote.totalCents !== ticket.priceCents ||
             !quote.eligiblePaymentChoices.includes(choice) ||
-            quote.capacityHeld !== false) {
+            quote.capacityHeld !== false ||
+            (choice === 'PACKAGE_INSTALLMENT' && quote.amountDueNowCents !== ticket.priceCents)) {
           throw new Error('Pricing or availability changed. Please refresh your selection.');
         }
         const snapshot = JSON.stringify({ choice, contact, guests: onlineGuests });
@@ -815,29 +815,34 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
           throw new Error('Your reservation link could not be verified. Please contact Katy Vibes.');
         }
         const reservationLink = g8Link(result.publicReservationRef, result.customerAccessToken);
-        if (choice === 'PAY_PER_GUEST') {
-          // A table of eight has eight separately payable admissions. Begin
-          // exactly one Stripe TEST guest share now, preserving a same-tab
-          // path back to the durable reservation after Stripe redirects.
+        if (choice === 'PAY_PER_GUEST' || choice === 'PACKAGE_INSTALLMENT') {
+          // The selected online mode determines the Stripe TEST amount:
+          // one guest share, or the entire $80 table. Never launch a second
+          // reservation if Stripe cannot open after the reservation is saved.
           try {
-            const firstShare = quote.guestShares[0];
-            if (!firstShare || firstShare.shareRef !== 'guest-1') {
+            const firstShare = choice === 'PAY_PER_GUEST' ? quote.guestShares[0] : null;
+            if (choice === 'PAY_PER_GUEST' && (!firstShare || firstShare.shareRef !== 'guest-1')) {
               throw new Error('The first guest payment is unavailable.');
             }
             setMessages(current => ({
-              ...current, [key]: { tone: 'muted', text: 'Opening secure payment for Guest 1…' },
+              ...current, [key]: { tone: 'muted', text: 'Opening secure Stripe checkout…' },
             }));
-            const checkout = await g8PayGuest(
-              result.publicReservationRef,
-              result.customerAccessToken,
-              firstShare.shareRef,
-              stableId + ':guest-1',
-            );
+            const checkout = choice === 'PAY_PER_GUEST' && firstShare
+              ? await g8PayGuest(
+                  result.publicReservationRef, result.customerAccessToken,
+                  firstShare.shareRef, stableId + ':guest-1',
+                )
+              : await g8PayFullTable(
+                  result.publicReservationRef, result.customerAccessToken,
+                  quote.totalCents, stableId + ':full-table',
+                );
+            const expectedAmount = choice === 'PAY_PER_GUEST'
+              ? firstShare!.amountCents : quote.totalCents;
             const destination = new URL(checkout.checkoutUrl);
             if (destination.protocol !== 'https:' ||
                 destination.hostname !== 'checkout.stripe.com' ||
                 !destination.pathname.includes('/c/') ||
-                checkout.amountCents !== firstShare.amountCents ||
+                checkout.amountCents !== expectedAmount ||
                 checkout.currency !== quote.currency ||
                 checkout.paymentState !== 'PENDING' ||
                 checkout.coverageGranted !== false) {
@@ -847,9 +852,8 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
             window.location.assign(destination.toString());
             return;
           } catch {
-            // The table reservation already exists. Never submit a second
-            // reservation or send it to normal checkout on payment failure.
-            // The secure page lets the customer retry an eligible guest share.
+            // An existing reservation must never be recreated or sent through
+            // the unrelated full-price Production checkout as a fallback.
             window.location.assign(reservationLink);
             return;
           }
@@ -1145,7 +1149,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
           const selectableShows = ticketSelectableShows(event, ticket);
           const freeReservation = isFreeReservationChoice(event, ticket);
           const selectedPaymentMode = g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedQuantity === 1
-            ? paymentModes[key] || 'guest_split'
+            ? paymentModes[key] || 'full'
             : previewMixedPayments && !freeReservation && selectedQuantity === 1
               ? paymentModes[key] : null;
           const automaticAdjustment =
@@ -1339,8 +1343,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
 
                 {g8PilotApproved && isG8Fixture(event.id, ticket?.id) && !freeReservation && (
                   <p className="muted">
-                    Online payments are processed one guest at a time. Checkout starts with Guest 1.
-                    Your secure reservation link lets the remaining guests pay separately.
+                    {selectedPaymentMode === 'guest_split'
+                      ? 'Pay Individually opens Stripe for Guest 1. Remaining guest shares can be paid using your secure reservation link.'
+                      : selectedPaymentMode === 'at_door'
+                        ? 'Reserve this table and pay for guests at the venue, subject to the reservation deadline.'
+                        : 'Checkout pays the full Table of 8 in one secure Stripe payment. Choose Additional Payment Options to pay individually or at the door.'}
                   </p>
                 )}
 
@@ -1370,9 +1377,11 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
                       ? 'Reserve Tickets'
                       : g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedPaymentMode === 'guest_split'
                         ? `Checkout — Guest 1 (${formatMoney(Math.floor(ticket!.priceCents / ticket!.guestCount), ticket!.currency)})`
-                        : selectedPaymentMode === 'guest_split'
-                          ? 'Continue'
-                          : buttonLabel(event, ticket)}
+                        : g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedPaymentMode === 'full'
+                          ? `Checkout — ${ticketTotalPrice(event, ticket, selectedQuantity)}`
+                          : selectedPaymentMode === 'guest_split'
+                            ? 'Continue'
+                            : buttonLabel(event, ticket)}
                 </button>
 
                 {message && (
