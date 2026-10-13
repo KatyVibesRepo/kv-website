@@ -768,7 +768,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
 
     // Never send alternative payment selections through production full checkout.
     if (selectedPaymentMode === 'at_door' || selectedPaymentMode === 'guest_split' ||
-        (g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedPaymentMode === 'full')) {
+        selectedPaymentMode === 'full') {
       if (!g8PilotApproved || !isG8Fixture(event.id, ticket?.id)) {
         setMessages((current) => ({
           ...current, [key]: { tone: 'muted', text: 'Please call (832) 437-2807 to arrange this payment option.' },
