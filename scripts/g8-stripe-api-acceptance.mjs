@@ -125,13 +125,25 @@ async function settleTestCard(url) {
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 35000 });
     await page.waitForTimeout(1600);
-    await optionalFill(page, ['input[type="email"]', 'input[autocomplete="email"]'],
-      'g8-synthetic@example.com');
+    await optionalFill(page, ['input[name="email"]', 'input[type="email"]', 'input[autocomplete="email"]'],
+      'g8-' + randomUUID().slice(0, 10) + '@example.com');
+    const emailInput = await visible(page, ['input[name="email"]']);
+    if (emailInput) await emailInput.press('Tab');
+    await page.waitForTimeout(6500);
+    const cardOption = page.getByRole('radio', { name: /Card/i }).first();
+    if (await cardOption.count() && await cardOption.isVisible()) {
+      await cardOption.check().catch(() => {});
+      await page.waitForTimeout(1400);
+    }
     const cardSelectors = [
       'input[name="cardNumber"]', 'input[autocomplete="cc-number"]',
       'input[placeholder*="1234 1234"]', 'input[aria-label*="Card number"]',
     ];
     let card = await visible(page, cardSelectors);
+    for (let attempt = 0; !card && attempt < 6; attempt++) {
+      await page.waitForTimeout(1500);
+      card = await visible(page, cardSelectors);
+    }
     if (!card) {
       const continueAction = page.getByRole('button', { name: /^(Continue|Use Card|Pay with Card|Card)$/i }).first();
       if (await continueAction.count() && await continueAction.isVisible()) {
@@ -155,6 +167,8 @@ async function settleTestCard(url) {
         JSON.stringify((await page.getByRole('button').allTextContents()).map(x => x.trim().slice(0, 45)).slice(0, 12)));
       console.log('Stripe TEST form heading labels only: ' +
         JSON.stringify((await page.locator('h1,h2').allTextContents()).map(x => x.trim().slice(0, 45)).slice(0, 8)));
+      console.log('Stripe TEST iframe hostnames only: ' +
+        JSON.stringify(page.frames().map(f => { try { return new URL(f.url()).hostname; } catch { return ''; } }).slice(0, 12)));
       throw new Error('Hosted Stripe TEST card input not found.');
     }
     await card.fill('4242424242424242');
