@@ -80,7 +80,9 @@ test('bundled QR encoder is MIT-licensed, self-contained, and encodes expected m
   assert.equal(qr.getModule(0, 0), true);
   assert.equal(qr.getModule(6, 0), true);
   assert.equal(qr.getModule(0, 6), true);
-  assert.equal(qr.getModule(3, 3), false);
+  // Finder separators are white; the finder center itself is black.
+  assert.equal(qr.getModule(1, 1), false);
+  assert.equal(qr.getModule(3, 3), true);
   assert.ok(qr.size >= 21 && qr.size <= 177);
   assert.ok(qr.getModule(0, qr.size - 1));
   assert.ok(qr.getModule(qr.size - 1, 0));
