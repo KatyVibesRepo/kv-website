@@ -50,8 +50,18 @@ async function createFromWebsite(browser, variant) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 },
     reducedMotion: 'reduce', acceptDownloads: false });
   const page = await context.newPage();
-  await page.goto(WEBSITE + '/g8/staging', { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.getByRole('heading', { name: 'Explore reservation options' }).waitFor();
+  const landing = await page.goto(WEBSITE + '/g8/staging', { waitUntil: 'domcontentloaded', timeout: 30000 });
+  const landingHeading = page.getByRole('heading', { name: 'Explore reservation options' });
+  if (await landingHeading.count() !== 1) {
+    const visibleHeadings = await page.locator('h1, h2').allTextContents().catch(() => []);
+    const current = new URL(page.url());
+    console.log('Website staging page diagnostic (no guest submitted): HTTP ' +
+      (landing?.status() ?? 'unknown') + ', path=' + current.pathname +
+      ', title=' + (await page.title()).slice(0, 90) +
+      ', headings=' + visibleHeadings.slice(0, 3).map(x => x.slice(0, 60)).join(' | '));
+    throw new Error('The approved Website staging reservation page is not available to the test browser.');
+  }
+  await landingHeading.waitFor();
   await page.getByRole('button', { name: /Additional Payment Options/ }).click();
   await page.getByRole('radio', { name: 'Pay Individually' }).check();
   const form = page.locator('form.ticket-purchase-form');
