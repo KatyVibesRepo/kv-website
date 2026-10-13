@@ -11013,3 +11013,58 @@ nav a,
 .kvrs-payment-status-row strong {
   overflow-wrap: anywhere;
 }
+
+
+/* G8 admission QR: opaque entry credential, crisp black/white modules. */
+.g8-admission-qr-card {
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(47, 213, 255, 0.3);
+}
+.g8-admission-qr-display {
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  text-align: center;
+}
+.g8-admission-qr-paper {
+  width: min(100%, 350px);
+  padding: 12px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 5px 22px rgba(0, 0, 0, 0.28);
+}
+.g8-admission-qr-symbol {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  background: #fff;
+}
+.g8-admission-qr-instruction {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.g8-admission-qr-terms {
+  margin: 0;
+  max-width: 46ch;
+  line-height: 1.55;
+}
+.g8-admission-qr-display .muted {
+  margin: 0;
+  max-width: 54ch;
+  line-height: 1.55;
+}
+.g8-admission-qr-unavailable {
+  line-height: 1.55;
+}
+@media (max-width: 480px) {
+  .g8-admission-qr-paper {
+    width: min(100%, 330px);
+    padding: 10px;
+    border-radius: 10px;
+  }
+}
