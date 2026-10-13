@@ -5,7 +5,7 @@ export const G8_FIXTURE_EVENT_ID = 'kvrs_g8_syn_durable_event_20261012';
 export const G8_FIXTURE_PRODUCT_ID = 'kvrs_g8_syn_durable_table8_20261012';
 export const G8_FIXTURE_GUESTS = 8;
 
-export type G8Choice = 'PAY_AT_DOOR' | 'PAY_PER_GUEST';
+export type G8Choice = 'PAY_AT_DOOR' | 'PAY_PER_GUEST' | 'PACKAGE_INSTALLMENT';
 export type G8ApiError = { ok: false; code?: string; message?: string };
 export type G8Quote = {
   ok: true;
@@ -151,7 +151,11 @@ async function requestG8<T extends { ok: true }>(
   return parsed as T;
 }
 
-export function g8Quote(choice: G8Choice, onlineGuests: number) {
+export function g8Quote(choice: G8Choice, onlineGuests: number, fullTableCents?: number) {
+  if (choice === 'PACKAGE_INSTALLMENT' &&
+      (!Number.isSafeInteger(fullTableCents) || (fullTableCents ?? 0) <= 0)) {
+    throw new Error('The full table price is unavailable.');
+  }
   return requestG8<G8Quote>('/api/public/m1/quotes', {
     body: {
       eventId: G8_FIXTURE_EVENT_ID,
@@ -160,7 +164,9 @@ export function g8Quote(choice: G8Choice, onlineGuests: number) {
       paymentChoice: choice,
       ...(choice === 'PAY_PER_GUEST'
         ? { plannedOnlineGuestCount: onlineGuests }
-        : { plannedOnlineGuestCount: 0 }),
+        : choice === 'PACKAGE_INSTALLMENT'
+          ? { proposedInstallmentCents: fullTableCents }
+          : { plannedOnlineGuestCount: 0 }),
     },
   });
 }
@@ -190,6 +196,22 @@ export function g8PayGuest(ref: string, token: string, shareRef: string, idempot
   return requestG8<G8Checkout>('/api/public/m1/checkouts', {
     bearer: token, idempotencyKey,
     body: { publicReservationRef: ref, contributionMode: 'GUEST_SHARE', guestShareRef: shareRef },
+  });
+}
+
+export function g8PayFullTable(ref: string, token: string, fullTableCents: number, idempotencyKey: string) {
+  if (!validG8Ref(ref) || !Number.isSafeInteger(fullTableCents) || fullTableCents <= 0) {
+    throw new Error('Invalid full table payment choice.');
+  }
+  // The backend names its full-balance operation PACKAGE_BALANCE. Only the
+  // exact quoted full amount is passed; no partial-payment control is shown.
+  return requestG8<G8Checkout>('/api/public/m1/checkouts', {
+    bearer: token, idempotencyKey,
+    body: {
+      publicReservationRef: ref,
+      contributionMode: 'PACKAGE_BALANCE',
+      installmentAmountCents: fullTableCents,
+    },
   });
 }
 
