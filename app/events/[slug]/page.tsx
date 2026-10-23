@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { PublicEventCta, saleStatusLabel } from '@/components/PublicEventCta';
 import { EventTicketCheckoutCards } from '@/components/EventTicketCheckoutCards';
+import { customerRelease } from '@/lib/customerM1Release';
 import {
   formatEventDateTime,
   getPublicEvent,
@@ -123,6 +124,11 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   const description = publicEventDescription(event.fullDescription, event.shortDescription, event.subtitle);
   const subtitle = publicEventDescription(event.subtitle);
   const ticketTypes = event.ticketTypes || [];
+  const customer = customerRelease();
+  const groupProducts = customer.salesEnabled ? ticketTypes.filter(product =>
+    customer.approvedPairs.includes(`${event.id}:${product.id}`) && [3, 4, 8].includes(product.guestCount) &&
+    !/synthetic|fixture|not.for.sale|(?:^|[\s_:-])(?:qa|syn|test|lab)(?:[\s_:-]|$)/i.test(`${event.id} ${event.slug} ${event.title} ${product.id} ${product.name}`)
+  ) : [];
   const isTicketedEvent =
     event.isTicketed
     || Boolean(event.ticketSummary?.isTicketed)
@@ -277,6 +283,13 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           previewMixedPayments={process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview'}
         />
       )}
+      {groupProducts.length > 0 && <article className="card stack">
+        <h2>Flexible group payments</h2><p>Reserve one table, pay by guest or fund a table package.</p>
+        {groupProducts.map(product => <a className="button ghost" key={product.id}
+          href={`/reservations/group/book/${encodeURIComponent(event.slug)}/${encodeURIComponent(product.id)}`}>
+          Explore {product.publicLabel || product.name} Payment Options
+        </a>)}
+      </article>}
     </section>
   );
 }
