@@ -4,11 +4,11 @@ import ts from 'typescript';
 import { readFileSync } from 'node:fs';
 const load = async path => import('data:text/javascript;base64,' + Buffer.from(ts.transpileModule(readFileSync(new URL(path, import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText).toString('base64'));
 const client = await load('../lib/customerM1Client.ts');
-const { customerRelease } = await load('../lib/customerM1Release.ts');
+const { customerRelease, customerReleaseForHost, customerProductEligible } = await load('../lib/customerM1Release.ts');
 
 test('customer release stays off without explicit read, sales and real approved pairs', () => {
   assert.equal(customerRelease({}).salesEnabled, false);
-  const env = { KV_WEBSITE_M1_CUSTOMER_READ_ENABLED: 'true', KV_WEBSITE_M1_CUSTOMER_SALES_ENABLED: 'true', KV_WEBSITE_M1_CUSTOMER_APPROVED_PAIRS: 'event123:product123' };
+  const env = { KV_WEBSITE_M1_CUSTOMER_ORIGIN: 'https://www.katyvibes.com', KV_WEBSITE_M1_CUSTOMER_READ_ENABLED: 'true', KV_WEBSITE_M1_CUSTOMER_SALES_ENABLED: 'true', KV_WEBSITE_M1_CUSTOMER_APPROVED_PAIRS: 'event123:product123' };
   assert.equal(customerRelease(env).salesEnabled, true);
   for (const pair of ['qa-event:product123', 'event123:not-for-sale', 'event123:product123,event123:product123']) {
     assert.equal(customerRelease({ ...env, KV_WEBSITE_M1_CUSTOMER_APPROVED_PAIRS: pair }).salesEnabled, false);
@@ -19,9 +19,9 @@ test('payment availability rejects pending funding, review, stale reads and dead
   const now = Date.now();
   const status = { onlinePaymentPending: false, payment: { pendingCents: 0 }, checkoutHistory: [], reconciliationRequired: false,
     nextAction: 'PAY', admissionPlanState: 'CONFIRMED', capacityHeld: true, coverage: { unpaidActive: 4 },
-    canonicalReservationStatus: 'RESERVED', holdExpiresAt: new Date(now + 60 * 60_000).toISOString(), asOf: new Date(now).toISOString() };
+    canonicalReservationStatus: 'RESERVED', admissionScope: { type: 'EVENT', showIds: [] }, holdExpiresAt: new Date(now + 60 * 60_000).toISOString(), asOf: new Date(now).toISOString() };
   assert.equal(client.canStartCustomerPayment(status, now), true);
-  for (const patch of [{ onlinePaymentPending: true }, { reconciliationRequired: true }, { nextAction: 'CONTACT_VENUE' },
+  for (const patch of [{ admissionScope: { type: 'SHOW', showIds: ['show1'] } }, { admissionScope: { type: 'EVENT', showIds: ['show1', 'show2'] } }, { onlinePaymentPending: true }, { reconciliationRequired: true }, { nextAction: 'CONTACT_VENUE' },
     { checkoutHistory: [{ state: 'PENDING' }] }, { capacityHeld: false }, { payment: { pendingCents: 10 } },
     { asOf: new Date(now - 31_000).toISOString() }, { holdExpiresAt: new Date(now + 32 * 60_000).toISOString() }]) {
     assert.equal(client.canStartCustomerPayment({ ...status, ...patch }, now), false);
@@ -95,4 +95,37 @@ test('QR uses bodyless authenticated POST and rejects owner bearer as scanner va
     response.scanValue = token;
     await assert.rejects(client.customerQr(ref, token, 4), e => e.code === 'QR_UNAVAILABLE');
   } finally { globalThis.window = oldWindow; globalThis.fetch = oldFetch; }
+});
+
+
+test('one exact configured booking origin is required across host aliases and read-only rollback', () => {
+  const env = { KV_WEBSITE_M1_CUSTOMER_READ_ENABLED: 'true', KV_WEBSITE_M1_CUSTOMER_SALES_ENABLED: 'true',
+    KV_WEBSITE_M1_CUSTOMER_APPROVED_PAIRS: 'event123:product123', KV_WEBSITE_M1_CUSTOMER_ORIGIN: 'https://www.katyvibes.com' };
+  assert.equal(customerReleaseForHost('www.katyvibes.com', env).salesEnabled, true);
+  for (const host of [null, 'katyvibes.com', 'kv-website-ten.vercel.app', 'arbitrary-preview.vercel.app', 'www.katyvibes.com:444']) {
+    assert.equal(customerReleaseForHost(host, env).readEnabled, false);
+    assert.equal(customerReleaseForHost(host, env).salesEnabled, false);
+  }
+  for (const origin of ['', 'https://www.katyvibes.com/', 'https://www.katyvibes.com/path', 'https://www.katyvibes.com#access=x', 'https://arbitrary-preview.vercel.app']) {
+    assert.equal(customerRelease({ ...env, KV_WEBSITE_M1_CUSTOMER_ORIGIN: origin }).readEnabled, false);
+  }
+  const readOnly = customerReleaseForHost('www.katyvibes.com', { ...env, KV_WEBSITE_M1_CUSTOMER_SALES_ENABLED: 'false', KV_WEBSITE_M1_CUSTOMER_APPROVED_PAIRS: '' });
+  assert.equal(readOnly.readEnabled, true);
+  assert.equal(readOnly.salesEnabled, false);
+});
+
+test('PR72 refuses show-scoped and disguised multishow M1 products without affecting event-only eligibility', () => {
+  const now = Date.now();
+  const product = { id: 'product123', name: 'Table of 4', publicLabel: 'Table of 4', guestCount: 4,
+    currency: 'USD', checkoutEnabled: true, status: 'ACTIVE', scope: 'EVENT', showIds: [] };
+  const event = { id: 'event123', slug: 'live-music', title: 'Live Music', visibility: 'PUBLIC', status: 'PUBLISHED',
+    startsAt: new Date(now + 3600000).toISOString(), isTicketed: true, isReservationEnabled: true, shows: [], ticketTypes: [product] };
+  const release = { salesEnabled: true, approvedPairs: ['event123:product123'] };
+  assert.equal(customerProductEligible(event, product, release, now), true);
+  assert.equal(customerProductEligible(event, { ...product, scope: 'SHOWS', showIds: ['first'] }, release, now), false);
+  assert.equal(customerProductEligible(event, { ...product, showIds: ['first', 'second'] }, release, now), false);
+  assert.equal(customerProductEligible({ ...event, shows: [{ id: 'first' }, { id: 'second', isVisible: false }] }, product, release, now), false);
+  assert.equal(customerProductEligible({ ...event, ticketTypes: [product, { ...product, id: 'combo', scope: 'SHOWS', showIds: ['first', 'second'] }] }, product, release, now), false);
+  assert.equal(customerProductEligible({ ...event, startsAt: 'invalid' }, product, release, now), false);
+  assert.equal(customerProductEligible(event, product, { ...release, approvedPairs: [] }, now), false);
 });

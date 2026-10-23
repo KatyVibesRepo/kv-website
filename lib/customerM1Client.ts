@@ -6,6 +6,7 @@ export type CustomerQuote = G8Quote & {
   admissionScope: { type: string; showIds: string[]; entryScopeKey: string };
 };
 export type CustomerStatus = G8Status & {
+  admissionScope: { type: 'EVENT' | 'SHOW'; showIds: string[]; entryScopeKey: string };
   onlinePaymentPending: boolean;
   reconciliationRequired: boolean;
   checkoutHistory: Array<{ checkoutRef: string; state: string; amountCents: number }>;
@@ -107,7 +108,9 @@ export function verifyCustomerStatus(result: CustomerStatus, ref: string): Custo
   const count = (value: unknown) => cents(value) && Number(value) <= 8;
   if (!result || result.publicReservationRef !== ref || !count(result.guestCount) || result.guestCount < 1 ||
     !result.event?.id || !result.product?.id || typeof result.onlinePaymentPending !== 'boolean' ||
-    typeof result.reconciliationRequired !== 'boolean' || !result.payment ||
+    typeof result.reconciliationRequired !== 'boolean' ||
+    !result.admissionScope || !['EVENT', 'SHOW'].includes(result.admissionScope.type) ||
+    !Array.isArray(result.admissionScope.showIds) || !result.admissionScope.showIds.every(id => typeof id === 'string') || !result.payment ||
     result.payment.currency !== 'USD' || !Object.values(result.payment).filter(v => typeof v !== 'string').every(cents) ||
     !['totalCents', 'stripeSettledCents', 'manualAcknowledgedCents', 'pendingCents', 'outstandingCents',
       'packagePaidCents', 'packageBalanceCents'].every(k => cents(result.payment[k as keyof CustomerStatus['payment']])) ||
@@ -128,8 +131,10 @@ export async function customerStatus(ref: string, token: string) {
 }
 
 export function canStartCustomerPayment(status: CustomerStatus, now = Date.now()) {
-  // Matches PR71's 32-minute provider-session boundary. This never releases capacity.
-  return !status.onlinePaymentPending && status.payment.pendingCents === 0 &&
+  // PR72 has no reconciled SHOWS allocator. Existing Session recovery is separate.
+  // Matches the 32-minute provider-session boundary. This never releases capacity.
+  return status.admissionScope?.type === 'EVENT' && status.admissionScope.showIds.length === 0 &&
+    !status.onlinePaymentPending && status.payment.pendingCents === 0 &&
     !status.checkoutHistory.some(h => h.state === 'PENDING') &&
     !status.reconciliationRequired && status.nextAction !== 'CONTACT_VENUE' &&
     status.admissionPlanState === 'CONFIRMED' && status.capacityHeld && status.coverage.unpaidActive > 0 &&
@@ -169,7 +174,7 @@ export async function customerRecoverCheckout(token: string, checkoutRef: string
 
 export async function customerQr(ref: string, token: string, guestCount: number) {
   assertRef(ref);
-  // PR71 source exposes POST only. The handoff's GET row is a launch contract discrepancy.
+  // PR72 handoff confirms owner-authenticated bodyless POST.
   const qr = await request<G8CustomerQr>(`/api/public/m1/reservations/${ref}/qr`, { method: 'POST', token });
   if (qr.contract !== 'kvrs.m1.customer-group-qr.v1' || qr.publicReservationRef !== ref ||
     !/^kvrs_m1_[A-Za-z0-9_-]{43}$/.test(qr.scanValue) || qr.guestCount !== guestCount ||
