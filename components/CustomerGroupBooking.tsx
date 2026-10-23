@@ -7,16 +7,19 @@ import {
   CustomerRequestError, type CustomerOperation, type CustomerQuote, type PaymentChoice,
 } from '@/lib/customerM1Client';
 import styles from './CustomerReservations.module.css';
+import { CustomerShowCoverage } from './CustomerShowCoverage';
 
 type Product = { eventId: string; productId: string; eventTitle: string; productName: string; guestCount: number;
-  shows: Array<{ id: string; label: string }>; showRequired: boolean };
+  shows: Array<{ id: string; label: string }>; showSelection: 'EVENT' | 'SELECTED_SHOW' | 'RESOLVE_LINKED_SHOWS' };
 const money = (cents: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 
 export function CustomerGroupBooking({ product }: { product: Product }) {
   const [choice, setChoice] = useState<PaymentChoice>('PAY_PER_GUEST');
   const [onlineGuests, setOnlineGuests] = useState(1);
   const [installment, setInstallment] = useState('');
-  const [showId, setShowId] = useState(product.shows.length === 1 ? product.shows[0].id : '');
+  const [showId, setShowId] = useState(product.showSelection === 'SELECTED_SHOW' && product.shows.length === 1 ? product.shows[0].id : '');
+  const [serverRequiresShow, setServerRequiresShow] = useState(false);
+  const showRequired = product.showSelection === 'SELECTED_SHOW' || serverRequiresShow;
   const [quote, setQuote] = useState<CustomerQuote | null>(null);
   const [operation, setOperation] = useState<CustomerOperation | null>(null);
   const [busy, setBusy] = useState(false);
@@ -37,10 +40,10 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
     try {
       const proposed = centsFromDollars(installment);
       if (choice === 'PACKAGE_INSTALLMENT' && !proposed) throw new Error('Enter an installment in dollars and cents.');
-      if (product.showRequired && !showId) throw new Error('Please choose a show.');
+      if (showRequired && !showId) throw new Error('Please choose a show.');
       const result = await customerQuote({
         eventId: product.eventId, productId: product.productId, quantity: 1,
-        paymentChoice: choice, ...(product.showRequired ? { showId } : {}),
+        paymentChoice: choice, ...(showRequired ? { showId } : {}),
         ...(choice === 'PAY_PER_GUEST' ? { plannedOnlineGuestCount: onlineGuests } :
           choice === 'PACKAGE_INSTALLMENT' ? { proposedInstallmentCents: proposed! } : {}),
       });
@@ -48,11 +51,21 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
         result.guestCount !== product.guestCount || result.product.quantity !== 1 || result.currency !== 'USD' ||
         result.capacityHeld !== false || !result.eligiblePaymentChoices.includes(choice) ||
         result.gracePolicy.anchor !== 'RESERVATION_CREATED' ||
-        (product.showRequired && !result.admissionScope.showIds.includes(showId)) ||
+        (product.showSelection === 'EVENT' && result.admissionScope.type !== 'EVENT') ||
+        (product.showSelection !== 'EVENT' && result.admissionScope.type !== 'SHOWS') ||
+        (product.showSelection === 'RESOLVE_LINKED_SHOWS' && !showRequired &&
+          (result.admissionScope.selection !== 'ALL_LINKED_SHOWS' ||
+            JSON.stringify([...result.admissionScope.showIds].sort()) !== JSON.stringify(product.shows.map(s => s.id).sort()))) ||
+        (showRequired && !result.admissionScope.showIds.includes(showId)) ||
         !Number.isSafeInteger(result.totalCents) || result.totalCents <= 0 ||
         !Number.isFinite(Date.parse(result.quoteExpiresAt))) throw new Error('The reservation quote could not be verified.');
       setQuote(result);
-    } catch (error) { setMessage((error as Error).message); }
+    } catch (error) {
+      if (product.showSelection === 'RESOLVE_LINKED_SHOWS' && error instanceof CustomerRequestError && error.code === 'SHOW_REQUIRED') {
+        // A read-only quote, not link count or the product label, resolves manual selection.
+        setServerRequiresShow(true); setMessage('Please choose the show you would like to attend, then request your quote again.');
+      } else setMessage((error as Error).message);
+    }
     finally { setBusy(false); locked.current = false; }
   }
 
@@ -107,7 +120,7 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
         <label>Payment option<select value={choice} disabled={busy} onChange={e => { setChoice(e.target.value as PaymentChoice); setQuote(null); }}>
           <option value="PAY_PER_GUEST">Pay by guest</option><option value="PACKAGE_INSTALLMENT">Pay toward the table package</option>
           <option value="PAY_AT_DOOR">Pay at the door</option></select></label>
-        {product.showRequired && <label>Show<select required value={showId} disabled={busy} onChange={e => { setShowId(e.target.value); setQuote(null); }}>
+        {showRequired && <label>Show<select required value={showId} disabled={busy} onChange={e => { setShowId(e.target.value); setQuote(null); }}>
           <option value="">Choose a show</option>{product.shows.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label>}
         {choice === 'PAY_PER_GUEST' && <label>Guests planning to pay online<select value={onlineGuests} disabled={busy}
           onChange={e => { setOnlineGuests(Number(e.target.value)); setQuote(null); }}>
@@ -119,6 +132,7 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
       {quote && <form className="stack" onSubmit={event => void submit(event)}>
         <p><strong>Total: {money(quote.totalCents)}</strong></p>
         <p>Planned online: {money(quote.amountDueNowCents)} · Remaining: {money(quote.amountDueLaterCents)}</p>
+        <CustomerShowCoverage scope={quote.admissionScope} />
         {choice === 'PAY_PER_GUEST' && <><ul>{quote.guestShares.map(s => <li key={s.shareRef}>Guest {s.ordinal}: {money(s.amountCents)}</li>)}</ul>
           <p>Each Checkout pays for one selected guest. Additional guests require separate payment requests after payment status updates.</p></>}
         {choice === 'PACKAGE_INSTALLMENT' && <p>Payments fund the entire table package. Partial funding grants zero guest admissions until the package is fully funded.</p>}

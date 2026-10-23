@@ -2,11 +2,23 @@
 import type { G8Choice, G8Quote, G8Created, G8Status, G8CustomerQr } from './g8PreviewClient';
 
 export type PaymentChoice = G8Choice;
+export type CustomerShowEntry = { showId: string; entryScopeKey: string; startsAt: string; endsAt: string };
+export type CustomerExactCoverage = {
+  contract: 'kvrs.m1.show-coverage.v1'; type: 'EVENT' | 'SHOWS';
+  selection: 'EVENT' | 'SELECTED_SHOW' | 'ALL_LINKED_SHOWS'; eventId: string;
+  entryScopeKey: string; showIds: string[]; entries: CustomerShowEntry[];
+  reservationStartsAt: string; salesCutoffAt: string; departureRequiredBefore: string | null;
+};
+export type CustomerLegacyCoverage = { contract?: never; type: 'EVENT' | 'SHOW'; showIds: string[]; entryScopeKey: string };
+export type CustomerCoverage = CustomerExactCoverage | CustomerLegacyCoverage;
+export type CustomerShowAdmission = G8Status['coverage'] & { entryScopeKey: string; guestUnits: number };
+
 export type CustomerQuote = G8Quote & {
-  admissionScope: { type: string; showIds: string[]; entryScopeKey: string };
+  admissionScope: CustomerExactCoverage;
 };
 export type CustomerStatus = G8Status & {
-  admissionScope: { type: 'EVENT' | 'SHOW'; showIds: string[]; entryScopeKey: string };
+  admissionScope: CustomerCoverage;
+  showAdmissions?: CustomerShowAdmission[];
   onlinePaymentPending: boolean;
   reconciliationRequired: boolean;
   checkoutHistory: Array<{ checkoutRef: string; state: string; amountCents: number }>;
@@ -95,12 +107,70 @@ async function request<T>(path: string, options: {
 function assertRef(ref: string) {
   if (!validCustomerRef(ref)) throw new Error('Invalid reservation reference.');
 }
-export const customerQuote = (body: QuoteInput) => request<CustomerQuote>('/api/public/m1/quotes', { body });
+export async function customerQuote(body: QuoteInput) {
+  const result = await request<CustomerQuote>('/api/public/m1/quotes', { body });
+  if (!result.event || result.event.id !== body.eventId ||
+    result.admissionScope?.contract !== 'kvrs.m1.show-coverage.v1' ||
+    !validCustomerCoverage(result.admissionScope, result.event.id) ||
+    !Number.isFinite(Date.parse(result.quoteExpiresAt)) ||
+    Date.parse(result.quoteExpiresAt) > Date.parse(result.admissionScope.salesCutoffAt) ||
+    (body.showId ? result.admissionScope.selection !== 'SELECTED_SHOW' ||
+      result.admissionScope.showIds[0] !== body.showId : result.admissionScope.selection === 'SELECTED_SHOW')) {
+    throw new CustomerRequestError('QUOTE_UNAVAILABLE', 503);
+  }
+  return result;
+}
 export async function customerCreate(command: Command<ReservationInput>) {
   const result = await request<G8Created>('/api/public/m1/reservations', { command });
   if (!validCustomerRef(result.publicReservationRef) || !validCustomerToken(result.customerAccessToken) ||
     result.paymentChoice !== command.body.paymentChoice) throw new CustomerRequestError('RESPONSE_UNAVAILABLE', 0);
   return result;
+}
+
+const coverageFields = ['prepaid', 'manualAcknowledged', 'unpaidActive', 'releasedUnpaid', 'admitted', 'remainingCovered'] as const;
+const fundingFields = ['prepaid', 'manualAcknowledged', 'unpaidActive', 'releasedUnpaid'] as const;
+const isoTime = (value: unknown): value is string => typeof value === 'string' &&
+  Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
+const sameStrings = (a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]);
+
+export function validCustomerCoverage(value: unknown, eventId: string): value is CustomerCoverage {
+  if (!value || typeof value !== 'object') return false;
+  const scope = value as CustomerCoverage;
+  if (!Array.isArray(scope.showIds) || !scope.showIds.every(id => typeof id === 'string' && id.length > 0) ||
+    new Set(scope.showIds).size !== scope.showIds.length || typeof scope.entryScopeKey !== 'string') return false;
+  if (scope.contract === undefined) {
+    return scope.type === 'EVENT' ? scope.showIds.length === 0 && scope.entryScopeKey === 'event:' + eventId :
+      scope.type === 'SHOW' && scope.showIds.length === 1 && scope.entryScopeKey === 'show:' + scope.showIds[0];
+  }
+  if (scope.contract !== 'kvrs.m1.show-coverage.v1' || scope.eventId !== eventId ||
+    !isoTime(scope.reservationStartsAt) || !isoTime(scope.salesCutoffAt) || scope.salesCutoffAt > scope.reservationStartsAt ||
+    !Array.isArray(scope.entries) || scope.entries.some(entry => !entry || typeof entry.showId !== 'string' ||
+      entry.entryScopeKey !== 'show:' + entry.showId || !isoTime(entry.startsAt) || !isoTime(entry.endsAt) || entry.endsAt <= entry.startsAt) ||
+    !sameStrings(scope.showIds, scope.entries.map(entry => entry.showId).sort()) ||
+    !sameStrings(scope.entries.map(entry => entry.showId), [...scope.entries].sort((a, b) =>
+      a.startsAt.localeCompare(b.startsAt) || a.showId.localeCompare(b.showId)).map(entry => entry.showId))) return false;
+  if (scope.type === 'EVENT') return scope.selection === 'EVENT' && scope.entries.length === 0 &&
+    scope.entryScopeKey === 'event:' + eventId && scope.departureRequiredBefore === null;
+  if (scope.type !== 'SHOWS' || scope.entries.length === 0 || scope.reservationStartsAt !== scope.entries[0].startsAt) return false;
+  if (scope.selection === 'ALL_LINKED_SHOWS') return scope.entries.length >= 2 &&
+    /^shows:[a-f0-9]{64}$/.test(scope.entryScopeKey) && scope.departureRequiredBefore === null;
+  return scope.selection === 'SELECTED_SHOW' && scope.entries.length === 1 && scope.entryScopeKey === scope.entries[0].entryScopeKey &&
+    (scope.departureRequiredBefore === null || isoTime(scope.departureRequiredBefore) && scope.departureRequiredBefore > scope.reservationStartsAt);
+}
+
+function validShowAdmissions(result: CustomerStatus) {
+  const scope = result.admissionScope;
+  const buckets = result.showAdmissions;
+  if (scope.contract !== 'kvrs.m1.show-coverage.v1' || scope.type !== 'SHOWS') return buckets === undefined || Array.isArray(buckets) && buckets.length === 0;
+  if (!Array.isArray(buckets) || buckets.length !== scope.entries.length ||
+    new Set(buckets.map(bucket => bucket?.entryScopeKey)).size !== buckets.length || buckets.some(bucket =>
+      !bucket || !scope.entries.some(entry => entry.entryScopeKey === bucket.entryScopeKey) || bucket.guestUnits !== result.guestCount ||
+      !coverageFields.every(key => Number.isSafeInteger(bucket[key]) && bucket[key] >= 0 && bucket[key] <= result.guestCount) ||
+      !fundingFields.every(key => bucket[key] === result.coverage[key]) ||
+      bucket.remainingCovered > bucket.prepaid + bucket.manualAcknowledged)) return false;
+  // Aggregate admissions count distinct guests; show buckets count visits in each show.
+  return result.coverage.admitted >= Math.max(...buckets.map(bucket => bucket.admitted)) &&
+    result.coverage.admitted <= buckets.reduce((sum, bucket) => sum + bucket.admitted, 0);
 }
 
 export function verifyCustomerStatus(result: CustomerStatus, ref: string): CustomerStatus {
@@ -109,8 +179,7 @@ export function verifyCustomerStatus(result: CustomerStatus, ref: string): Custo
   if (!result || result.publicReservationRef !== ref || !count(result.guestCount) || result.guestCount < 1 ||
     !result.event?.id || !result.product?.id || typeof result.onlinePaymentPending !== 'boolean' ||
     typeof result.reconciliationRequired !== 'boolean' ||
-    !result.admissionScope || !['EVENT', 'SHOW'].includes(result.admissionScope.type) ||
-    !Array.isArray(result.admissionScope.showIds) || !result.admissionScope.showIds.every(id => typeof id === 'string') || !result.payment ||
+    !validCustomerCoverage(result.admissionScope, result.event.id) || !result.payment ||
     result.payment.currency !== 'USD' || !Object.values(result.payment).filter(v => typeof v !== 'string').every(cents) ||
     !['totalCents', 'stripeSettledCents', 'manualAcknowledgedCents', 'pendingCents', 'outstandingCents',
       'packagePaidCents', 'packageBalanceCents'].every(k => cents(result.payment[k as keyof CustomerStatus['payment']])) ||
@@ -121,7 +190,8 @@ export function verifyCustomerStatus(result: CustomerStatus, ref: string): Custo
     !Array.isArray(result.guestShares) || result.guestShares.length > 8 ||
     !result.guestShares.every(s => /^guest-[1-8]$/.test(s.shareRef) && cents(s.amountCents)) ||
     !Number.isFinite(Date.parse(result.asOf)) || typeof result.capacityHeld !== 'boolean' ||
-    result.groupCredentialValue !== null) throw new CustomerRequestError('STATUS_UNAVAILABLE', 503);
+    (result.holdExpiresAt !== null && !isoTime(result.holdExpiresAt)) ||
+    !validShowAdmissions(result) || result.groupCredentialValue !== null) throw new CustomerRequestError('STATUS_UNAVAILABLE', 503);
   return result;
 }
 
@@ -131,7 +201,8 @@ export async function customerStatus(ref: string, token: string) {
 }
 
 export function canStartCustomerPayment(status: CustomerStatus, now = Date.now()) {
-  // PR72 has no reconciled SHOWS allocator. Existing Session recovery is separate.
+  // PR74 read coverage is supported; SHOWS sales/payment refusal stays until timing review.
+  // Existing original-Session recovery remains separate.
   // Matches the 32-minute provider-session boundary. This never releases capacity.
   return status.admissionScope?.type === 'EVENT' && status.admissionScope.showIds.length === 0 &&
     !status.onlinePaymentPending && status.payment.pendingCents === 0 &&
@@ -174,7 +245,7 @@ export async function customerRecoverCheckout(token: string, checkoutRef: string
 
 export async function customerQr(ref: string, token: string, guestCount: number) {
   assertRef(ref);
-  // PR72 handoff confirms owner-authenticated bodyless POST.
+  // PR74 retains owner-authenticated bodyless POST.
   const qr = await request<G8CustomerQr>(`/api/public/m1/reservations/${ref}/qr`, { method: 'POST', token });
   if (qr.contract !== 'kvrs.m1.customer-group-qr.v1' || qr.publicReservationRef !== ref ||
     !/^kvrs_m1_[A-Za-z0-9_-]{43}$/.test(qr.scanValue) || qr.guestCount !== guestCount ||

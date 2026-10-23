@@ -37,7 +37,8 @@ export function customerProductEligible(
   now = Date.now(),
 ) {
   const text = `${event.id} ${event.slug} ${event.title} ${product.id} ${product.name} ${product.publicLabel}`;
-  // PR72: M1 does not yet share ordinary checkout's SHOWS inventory allocator.
+  // PR74 connects shared inventory. Retain SHOWS refusal pending payment-deadline
+  // and original-command/provider recovery implementation and coordinator review.
   // Refuse all show-scoped products, and never relabel a multishow bundle EVENT.
   // Ordinary full checkout continues to use its existing source/allocator.
   const shows = event.shows || [];

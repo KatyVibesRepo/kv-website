@@ -15,5 +15,5 @@ export default async function Page({ params }: { params: Promise<{ slug: string;
   const product = event.ticketTypes?.find(p => p.id === productId);
   if (!product || !customerProductEligible(event, product, release)) notFound();
   return <CustomerGroupBooking product={{ eventId: event.id, productId: product.id, eventTitle: event.title,
-    productName: product.publicLabel || product.name, guestCount: product.guestCount, shows: [], showRequired: false }} />;
+    productName: product.publicLabel || product.name, guestCount: product.guestCount, shows: [], showSelection: 'EVENT' }} />;
 }

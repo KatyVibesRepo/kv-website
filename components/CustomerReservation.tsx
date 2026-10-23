@@ -10,6 +10,7 @@ import {
 } from '@/lib/customerM1Client';
 import { qrcodegen } from '@/lib/vendor/qrcodegen';
 import styles from './CustomerReservations.module.css';
+import { CustomerShowCoverage } from './CustomerShowCoverage';
 
 const money = (cents: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 const label = (value: string) => value.toLowerCase().replaceAll('_', ' ');
@@ -217,7 +218,7 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
           <div><span>Verified online funds</span><strong>{money(status.payment.stripeSettledCents)}</strong></div>
           <div><span>Acknowledged at venue</span><strong>{money(status.payment.manualAcknowledgedCents)}</strong></div>
           <div><span>Outstanding balance</span><strong>{money(status.payment.outstandingCents)}</strong></div>
-          <div><span>Checked in by staff</span><strong>{status.coverage.admitted}</strong></div>
+          <div><span>{status.admissionScope.type === 'SHOWS' ? 'Guests checked in at least once' : 'Checked in by staff'}</span><strong>{status.coverage.admitted}</strong></div>
         </div>
         {packageMode ? <p>Table package funded: {money(status.payment.packagePaidCents)}. Package balance: {money(status.payment.packageBalanceCents)}.
           Partial package funding grants zero guest admissions. Coverage confirmed by the venue: {status.coverage.prepaid + status.coverage.manualAcknowledged} guests.</p> :
@@ -231,6 +232,8 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
           This payment needs venue review. Call (832) 437-2807 before making another payment.</p>}
         <p>Payment does not establish arrival or seating. Staff confirm admission and table placement separately.</p>
       </article>
+      {status.admissionScope.contract === 'kvrs.m1.show-coverage.v1' &&
+        <CustomerShowCoverage scope={status.admissionScope} admissions={status.showAdmissions} />}
       <CustomerGroupQr key={token} reservationRef={reservationRef} token={token} guestCount={status.guestCount} />
       <article className="card stack"><h2>{packageMode ? 'Table package payments' : 'Guest payments'}</h2>
         {!salesEnabled && <p>New online payments are temporarily unavailable. You can still review current payment status.</p>}
