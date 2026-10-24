@@ -37,8 +37,8 @@ export function customerProductEligible(
   now = Date.now(),
 ) {
   const text = `${event.id} ${event.slug} ${event.title} ${product.id} ${product.name} ${product.publicLabel}`;
-  // PR74 connects shared inventory. Retain SHOWS refusal pending payment-deadline
-  // and original-command/provider recovery implementation and coordinator review.
+  // Shared inventory and timing are prepared. Retain SHOWS refusal until
+  // coordinated customer, provider and operational activation review.
   // Refuse all show-scoped products, and never relabel a multishow bundle EVENT.
   // Ordinary full checkout continues to use its existing source/allocator.
   const shows = event.shows || [];

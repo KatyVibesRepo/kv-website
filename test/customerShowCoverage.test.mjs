@@ -47,3 +47,23 @@ test('second-only display uses its actual edited time and independent sales cuto
   assert.match(html, /9:30 PM Central/);
   assert.doesNotMatch(html, /6:00 PM Central|Please leave before/);
 });
+
+const timingModule = { exports: {} };
+runInNewContext(ts.transpileModule(readFileSync(new URL('../components/CustomerPaymentTiming.tsx', import.meta.url), 'utf8'), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
+}).outputText, { module: timingModule, exports: timingModule.exports, require });
+
+test('payment display separates reservation initiation deadline from original provider expiration', () => {
+  const html = renderToStaticMarkup(React.createElement(timingModule.exports.CustomerPaymentTiming, {
+    timing: { contract: 'kvrs.m1.reservation-payment-timing.v1', anchor: 'RESERVATION_START',
+      newPaymentDeadline: '2026-10-24T23:00:00.000Z', inFlightCompletion: 'ORIGINAL_PREPARED_CHECKOUT_ONLY' },
+    providerExpiresAt: '2026-10-24T23:31:00.000Z',
+  }));
+  assert.match(html, /Start a new payment before your reservation time/);
+  assert.match(html, /6:00 PM Central/);
+  assert.match(html, /Original Checkout expires/);
+  assert.match(html, /6:31 PM Central/);
+  assert.match(html, /original Checkout afterward/);
+  assert.match(html, /does not extend the deadline/);
+  assert.doesNotMatch(html, /60 minutes|null minutes|RESERVATION_CREATED/);
+});

@@ -4,6 +4,8 @@ import ts from 'typescript';
 import { readFileSync } from 'node:fs';
 const load = async path => import('data:text/javascript;base64,' + Buffer.from(ts.transpileModule(readFileSync(new URL(path, import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText).toString('base64'));
 const client = await load('../lib/customerM1Client.ts');
+const paymentTiming = deadline => ({ contract: 'kvrs.m1.reservation-payment-timing.v1', anchor: 'RESERVATION_START', newPaymentDeadline: deadline, inFlightCompletion: 'ORIGINAL_PREPARED_CHECKOUT_ONLY' });
+const quoteGrace = deadline => ({ minutes: null, version: 1, anchor: 'RESERVATION_START', expiresAt: deadline });
 const { customerRelease, customerReleaseForHost, customerProductEligible } = await load('../lib/customerM1Release.ts');
 
 test('customer release stays off without explicit read, sales and real approved pairs', () => {
@@ -19,11 +21,11 @@ test('payment availability rejects pending funding, review, stale reads and dead
   const now = Date.now();
   const status = { onlinePaymentPending: false, payment: { pendingCents: 0 }, checkoutHistory: [], reconciliationRequired: false,
     nextAction: 'PAY', admissionPlanState: 'CONFIRMED', capacityHeld: true, coverage: { unpaidActive: 4 },
-    canonicalReservationStatus: 'RESERVED', admissionScope: { type: 'EVENT', showIds: [] }, holdExpiresAt: new Date(now + 60 * 60_000).toISOString(), asOf: new Date(now).toISOString() };
+    canonicalReservationStatus: 'RESERVED', paymentTiming: paymentTiming(new Date(now + 60 * 60_000).toISOString()), onlinePaymentInitiationAllowed: true, admissionScope: { type: 'EVENT', showIds: [] }, holdExpiresAt: new Date(now + 60 * 60_000).toISOString(), asOf: new Date(now).toISOString() };
   assert.equal(client.canStartCustomerPayment(status, now), true);
   for (const patch of [{ admissionScope: { type: 'SHOW', showIds: ['show1'] } }, { admissionScope: { type: 'EVENT', showIds: ['show1', 'show2'] } }, { onlinePaymentPending: true }, { reconciliationRequired: true }, { nextAction: 'CONTACT_VENUE' },
     { checkoutHistory: [{ state: 'PENDING' }] }, { capacityHeld: false }, { payment: { pendingCents: 10 } },
-    { asOf: new Date(now - 31_000).toISOString() }, { holdExpiresAt: new Date(now + 32 * 60_000).toISOString() }]) {
+    { asOf: new Date(now - 31_000).toISOString() }, { onlinePaymentInitiationAllowed: false }, { paymentTiming: undefined }]) {
     assert.equal(client.canStartCustomerPayment({ ...status, ...patch }, now), false);
   }
 });
@@ -203,7 +205,7 @@ test('PR74 partial package shows funded dollars and zero covered admissions in b
 test('PR74 quote request preserves an omitted bundle selector and rejects a narrowed response', async () => {
   const oldWindow = globalThis.window, oldFetch = globalThis.fetch;
   const input = { eventId: 'event123', productId: 'product123', quantity: 1, paymentChoice: 'PAY_AT_DOOR' };
-  const response = { ok: true, event: { id: 'event123' }, admissionScope: bundleCoverage(), quoteExpiresAt: '2026-10-24T22:59:00.000Z' };
+  const response = { ok: true, event: { id: 'event123' }, admissionScope: bundleCoverage(), paymentTiming: paymentTiming('2026-10-24T23:00:00.000Z'), gracePolicy: quoteGrace('2026-10-24T23:00:00.000Z'), quoteExpiresAt: '2026-10-24T22:59:00.000Z' };
   globalThis.window = { location: { origin: 'https://kv-website-ten.vercel.app' } };
   globalThis.fetch = async (url, init) => {
     assert.equal(url, 'https://admin.katyvibes.com/api/public/m1/quotes');
@@ -234,7 +236,7 @@ test('PR74 selected-show quote sends the exact show; manual selection refusal tr
     assert.equal(url, 'https://admin.katyvibes.com/api/public/m1/quotes');
     if (manual) return new Response(JSON.stringify({ ok: false, code: 'SHOW_REQUIRED' }), { status: 409 });
     assert.deepEqual(JSON.parse(init.body), input);
-    return new Response(JSON.stringify({ ok: true, event: { id: 'event123' }, admissionScope: scope, quoteExpiresAt: '2026-10-25T01:59:00.000Z' }));
+    return new Response(JSON.stringify({ ok: true, event: { id: 'event123' }, admissionScope: scope, paymentTiming: paymentTiming(scope.reservationStartsAt), gracePolicy: quoteGrace(scope.reservationStartsAt), quoteExpiresAt: '2026-10-25T01:59:00.000Z' }));
   };
   try {
     assert.equal((await client.customerQuote(input)).admissionScope.showIds[0], 'second');
@@ -251,4 +253,52 @@ test('PR74 keeps legacy owner reads compatible and refuses unknown coverage vers
   assert.equal(client.verifyCustomerStatus(status, status.publicReservationRef).payment.stripeSettledCents, 10000);
   status.admissionScope = { ...bundleCoverage(), contract: 'unreviewed.version' };
   assert.throws(() => client.verifyCustomerStatus(status, status.publicReservationRef), e => e.code === 'STATUS_UNAVAILABLE');
+});
+
+test('reservation-start payability has no early cutoff and requires the server decision', () => {
+  const deadline = Date.parse('2026-10-25T02:00:00.000Z');
+  const base = { onlinePaymentPending: false, payment: { pendingCents: 0 }, checkoutHistory: [], reconciliationRequired: false,
+    nextAction: 'PAYMENT_REQUIRED', admissionPlanState: 'CONFIRMED', capacityHeld: true, coverage: { unpaidActive: 4 },
+    canonicalReservationStatus: 'RESERVED', admissionScope: { type: 'EVENT', showIds: [] },
+    paymentTiming: paymentTiming(new Date(deadline).toISOString()), onlinePaymentInitiationAllowed: true };
+  for (const now of [deadline - 32 * 60_000, deadline - 1]) assert.equal(client.canStartCustomerPayment({ ...base, asOf: new Date(now).toISOString() }, now), true);
+  assert.equal(client.canStartCustomerPayment({ ...base, onlinePaymentInitiationAllowed: false, asOf: new Date(deadline).toISOString() }, deadline), false);
+  assert.equal(client.canStartCustomerPayment({ ...base, paymentTiming: undefined, asOf: new Date(deadline - 1).toISOString() }, deadline - 1), false);
+});
+
+test('new status timing binds reservation start and still permits pending original completion afterward', () => {
+  const status = showStatus();
+  status.paymentTiming = paymentTiming(status.admissionScope.reservationStartsAt);
+  status.onlinePaymentInitiationAllowed = false;
+  status.onlinePaymentPending = true; status.payment.pendingCents = 1500;
+  status.asOf = '2026-10-25T00:00:00.000Z';
+  assert.equal(client.verifyCustomerStatus(status, status.publicReservationRef).reconciliationRequired, false);
+  for (const patch of [{ paymentTiming: { ...status.paymentTiming, anchor: 'RESERVATION_CREATED' } },
+    { paymentTiming: { ...status.paymentTiming, newPaymentDeadline: '2026-10-25T02:00:00.000Z' } },
+    { onlinePaymentInitiationAllowed: undefined }, { holdExpiresAt: '2026-10-25T02:00:00.000Z' }]) {
+    assert.throws(() => client.verifyCustomerStatus({ ...status, ...patch }, status.publicReservationRef), e => e.code === 'STATUS_UNAVAILABLE');
+  }
+});
+
+test('uncertain payment retries retain original key/body/deadline and a separate provider expiry', async () => {
+  const oldWindow = globalThis.window, oldFetch = globalThis.fetch;
+  const ref = 'kvr_' + 'e'.repeat(40), token = 'kvrs_ra1_' + 'e'.repeat(43);
+  const timing = paymentTiming('2026-10-24T23:00:00.000Z');
+  const command = client.immutableCommand({ publicReservationRef: ref, contributionMode: 'GUEST_SHARE', guestShareRef: 'guest-1' }, 'original-timing-request-123');
+  const sent = []; let fail = true;
+  globalThis.window = { location: { origin: 'https://kv-website-ten.vercel.app' } };
+  globalThis.fetch = async (url, init) => { sent.push({ body: init.body, key: init.headers['Idempotency-Key'] });
+    if (fail) { fail = false; throw new Error('Simulated response loss'); }
+    return new Response(JSON.stringify({ ok: true, publicReservationRef: ref, checkoutRef: 'kvc_' + 'e'.repeat(32),
+      checkoutUrl: 'https://checkout.stripe.com/c/pay/local_mock', amountCents: 1500, currency: 'USD',
+      paymentState: 'PENDING', coverageGranted: false, paymentTiming: timing, providerExpiresAt: '2026-10-24T23:31:00.000Z' }));
+  };
+  try {
+    await assert.rejects(client.customerCheckout(token, command, 1500, timing), e => e.code === 'REQUEST_UNCERTAIN');
+    const result = await client.customerCheckout(token, command, 1500, timing);
+    assert.equal(result.paymentTiming.newPaymentDeadline, '2026-10-24T23:00:00.000Z');
+    assert.equal(result.providerExpiresAt, '2026-10-24T23:31:00.000Z');
+    assert.deepEqual(sent[0], sent[1]);
+    await assert.rejects(client.customerCheckout(token, command, 1500, paymentTiming('2026-10-25T02:00:00.000Z')), e => e.code === 'CHECKOUT_UNCERTAIN');
+  } finally { globalThis.window = oldWindow; globalThis.fetch = oldFetch; }
 });

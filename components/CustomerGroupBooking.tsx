@@ -8,6 +8,7 @@ import {
 } from '@/lib/customerM1Client';
 import styles from './CustomerReservations.module.css';
 import { CustomerShowCoverage } from './CustomerShowCoverage';
+import { CustomerPaymentTiming } from './CustomerPaymentTiming';
 
 type Product = { eventId: string; productId: string; eventTitle: string; productName: string; guestCount: number;
   shows: Array<{ id: string; label: string }>; showSelection: 'EVENT' | 'SELECTED_SHOW' | 'RESOLVE_LINKED_SHOWS' };
@@ -50,7 +51,7 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
       if (result.event.id !== product.eventId || result.product.id !== product.productId ||
         result.guestCount !== product.guestCount || result.product.quantity !== 1 || result.currency !== 'USD' ||
         result.capacityHeld !== false || !result.eligiblePaymentChoices.includes(choice) ||
-        result.gracePolicy.anchor !== 'RESERVATION_CREATED' ||
+        result.gracePolicy.anchor !== 'RESERVATION_START' ||
         (product.showSelection === 'EVENT' && result.admissionScope.type !== 'EVENT') ||
         (product.showSelection !== 'EVENT' && result.admissionScope.type !== 'SHOWS') ||
         (product.showSelection === 'RESOLVE_LINKED_SHOWS' && !showRequired &&
@@ -136,8 +137,8 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
         {choice === 'PAY_PER_GUEST' && <><ul>{quote.guestShares.map(s => <li key={s.shareRef}>Guest {s.ordinal}: {money(s.amountCents)}</li>)}</ul>
           <p>Each Checkout pays for one selected guest. Additional guests require separate payment requests after payment status updates.</p></>}
         {choice === 'PACKAGE_INSTALLMENT' && <p>Payments fund the entire table package. Partial funding grants zero guest admissions until the package is fully funded.</p>}
-        <p>Your unpaid payment deadline starts when the reservation is created: {quote.gracePolicy.minutes} minutes.
-          The quote holds no capacity. The exact deadline will appear in your reservation.</p>
+        <CustomerPaymentTiming timing={quote.paymentTiming} />
+        <p>This quote holds no capacity. Review your reservation for its current payment status.</p>
         <label>Name<input name="name" autoComplete="name" required minLength={2} maxLength={120} disabled={busy} /></label>
         <label>Email<input name="email" type="email" autoComplete="email" required maxLength={200} disabled={busy} /></label>
         <label>Phone<input name="phone" type="tel" autoComplete="tel" required minLength={7} maxLength={40} disabled={busy} /></label>

@@ -11,6 +11,7 @@ import {
 import { qrcodegen } from '@/lib/vendor/qrcodegen';
 import styles from './CustomerReservations.module.css';
 import { CustomerShowCoverage } from './CustomerShowCoverage';
+import { CustomerPaymentTiming } from './CustomerPaymentTiming';
 
 const money = (cents: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 const label = (value: string) => value.toLowerCase().replaceAll('_', ' ');
@@ -175,15 +176,16 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
           }
           expectedCents = body.installmentAmountCents;
         }
-        original = { kind: 'checkout', command: immutableCommand(body), expectedCents };
+        original = { kind: 'checkout', command: immutableCommand(body), expectedCents, paymentTiming: fresh.paymentTiming };
         saveCustomerOperation(original); setOperation(original);
       }
       if (original.kind !== 'checkout') return;
       if (original.checkoutRef) { await openCheckout(original.checkoutRef); return; }
       // Even if sales are subsequently disabled, an uncertain original command is never replaced.
       // Backend gates remain authoritative; no alternative amount, body, key or provider Session.
-      const checkout = await customerCheckout(token, original.command, original.expectedCents);
-      original = { ...original, checkoutRef: checkout.checkoutRef };
+      const checkout = await customerCheckout(token, original.command, original.expectedCents, original.paymentTiming);
+      original = { ...original, checkoutRef: checkout.checkoutRef, providerExpiresAt: checkout.providerExpiresAt,
+        paymentTiming: checkout.paymentTiming ?? original.paymentTiming };
       saveCustomerOperation(original); setOperation(original);
       await openCheckout(checkout.checkoutRef);
     } catch (error) {
@@ -224,7 +226,7 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
           Partial package funding grants zero guest admissions. Coverage confirmed by the venue: {status.coverage.prepaid + status.coverage.manualAcknowledged} guests.</p> :
           <p>Verified online admissions: {status.coverage.prepaid}. Venue-acknowledged admissions: {status.coverage.manualAcknowledged}.
             Awaiting payment: {status.coverage.unpaidActive}. Released unpaid: {status.coverage.releasedUnpaid}.</p>}
-        {status.holdExpiresAt && <p>Unpaid payment deadline: <strong>{date(status.holdExpiresAt)}</strong>.
+        {!status.paymentTiming && status.holdExpiresAt && <p>Unpaid payment deadline: <strong>{date(status.holdExpiresAt)}</strong>.
           The deadline starts when your reservation is created. Capacity changes only when confirmed by the venue.</p>}
         {(status.onlinePaymentPending || status.payment.pendingCents > 0) && <p role="status" className={styles.notice}>
           {money(status.payment.pendingCents)} is pending. Please wait for verified payment status. Returning from Checkout does not confirm payment.</p>}
@@ -232,6 +234,8 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
           This payment needs venue review. Call (832) 437-2807 before making another payment.</p>}
         <p>Payment does not establish arrival or seating. Staff confirm admission and table placement separately.</p>
       </article>
+      {status.paymentTiming && <CustomerPaymentTiming timing={status.paymentTiming}
+        providerExpiresAt={operation?.kind === 'checkout' && operation.command.body.publicReservationRef === reservationRef ? operation.providerExpiresAt : undefined} />}
       {status.admissionScope.contract === 'kvrs.m1.show-coverage.v1' &&
         <CustomerShowCoverage scope={status.admissionScope} admissions={status.showAdmissions} />}
       <CustomerGroupQr key={token} reservationRef={reservationRef} token={token} guestCount={status.guestCount} />

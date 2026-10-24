@@ -13,12 +13,20 @@ export type CustomerLegacyCoverage = { contract?: never; type: 'EVENT' | 'SHOW';
 export type CustomerCoverage = CustomerExactCoverage | CustomerLegacyCoverage;
 export type CustomerShowAdmission = G8Status['coverage'] & { entryScopeKey: string; guestUnits: number };
 
-export type CustomerQuote = G8Quote & {
+export type CustomerPaymentTiming = {
+  contract: 'kvrs.m1.reservation-payment-timing.v1'; anchor: 'RESERVATION_START';
+  newPaymentDeadline: string; inFlightCompletion: 'ORIGINAL_PREPARED_CHECKOUT_ONLY';
+};
+export type CustomerQuote = Omit<G8Quote, 'gracePolicy'> & {
   admissionScope: CustomerExactCoverage;
+  paymentTiming: CustomerPaymentTiming;
+  gracePolicy: { minutes: null; version: 1; anchor: 'RESERVATION_START'; expiresAt: string };
 };
 export type CustomerStatus = G8Status & {
   admissionScope: CustomerCoverage;
   showAdmissions?: CustomerShowAdmission[];
+  paymentTiming?: CustomerPaymentTiming;
+  onlinePaymentInitiationAllowed?: boolean;
   onlinePaymentPending: boolean;
   reconciliationRequired: boolean;
   checkoutHistory: Array<{ checkoutRef: string; state: string; amountCents: number }>;
@@ -40,6 +48,7 @@ export type Command<T> = Readonly<{ key: string; body: Readonly<T> }>;
 export type Checkout = {
   ok: true; publicReservationRef: string; checkoutRef: string; checkoutUrl: string;
   amountCents: number; currency: 'USD'; paymentState: 'PENDING'; coverageGranted: false;
+  paymentTiming?: CustomerPaymentTiming; providerExpiresAt?: string;
 };
 export type RecoveredCheckout = {
   ok: true; checkoutRef: string; state: string; providerStatus: string;
@@ -112,6 +121,9 @@ export async function customerQuote(body: QuoteInput) {
   if (!result.event || result.event.id !== body.eventId ||
     result.admissionScope?.contract !== 'kvrs.m1.show-coverage.v1' ||
     !validCustomerCoverage(result.admissionScope, result.event.id) ||
+    !validCustomerPaymentTiming(result.paymentTiming, result.admissionScope.reservationStartsAt) ||
+    result.gracePolicy?.minutes !== null || result.gracePolicy.version !== 1 ||
+    result.gracePolicy.anchor !== 'RESERVATION_START' || result.gracePolicy.expiresAt !== result.paymentTiming.newPaymentDeadline ||
     !Number.isFinite(Date.parse(result.quoteExpiresAt)) ||
     Date.parse(result.quoteExpiresAt) > Date.parse(result.admissionScope.salesCutoffAt) ||
     (body.showId ? result.admissionScope.selection !== 'SELECTED_SHOW' ||
@@ -131,6 +143,22 @@ const coverageFields = ['prepaid', 'manualAcknowledged', 'unpaidActive', 'releas
 const fundingFields = ['prepaid', 'manualAcknowledged', 'unpaidActive', 'releasedUnpaid'] as const;
 const isoTime = (value: unknown): value is string => typeof value === 'string' &&
   Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
+export function validCustomerPaymentTiming(value: unknown, reservationStart?: string): value is CustomerPaymentTiming {
+  if (!value || typeof value !== 'object') return false;
+  const timing = value as CustomerPaymentTiming;
+  return timing.contract === 'kvrs.m1.reservation-payment-timing.v1' && timing.anchor === 'RESERVATION_START' &&
+    timing.inFlightCompletion === 'ORIGINAL_PREPARED_CHECKOUT_ONLY' && isoTime(timing.newPaymentDeadline) &&
+    (reservationStart === undefined || timing.newPaymentDeadline === reservationStart);
+}
+
+function validStatusPaymentTiming(result: CustomerStatus) {
+  if (result.paymentTiming === undefined && result.onlinePaymentInitiationAllowed === undefined) return true; // historical owner reads
+  return result.admissionScope.contract === 'kvrs.m1.show-coverage.v1' &&
+    validCustomerPaymentTiming(result.paymentTiming, result.admissionScope.reservationStartsAt) &&
+    typeof result.onlinePaymentInitiationAllowed === 'boolean' &&
+    (result.holdExpiresAt === null || result.holdExpiresAt === result.paymentTiming.newPaymentDeadline);
+}
+
 const sameStrings = (a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]);
 
 export function validCustomerCoverage(value: unknown, eventId: string): value is CustomerCoverage {
@@ -191,7 +219,7 @@ export function verifyCustomerStatus(result: CustomerStatus, ref: string): Custo
     !result.guestShares.every(s => /^guest-[1-8]$/.test(s.shareRef) && cents(s.amountCents)) ||
     !Number.isFinite(Date.parse(result.asOf)) || typeof result.capacityHeld !== 'boolean' ||
     (result.holdExpiresAt !== null && !isoTime(result.holdExpiresAt)) ||
-    !validShowAdmissions(result) || result.groupCredentialValue !== null) throw new CustomerRequestError('STATUS_UNAVAILABLE', 503);
+    !validShowAdmissions(result) || !validStatusPaymentTiming(result) || result.groupCredentialValue !== null) throw new CustomerRequestError('STATUS_UNAVAILABLE', 503);
   return result;
 }
 
@@ -201,16 +229,15 @@ export async function customerStatus(ref: string, token: string) {
 }
 
 export function canStartCustomerPayment(status: CustomerStatus, now = Date.now()) {
-  // PR74 read coverage is supported; SHOWS sales/payment refusal stays until timing review.
-  // Existing original-Session recovery remains separate.
-  // Matches the 32-minute provider-session boundary. This never releases capacity.
+  // New commands require the reviewed server timing decision, never a browser-derived 32-minute cutoff.
+  // SHOWS remains held for coordinated activation review; original recovery bypasses this new-command check.
   return status.admissionScope?.type === 'EVENT' && status.admissionScope.showIds.length === 0 &&
+    validCustomerPaymentTiming(status.paymentTiming) && status.onlinePaymentInitiationAllowed === true &&
     !status.onlinePaymentPending && status.payment.pendingCents === 0 &&
     !status.checkoutHistory.some(h => h.state === 'PENDING') &&
     !status.reconciliationRequired && status.nextAction !== 'CONTACT_VENUE' &&
     status.admissionPlanState === 'CONFIRMED' && status.capacityHeld && status.coverage.unpaidActive > 0 &&
     ['RESERVED', 'CHECKED_IN', 'SEATED'].includes(status.canonicalReservationStatus) &&
-    Boolean(status.holdExpiresAt) && Date.parse(status.holdExpiresAt!) > now + 32 * 60_000 &&
     now - Date.parse(status.asOf) < 30_000 && Date.parse(status.asOf) <= now + 5_000;
 }
 
@@ -221,12 +248,15 @@ export function stripeDestination(value: string) {
   return url.toString();
 }
 
-export async function customerCheckout(token: string, command: Command<PaymentInput>, expectedCents: number) {
+export async function customerCheckout(token: string, command: Command<PaymentInput>, expectedCents: number, expectedTiming?: CustomerPaymentTiming) {
   assertRef(command.body.publicReservationRef);
   const result = await request<Checkout>('/api/public/m1/checkouts', { token, command });
   if (result.publicReservationRef !== command.body.publicReservationRef || !validCheckoutRef(result.checkoutRef) ||
     result.currency !== 'USD' || result.amountCents !== expectedCents ||
-    result.paymentState !== 'PENDING' || result.coverageGranted !== false) {
+    result.paymentState !== 'PENDING' || result.coverageGranted !== false ||
+    (expectedTiming !== undefined && (!validCustomerPaymentTiming(result.paymentTiming, expectedTiming.newPaymentDeadline))) ||
+    (result.paymentTiming !== undefined && (!validCustomerPaymentTiming(result.paymentTiming) || !isoTime(result.providerExpiresAt))) ||
+    (result.providerExpiresAt !== undefined && result.paymentTiming === undefined)) {
     throw new CustomerRequestError('CHECKOUT_UNCERTAIN', 0);
   }
   stripeDestination(result.checkoutUrl);
@@ -302,7 +332,7 @@ export function centsFromDollars(value: string): number | null {
 
 export type CustomerOperation =
   | { kind: 'reservation'; command: Command<ReservationInput>; eventId: string; productId: string }
-  | { kind: 'checkout'; command: Command<PaymentInput>; expectedCents: number; checkoutRef?: string };
+  | { kind: 'checkout'; command: Command<PaymentInput>; expectedCents: number; checkoutRef?: string; paymentTiming?: CustomerPaymentTiming; providerExpiresAt?: string };
 const operationKey = 'kv-customer-original-operation-v1';
 export function saveCustomerOperation(operation: CustomerOperation) {
   // Persist the exact original command before sending, without an owner bearer or QR.
@@ -319,7 +349,9 @@ export function loadCustomerOperation(): CustomerOperation | null {
       typeof item.command.body.quoteToken === 'string' && item.command.body.acceptUnpaidPaymentTerms === true) return item;
     if (item.kind === 'checkout' && validCustomerRef(item.command.body.publicReservationRef) &&
       Number.isSafeInteger(item.expectedCents) && item.expectedCents > 0 &&
-      (!item.checkoutRef || validCheckoutRef(item.checkoutRef))) return item;
+      (!item.checkoutRef || validCheckoutRef(item.checkoutRef)) &&
+      (item.paymentTiming === undefined || validCustomerPaymentTiming(item.paymentTiming)) &&
+      (item.providerExpiresAt === undefined || isoTime(item.providerExpiresAt))) return item;
   } catch { /* Preserve unreadable journal; refuse another operation. */ }
   throw new Error('Your earlier request needs assistance. Please contact Katy Vibes before trying again.');
 }
