@@ -228,10 +228,14 @@ export async function customerStatus(ref: string, token: string) {
   return verifyCustomerStatus(await request<CustomerStatus>(`/api/public/m1/reservations/${ref}/status`, { token }), ref);
 }
 
-export function canStartCustomerPayment(status: CustomerStatus, now = Date.now()) {
+export function canStartCustomerPayment(status: CustomerStatus, now = Date.now(), showSalesEnabled = false) {
   // New commands require the reviewed server timing decision, never a browser-derived 32-minute cutoff.
-  // SHOWS remains held for coordinated activation review; original recovery bypasses this new-command check.
-  return status.admissionScope?.type === 'EVENT' && status.admissionScope.showIds.length === 0 &&
+  // Original recovery bypasses this new-command check, including during a sales shutdown.
+  const scope = status.admissionScope;
+  const eligibleScope = scope?.type === 'EVENT' && scope.showIds.length === 0 ||
+    showSalesEnabled && scope?.contract === 'kvrs.m1.show-coverage.v1' && scope.type === 'SHOWS' &&
+    validCustomerCoverage(scope, status.event.id) && validCustomerPaymentTiming(status.paymentTiming, scope.reservationStartsAt);
+  return eligibleScope &&
     validCustomerPaymentTiming(status.paymentTiming) && status.onlinePaymentInitiationAllowed === true &&
     !status.onlinePaymentPending && status.payment.pendingCents === 0 &&
     !status.checkoutHistory.some(h => h.state === 'PENDING') &&

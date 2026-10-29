@@ -80,7 +80,9 @@ function CustomerGroupQr({ reservationRef, token, guestCount }: { reservationRef
   </article>;
 }
 
-export function CustomerReservation({ reservationRef, salesEnabled, approvedPairs }: { reservationRef: string; salesEnabled: boolean; approvedPairs: string[] }) {
+export function CustomerReservation({ reservationRef, salesEnabled, approvedPairs, showSalesEnabled = false }: {
+  reservationRef: string; salesEnabled: boolean; approvedPairs: string[]; showSalesEnabled?: boolean;
+}) {
   const [token, setToken] = useState(''); const [initialized, setInitialized] = useState(false);
   const [status, setStatus] = useState<CustomerStatus | null>(null); const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(''); const [installment, setInstallment] = useState('');
@@ -161,7 +163,7 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
       let original = operation;
       if (!original) {
         const fresh = await refresh();
-        if (!salesEnabled || !approvedPairs.includes(`${fresh.event.id}:${fresh.product.id}`) || !body || !canStartCustomerPayment(fresh)) {
+        if (!salesEnabled || !approvedPairs.includes(`${fresh.event.id}:${fresh.product.id}`) || !body || !canStartCustomerPayment(fresh, Date.now(), showSalesEnabled)) {
           throw new Error('A new payment is unavailable. Refresh status or contact Katy Vibes.');
         }
         let expectedCents: number;
@@ -207,7 +209,7 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
   }
 
   const packageMode = status?.guestShares.length === 0;
-  const payable = status && salesEnabled && approvedPairs.includes(`${status.event.id}:${status.product.id}`) && !operation && !journalError && canStartCustomerPayment(status, clock);
+  const payable = status && salesEnabled && approvedPairs.includes(`${status.event.id}:${status.product.id}`) && !operation && !journalError && canStartCustomerPayment(status, clock, showSalesEnabled);
   return <section className={`stack ${styles.panel}`}>
     <div className="eyebrow">Katy Vibes Reservations</div><h1>Your reservation</h1>
     {!initialized && <p role="status">Opening your reservation…</p>}

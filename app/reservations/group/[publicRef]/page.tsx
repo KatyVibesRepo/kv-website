@@ -9,5 +9,6 @@ export const metadata = { title: 'Your Reservation | Katy Vibes', robots: { inde
 export default async function Page({ params }: { params: Promise<{ publicRef: string }> }) {
   const release = customerReleaseForHost((await headers()).get('host')); const { publicRef } = await params;
   if (!release.readEnabled || !validCustomerRef(publicRef)) notFound();
-  return <CustomerReservation reservationRef={publicRef} salesEnabled={release.salesEnabled} approvedPairs={release.approvedPairs} />;
+  return <CustomerReservation reservationRef={publicRef} salesEnabled={release.salesEnabled}
+    approvedPairs={release.approvedPairs} showSalesEnabled={release.showSalesEnabled} />;
 }
