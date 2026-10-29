@@ -8,10 +8,14 @@ import type {
   PublicTicketType,
 } from '@/lib/kvrsEvents';
 import { resolveKvrsConfig } from '@/lib/kvrsConfig.mjs';
+import { MixedPaymentPlanner, type MixedPaymentMode } from '@/components/MixedPaymentPlanner';
+import { g8Quote, g8Create, g8Link, g8PayGuest, g8PayFullTable, stashCheckoutReturn, isG8Fixture, validG8Ref, validG8Token, type G8Choice } from '@/lib/g8PreviewClient';
 
 type EventTicketCheckoutCardsProps = {
   event: PublicEvent;
   ticketTypes: PublicTicketType[];
+  previewMixedPayments?: boolean;
+  g8PilotApproved?: boolean;
 };
 
 type TicketChoice = PublicTicketType | null;
@@ -118,8 +122,14 @@ function ticketName(event: PublicEvent, ticket: TicketChoice) {
   return 'General Admission';
 }
 
-function ticketDescription(event: PublicEvent, ticket: TicketChoice) {
-  return ticket?.description || event.shortDescription || event.subtitle || '';
+function ticketDescription(_event: PublicEvent, ticket: TicketChoice) {
+  // Ticket cards only show product-specific details, never an event-level
+  // description repeated on every card. Filter source-system placeholder copy.
+  const description = ticket?.description?.trim() || '';
+  if (/EventsManager\.Next|end[ -]to[ -]end KVRS prototype|prototype event used to prove/i.test(description)) {
+    return '';
+  }
+  return description;
 }
 
 function formatShowClockTime(value: string, timezone: string) {
@@ -535,21 +545,29 @@ function checkoutErrorMessage(data: unknown, fallback: string) {
   if (data && typeof data === 'object') {
     const maybeError = 'error' in data ? data.error : null;
     const maybeMessage = 'message' in data ? data.message : null;
-
-    if (typeof maybeError === 'string' && maybeError.trim()) return maybeError;
-    if (typeof maybeMessage === 'string' && maybeMessage.trim()) return maybeMessage;
+    // Only pass through short, customer-readable errors. Technical identifiers,
+    // API paths and diagnostics should never appear on the public ticket page.
+    const technical = /\b(?:KVRS|Prisma|SQL|stack trace|traceback|debug|internal server error|database|serverless)\b|\/api\/|\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b/i;
+    for (const message of [maybeMessage, maybeError]) {
+      if (typeof message === 'string' && message.trim() && message.length < 240 && !technical.test(message)) {
+        return message.trim();
+      }
+    }
   }
 
   return fallback;
 }
 
-export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketCheckoutCardsProps) {
+export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayments = false, g8PilotApproved = false }: EventTicketCheckoutCardsProps) {
   const inventorySectionRef = useRef<HTMLElement | null>(null);
   const [inventorySectionVisible, setInventorySectionVisible] = useState(false);
   const [liveTicketTypes, setLiveTicketTypes] = useState(ticketTypes);
   const [messages, setMessages] = useState<Record<string, FormMessage>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [quantitySelections, setQuantitySelections] = useState<Record<string, QuantitySelection>>({});
+  const [paymentModes, setPaymentModes] = useState<Record<string, MixedPaymentMode | undefined>>({});
+  const [additionalPaymentOpen, setAdditionalPaymentOpen] = useState<Record<string, boolean>>({});
+  const [guestSplitCounts, setGuestSplitCounts] = useState<Record<string, number>>({});
   const [pendingSubmissions, setPendingSubmissions] = useState<
     Record<string, { key: string; serializedPayload: string }>
   >({});
@@ -583,7 +601,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
   }, []);
 
   useEffect(() => {
-    if (!inventorySectionVisible) return;
+    if (!inventorySectionVisible || isG8Fixture(event.id)) return;
 
     let cancelled = false;
     let requestInFlight = false;
@@ -708,7 +726,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [event.slug, inventorySectionVisible]);
+  }, [event.id, event.slug, inventorySectionVisible]);
 
   const choices = useMemo<TicketChoice[]>(() => {
     if (liveTicketTypes.length > 0) return liveTicketTypes;
@@ -742,6 +760,124 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
     const form = formEvent.currentTarget;
     const key = ticketKey(event, ticket);
     const freeReservation = isFreeReservationChoice(event, ticket);
+    // On the isolated staging fixture, Checkout defaults to the full table
+    // balance; other payment choices are explicit. Real-event checkout stays unchanged.
+    const selectedPaymentMode = g8PilotApproved && isG8Fixture(event.id, ticket?.id)
+      ? paymentModes[key] || 'full'
+      : previewMixedPayments && !freeReservation ? paymentModes[key] : null;
+
+    // Never send alternative payment selections through production full checkout.
+    if (selectedPaymentMode === 'at_door' || selectedPaymentMode === 'guest_split' ||
+        selectedPaymentMode === 'full') {
+      if (!g8PilotApproved || !isG8Fixture(event.id, ticket?.id)) {
+        setMessages((current) => ({
+          ...current, [key]: { tone: 'muted', text: 'Please call (832) 437-2807 to arrange this payment option.' },
+        }));
+        return;
+      }
+      const formData = new FormData(form);
+      const amount = Number(formData.get('quantity') || 1);
+      const choice: G8Choice = selectedPaymentMode === 'at_door' ? 'PAY_AT_DOOR'
+        : selectedPaymentMode === 'full' ? 'PACKAGE_INSTALLMENT' : 'PAY_PER_GUEST';
+      const onlineGuests = choice === 'PAY_PER_GUEST' ? guestSplitCounts[key] ?? 1 : 0;
+      const contact = {
+        customerName: readFormValue(formData, 'customerName'),
+        customerEmail: readFormValue(formData, 'customerEmail'),
+        customerPhone: readFormValue(formData, 'customerPhone'),
+      };
+      if (amount !== 1 || !ticket || !isG8Fixture(event.id, ticket.id)) {
+        setMessages(current => ({ ...current, [key]: { tone: 'error', text: 'This option is available for one table at a time.' } }));
+        return;
+      }
+      if (formData.get('acceptUnpaidPaymentTerms') !== 'on') {
+        setMessages(current => ({ ...current, [key]: { tone: 'error', text: 'Please agree to the payment terms to continue.' } }));
+        return;
+      }
+      setPending(current => ({ ...current, [key]: true }));
+      setMessages(current => ({ ...current, [key]: { tone: 'muted', text: 'Checking your reservation options…' } }));
+      try {
+        const quote = await g8Quote(choice, onlineGuests, choice === 'PACKAGE_INSTALLMENT' ? ticket.priceCents : undefined);
+        if (quote.event.id !== event.id || quote.product.id !== ticket.id ||
+            quote.guestCount !== ticket.guestCount || quote.product.quantity !== 1 ||
+            quote.totalCents !== ticket.priceCents ||
+            !quote.eligiblePaymentChoices.includes(choice) ||
+            quote.capacityHeld !== false ||
+            (choice === 'PACKAGE_INSTALLMENT' && quote.amountDueNowCents !== ticket.priceCents)) {
+          throw new Error('Pricing or availability changed. Please refresh your selection.');
+        }
+        const snapshot = JSON.stringify({ choice, contact, guests: onlineGuests });
+        const previous = pendingSubmissions[key];
+        const stableId = previous?.serializedPayload === snapshot ? previous.key : crypto.randomUUID();
+        setPendingSubmissions(current => ({ ...current, [key]: { key: stableId, serializedPayload: snapshot } }));
+        const result = await g8Create(quote.quoteToken, choice, contact, stableId);
+        if (!validG8Ref(result.publicReservationRef) || !validG8Token(result.customerAccessToken) ||
+            result.paymentChoice !== choice) {
+          throw new Error('Your reservation link could not be verified. Please contact Katy Vibes.');
+        }
+        const reservationLink = g8Link(result.publicReservationRef, result.customerAccessToken);
+        if (choice === 'PAY_PER_GUEST' || choice === 'PACKAGE_INSTALLMENT') {
+          // The selected online mode determines the Stripe TEST amount:
+          // one guest share, or the entire $80 table. Never launch a second
+          // reservation if Stripe cannot open after the reservation is saved.
+          try {
+            const firstShare = choice === 'PAY_PER_GUEST' ? quote.guestShares[0] : null;
+            if (choice === 'PAY_PER_GUEST' && (!firstShare || firstShare.shareRef !== 'guest-1')) {
+              throw new Error('The first guest payment is unavailable.');
+            }
+            setMessages(current => ({
+              ...current, [key]: { tone: 'muted', text: 'Opening secure Stripe checkout…' },
+            }));
+            const checkout = choice === 'PAY_PER_GUEST' && firstShare
+              ? await g8PayGuest(
+                  result.publicReservationRef, result.customerAccessToken,
+                  firstShare.shareRef, stableId + ':guest-1',
+                )
+              : await g8PayFullTable(
+                  result.publicReservationRef, result.customerAccessToken,
+                  quote.totalCents, stableId + ':full-table',
+                );
+            const expectedAmount = choice === 'PAY_PER_GUEST'
+              ? firstShare!.amountCents : quote.totalCents;
+            const destination = new URL(checkout.checkoutUrl);
+            if (destination.protocol !== 'https:' ||
+                destination.hostname !== 'checkout.stripe.com' ||
+                !destination.pathname.includes('/c/') ||
+                checkout.amountCents !== expectedAmount ||
+                checkout.currency !== quote.currency ||
+                checkout.paymentState !== 'PENDING' ||
+                checkout.coverageGranted !== false) {
+              throw new Error('The secure payment session could not be verified.');
+            }
+            stashCheckoutReturn(result.publicReservationRef, result.customerAccessToken);
+            window.location.assign(destination.toString());
+            return;
+          } catch {
+            // An existing reservation must never be recreated or sent through
+            // the unrelated full-price Production checkout as a fallback.
+            window.location.assign(reservationLink);
+            return;
+          }
+        }
+        window.location.assign(reservationLink);
+        return;
+      } catch (error) {
+        setMessages(current => ({
+          ...current,
+          [key]: { tone: 'error', text: error instanceof Error ? error.message : 'Reservation is temporarily unavailable.' },
+        }));
+      } finally {
+        setPending(current => ({ ...current, [key]: false }));
+      }
+      return;
+    }
+
+    // The isolated fixture must never go through the normal production checkout.
+    if (isG8Fixture(event.id)) {
+      setMessages(current => ({ ...current, [key]: {
+        tone: 'muted', text: 'Choose an additional payment option to continue with this reservation.',
+      } }));
+      return;
+    }
 
     if (isCheckoutDisabled(event, ticket)) {
       setMessages((current) => ({
@@ -751,7 +887,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           text: !ticket?.id
             ? freeReservation
               ? 'This RSVP option is not available online right now. Please call 832-437-2807 and we can help.'
-              : 'This event is missing a selectable ticket type. Please call 832-437-2807 and we can help you finish booking.'
+              : 'Online booking is not available for this option right now. Call (832) 437-2807 for help.'
             : `${ticketName(event, ticket)} is currently marked ${ticketAvailabilityLabel(event, ticket)}.`,
         },
       }));
@@ -838,7 +974,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
         ...current,
         [key]: {
           tone: 'error',
-          text: 'This ticket option is missing its KVRS ticket type ID. Please refresh or call 832-437-2807.',
+          text: 'Online booking is not available for this option right now. Please call (832) 437-2807.',
         },
       }));
       return;
@@ -1012,6 +1148,10 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
           const showCoverage = ticketShowCoverage(event, ticket);
           const selectableShows = ticketSelectableShows(event, ticket);
           const freeReservation = isFreeReservationChoice(event, ticket);
+          const selectedPaymentMode = g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedQuantity === 1
+            ? paymentModes[key] || 'full'
+            : previewMixedPayments && !freeReservation && selectedQuantity === 1
+              ? paymentModes[key] : null;
           const automaticAdjustment =
             !freeReservation
             && quantitySelection?.requestedQuantity
@@ -1054,7 +1194,6 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                 <span>{ticketAvailableText(ticket)}</span>
                 {ticket?.type && <span>{ticket.type.replace(/_/g, ' ')}</span>}
               </div>
-
               <form className="ticket-purchase-form" onSubmit={(formEvent) => handleSubmit(ticket, formEvent)}>
                 <input type="hidden" name="eventId" value={event.id} />
                 <input type="hidden" name="eventSlug" value={event.slug} />
@@ -1108,6 +1247,16 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                       onChange={(changeEvent) => {
                         const inputValue = changeEvent.currentTarget.value;
                         const parsedQuantity = Number(inputValue);
+
+                        // One product per alternative plan until KVRS approves more.
+                        if (inputValue !== '' && Number.isFinite(parsedQuantity) && parsedQuantity > 1) {
+                          setPaymentModes((current) => {
+                            if (!current[key]) return current;
+                            const next = { ...current };
+                            delete next[key];
+                            return next;
+                          });
+                        }
 
                         setQuantitySelections((current) => {
                           const existing = current[key] || {
@@ -1192,6 +1341,23 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   </label>
                 ) : null}
 
+                {g8PilotApproved && isG8Fixture(event.id, ticket?.id) && !freeReservation && (
+                  <p className="muted">
+                    {selectedPaymentMode === 'guest_split'
+                      ? 'Pay Individually opens Stripe for Guest 1. Remaining guest shares can be paid using your secure reservation link.'
+                      : selectedPaymentMode === 'at_door'
+                        ? 'Reserve this table and pay for guests at the venue, subject to the reservation deadline.'
+                        : 'Checkout pays the full Table of 8 in one secure Stripe payment. Choose Additional Payment Options to pay individually or at the door.'}
+                  </p>
+                )}
+
+                {g8PilotApproved && selectedPaymentMode && (
+                  <label className="g8-payment-terms">
+                    <input type="checkbox" name="acceptUnpaidPaymentTerms" required />
+                    <span>I understand that unpaid guest places have a payment deadline and may be released if not paid in time.</span>
+                  </label>
+                )}
+
                 {automaticAdjustment ? (
                   <p className="ticket-form-message error" role="status" aria-live="polite">
                     Availability changed while you were checking out. You requested{' '}
@@ -1207,7 +1373,15 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                     ? freeReservation
                       ? 'Submitting RSVP…'
                       : 'Opening Checkout…'
-                    : buttonLabel(event, ticket)}
+                    : selectedPaymentMode === 'at_door'
+                      ? 'Reserve Tickets'
+                      : g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedPaymentMode === 'guest_split'
+                        ? `Checkout — Guest 1 (${formatMoney(Math.floor(ticket!.priceCents / ticket!.guestCount), ticket!.currency)})`
+                        : g8PilotApproved && isG8Fixture(event.id, ticket?.id) && selectedPaymentMode === 'full'
+                          ? `Checkout — ${ticketTotalPrice(event, ticket, selectedQuantity)}`
+                          : selectedPaymentMode === 'guest_split'
+                            ? 'Continue'
+                            : buttonLabel(event, ticket)}
                 </button>
 
                 {message && (
@@ -1220,6 +1394,61 @@ export function EventTicketCheckoutCards({ event, ticketTypes }: EventTicketChec
                   </p>
                 )}
               </form>
+              {previewMixedPayments && ticket && !freeReservation && (
+                <div className="ticket-additional-payment">
+                  <button
+                    className="ticket-additional-payment-toggle"
+                    type="button"
+                    id={`additional-payment-toggle-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
+                    aria-expanded={Boolean(additionalPaymentOpen[key])}
+                    aria-controls={`additional-payment-panel-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
+                    onClick={() => {
+                      // Closing payment options restores the normal Checkout choice.
+                      if (additionalPaymentOpen[key]) {
+                        setPaymentModes((current) => {
+                          if (!current[key]) return current;
+                          const next = { ...current };
+                          delete next[key];
+                          return next;
+                        });
+                        setMessages((current) => {
+                          if (!current[key] || current[key].tone !== 'muted') return current;
+                          const next = { ...current };
+                          delete next[key];
+                          return next;
+                        });
+                      }
+                      setAdditionalPaymentOpen((current) => ({
+                        ...current,
+                        [key]: !current[key],
+                      }));
+                    }}
+                  >
+                    Additional Payment Options
+                    <span className="ticket-additional-payment-chevron" aria-hidden="true">
+                      {additionalPaymentOpen[key] ? '−' : '+'}
+                    </span>
+                  </button>
+                  <div
+                    className="ticket-additional-payment-panel"
+                    id={`additional-payment-panel-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
+                    role="region"
+                    aria-labelledby={`additional-payment-toggle-${key.replace(/[^A-Za-z0-9_-]/g, '-')}`}
+                    hidden={!additionalPaymentOpen[key]}
+                  >
+                    {additionalPaymentOpen[key] && (
+                      <MixedPaymentPlanner
+                        ticket={ticket}
+                        quantity={selectedQuantity}
+                        mode={paymentModes[key] || null}
+                        onModeChange={(mode) => setPaymentModes((current) => ({ ...current, [key]: mode }))}
+                        guestsPayingNow={guestSplitCounts[key] ?? 1}
+                        onGuestsPayingNowChange={(count) => setGuestSplitCounts((current) => ({ ...current, [key]: count }))}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
             </article>
           );
               })}

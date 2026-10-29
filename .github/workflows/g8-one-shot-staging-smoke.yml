@@ -1,0 +1,25 @@
+name: G8 one-shot synthetic staging smoke
+
+on:
+  push:
+    branches:
+      - feat/g8-mixed-payment-preview
+    paths:
+      - '.github/workflows/g8-one-shot-staging-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      G8_AUTHORIZED_STAGING_SMOKE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify synthetic staging quote, reservation and scoped customer status
+        run: node scripts/g8-staging-smoke.mjs

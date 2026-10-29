@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import { PublicEventCta, saleStatusLabel } from '@/components/PublicEventCta';
 import { EventTicketCheckoutCards } from '@/components/EventTicketCheckoutCards';
+import { headers } from 'next/headers';
+import { customerReleaseForHost, customerProductEligible } from '@/lib/customerM1Release';
 import {
   formatEventDateTime,
   getPublicEvent,
@@ -27,6 +29,13 @@ const flyerFallbacks: Record<FlyerPreference, FlyerPreference[]> = {
 
 function firstValue(...values: Array<string | null | undefined>) {
   return values.find((value): value is string => Boolean(value)) || null;
+}
+
+function publicEventDescription(...values: Array<string | null | undefined>) {
+  return values.find((value): value is string => Boolean(
+    value?.trim()
+    && !/EventsManager\.Next|end[ -]to[ -]end KVRS prototype|prototype event used to prove/i.test(value),
+  )) || null;
 }
 
 function eventImage(event: EventDetail, preferred: FlyerPreference) {
@@ -113,8 +122,11 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
 
   const heroImage = eventImage(event, 'landscape');
   const flyerImage = eventImage(event, 'portrait');
-  const description = event.fullDescription || event.shortDescription || event.subtitle;
+  const description = publicEventDescription(event.fullDescription, event.shortDescription, event.subtitle);
+  const subtitle = publicEventDescription(event.subtitle);
   const ticketTypes = event.ticketTypes || [];
+  const customer = customerReleaseForHost((await headers()).get('host'));
+  const groupProducts = ticketTypes.filter(product => customerProductEligible(event, product, customer));
   const isTicketedEvent =
     event.isTicketed
     || Boolean(event.ticketSummary?.isTicketed)
@@ -145,7 +157,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
             </div>
 
             <h1>{event.title}</h1>
-            {event.subtitle && <p className="lead">{event.subtitle}</p>}
+            {subtitle && <p className="lead">{subtitle}</p>}
 
             <div className="event-detail-facts event-detail-facts-compact">
               <span>
@@ -263,8 +275,19 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
       </section>
 
       {hasEventTransactionForm && (
-        <EventTicketCheckoutCards event={event} ticketTypes={ticketTypes} />
+        <EventTicketCheckoutCards
+          event={event}
+          ticketTypes={ticketTypes}
+          previewMixedPayments={process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview'}
+        />
       )}
+      {groupProducts.length > 0 && <article className="card stack">
+        <h2>Flexible group payments</h2><p>Reserve one table, pay by guest or fund a table package.</p>
+        {groupProducts.map(product => <a className="button ghost" key={product.id}
+          href={`/reservations/group/book/${encodeURIComponent(event.slug)}/${encodeURIComponent(product.id)}`}>
+          Explore {product.publicLabel || product.name} Payment Options
+        </a>)}
+      </article>}
     </section>
   );
 }

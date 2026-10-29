@@ -1,11 +1,46 @@
-import { ReserveRequestForm } from '@/components/ReserveRequestForm';
+import { ReserveRequestForm, type TicketedEventWindow } from '@/components/ReserveRequestForm';
+import { getPublicEventsFeedResult } from '@/lib/kvrsEvents';
 
 export const metadata = {
   title: 'Reserve a Table | Katy Vibes',
   description: 'Request a table, celebration, patio seating, or event-night reservation at Katy Vibes in Katy, Texas.',
 };
 
-export default function ReservePage() {
+export const dynamic = 'force-dynamic';
+
+export default async function ReservePage() {
+  // Read-only preliminary guidance. KVRS must independently revalidate any
+  // ticketed-event admission restriction when a reservation is submitted.
+  const feed = await getPublicEventsFeedResult({ limit: 100 });
+  const ticketedWindows: TicketedEventWindow[] = feed.events
+    .filter((event) =>
+      (event.isTicketed || event.ticketSummary?.isTicketed)
+      && !['canceled', 'postponed'].includes(event.saleStatus),
+    )
+    .flatMap((event) => {
+      const shows = event.shows?.length
+        ? event.shows
+        : [{
+            id: event.id,
+            name: null,
+            startsAt: event.startsAt,
+            endsAt: event.endsAt,
+            transactionEnabled: true,
+          }];
+
+      return shows
+        .filter((show) => show.transactionEnabled !== false)
+        .map((show) => ({
+          id: show.id,
+          eventId: event.id,
+          title: event.title,
+          slug: event.slug,
+          showName: show.name,
+          startsAt: show.startsAt,
+          endsAt: show.endsAt,
+        }));
+    });
+
   return (
     <main className="reserve-page">
       <section className="hero reserve-hero">
@@ -41,7 +76,7 @@ export default function ReservePage() {
             We will send your request to our reservation system for manager review. A team member will confirm availability before your reservation is finalized.
           </p>
         </div>
-        <ReserveRequestForm />
+        <ReserveRequestForm ticketedWindows={ticketedWindows} stagingWarningEnabled={process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development'} />
       </section>
     </main>
   );

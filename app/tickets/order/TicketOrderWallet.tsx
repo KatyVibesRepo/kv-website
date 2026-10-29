@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import styles from './TicketOrderWallet.module.css';
+import { KvrsPaymentStatus, type KvrsPublicPaymentSummary } from '@/components/KvrsPaymentStatus';
 
 type TicketWalletEvent = {
   id?: string | null;
@@ -47,6 +48,7 @@ type TicketWalletOrder = {
   guestCount?: number | null;
   amountTotalCents?: number | null;
   paidAt?: string | null;
+  paymentSummary?: KvrsPublicPaymentSummary | null;
   event?: TicketWalletEvent | null;
   ticketType?: TicketWalletTicketType | null;
   reservation?: TicketWalletReservation | null;
@@ -196,7 +198,7 @@ function LoadingPanel({ message }: { message: string }) {
   return (
     <section className={styles.centerPanel} aria-live="polite">
       <div className={styles.spinner} aria-hidden="true" />
-      <h1>Payment received.</h1>
+      <h1>Checking your ticket status.</h1>
       <p>{message}</p>
       <p className={styles.smallNote}>This usually takes just a few seconds. Please keep this page open.</p>
     </section>
@@ -269,7 +271,7 @@ export function TicketOrderWallet() {
         if (!cancelled) {
           setState({
             status: 'preparing',
-            message: 'Your QR tickets are being prepared.',
+            message: 'Checking your checkout status and preparing available tickets.',
           });
           timer = setTimeout(pollOrder, pollEveryMs);
         }
@@ -288,7 +290,7 @@ export function TicketOrderWallet() {
         if (!cancelled) {
           setState({
             status: 'preparing',
-            message: 'Payment received. Your QR tickets are being prepared.',
+            message: 'Checking your checkout status and preparing available tickets.',
           });
           timer = setTimeout(pollOrder, pollEveryMs);
         }
@@ -297,7 +299,7 @@ export function TicketOrderWallet() {
 
     setState({
       status: 'preparing',
-      message: 'Payment received. Your QR tickets are being prepared.',
+      message: 'Checking your checkout status and preparing available tickets.',
     });
     void pollOrder();
 
@@ -328,7 +330,7 @@ export function TicketOrderWallet() {
   const eventTitle = order.event?.title || 'Katy Vibes Event';
   const customerName = order.reservation?.guestName || 'Guest';
   const ticketTypeName = order.ticketType?.name || order.reservation?.reservationType || 'Ticket';
-  const paidAmount = formatMoney(order.amountTotalCents);
+  const paidAmount = order.paidAt ? formatMoney(order.amountTotalCents) : null;
 
   return (
     <section className={styles.walletPage}>
@@ -344,14 +346,14 @@ export function TicketOrderWallet() {
 
         <div className={styles.heroGrid}>
           <div>
-            <div className={styles.eyebrow}>Your tickets are ready</div>
+            <div className={styles.eyebrow}>Your available ticket credentials</div>
             <h1>{eventTitle}</h1>
             <p className={styles.eventTime}>{formatEventDateTime(order.event?.startsAt, order.event?.endsAt)}</p>
           </div>
 
           <div className={styles.instructionCard}>
-            <strong>Show this QR code at the door.</strong>
-            <span>Screenshot this page or print it before you arrive.</span>
+            <strong>Present your issued QR credential at the door.</strong>
+            <span>Katy Vibes staff will verify each guest's admission and any outstanding payment.</span>
             <button className={styles.printButton} type="button" onClick={() => window.print()}>
               Print tickets
             </button>
@@ -383,6 +385,9 @@ export function TicketOrderWallet() {
           </div>
         )}
       </section>
+
+      {/* Only render group coverage when KVRS returns a complete, validated public summary. */}
+      <KvrsPaymentStatus summary={order.paymentSummary} />
 
       <section className={styles.ticketGrid} aria-label="QR tickets">
         {tickets.map((ticket, index) => {
@@ -425,7 +430,7 @@ export function TicketOrderWallet() {
 
       <section className={styles.footerNote}>
         <h2>Before you arrive</h2>
-        <p>Screenshot this page or print it so your QR code is easy to pull up at the door.</p>
+        <p>Screenshot or print your QR credential. A group credential can cover multiple guest admissions, admitted one guest at a time. Unpaid admissions still require payment before entry. Table numbers are assigned by venue staff.</p>
       </section>
     </section>
   );

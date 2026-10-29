@@ -137,7 +137,10 @@ function startingWeekIndex(weeks: WeekGroup[]) {
 function WeeklyVibeCard({ event }: { event: PublicEvent }) {
   const date = formatShortEventDate(event.startsAt);
   const imageUrl = eventFlyerImage(event, 'landscape');
-  const description = event.subtitle || event.shortDescription || '';
+  const description = [event.subtitle, event.shortDescription].find((value) =>
+    value?.trim()
+    && !/EventsManager\.Next|end[ -]to[ -]end KVRS prototype|prototype event used to prove/i.test(value),
+  ) || '';
 
   return (
     <article className="weekly-vibe-event-card">

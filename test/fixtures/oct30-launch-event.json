@@ -1,0 +1,347 @@
+{
+  "id": "kvrs_4dasoul_20261030",
+  "slug": "4dasoul-2026-10-30",
+  "title": "4DaSoul Live at Katy Vibes",
+  "timezone": "America/Chicago",
+  "startsAt": "2026-10-30T23:00:00.000Z",
+  "endsAt": "2026-10-31T04:00:00.000Z",
+  "doorsAt": null,
+  "status": "DRAFT",
+  "visibility": "PRIVATE",
+  "isTicketed": true,
+  "isReservationEnabled": true,
+  "shows": [
+    {
+      "id": "kvrs_4dasoul_20261030_show_1",
+      "name": "First show",
+      "startsAt": "2026-10-30T23:00:00.000Z",
+      "endsAt": "2026-10-31T01:00:00.000Z",
+      "doorsAt": null,
+      "timezone": "America/Chicago",
+      "status": "scheduled",
+      "definitionState": "active",
+      "isVisible": true,
+      "transactionEnabled": true
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_show_2",
+      "name": "Second show",
+      "startsAt": "2026-10-31T02:00:00.000Z",
+      "endsAt": "2026-10-31T04:00:00.000Z",
+      "doorsAt": null,
+      "timezone": "America/Chicago",
+      "status": "scheduled",
+      "definitionState": "active",
+      "isVisible": true,
+      "transactionEnabled": true
+    }
+  ],
+  "ticketTypes": [
+    {
+      "id": "kvrs_4dasoul_20261030_ga_first",
+      "name": "General Admission - First",
+      "publicLabel": "General Admission - First",
+      "type": "general_admission",
+      "guestCount": 1,
+      "priceCents": 1500,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 50,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_ga_second",
+      "name": "General Admission - Second",
+      "publicLabel": "General Admission - Second",
+      "type": "general_admission",
+      "guestCount": 1,
+      "priceCents": 2000,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 50,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_ga_both",
+      "name": "General Admission - Both",
+      "publicLabel": "General Admission - Both",
+      "type": "general_admission",
+      "guestCount": 1,
+      "priceCents": 2500,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1",
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": true,
+      "sharedCapacityPerShow": 50,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_table3_first",
+      "name": "Table of 3 - First",
+      "publicLabel": "Table of 3 - First",
+      "type": "table",
+      "guestCount": 3,
+      "priceCents": 4500,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 10,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_table3_second",
+      "name": "Table of 3 - Second",
+      "publicLabel": "Table of 3 - Second",
+      "type": "table",
+      "guestCount": 3,
+      "priceCents": 6000,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 10,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_table3_both",
+      "name": "Table of 3 - Both",
+      "publicLabel": "Table of 3 - Both",
+      "type": "table",
+      "guestCount": 3,
+      "priceCents": 7500,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1",
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": true,
+      "sharedCapacityPerShow": 10,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_table4_first",
+      "name": "Table of 4 - First",
+      "publicLabel": "Table of 4 - First",
+      "type": "table",
+      "guestCount": 4,
+      "priceCents": 6000,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 20,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_table4_second",
+      "name": "Table of 4 - Second",
+      "publicLabel": "Table of 4 - Second",
+      "type": "table",
+      "guestCount": 4,
+      "priceCents": 8000,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 20,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_table4_both",
+      "name": "Table of 4 - Both",
+      "publicLabel": "Table of 4 - Both",
+      "type": "table",
+      "guestCount": 4,
+      "priceCents": 10000,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1",
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": true,
+      "sharedCapacityPerShow": 20,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_table8_first",
+      "name": "Table of 8 - First",
+      "publicLabel": "Table of 8 - First",
+      "type": "table",
+      "guestCount": 8,
+      "priceCents": 12000,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 3,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_table8_second",
+      "name": "Table of 8 - Second",
+      "publicLabel": "Table of 8 - Second",
+      "type": "table",
+      "guestCount": 8,
+      "priceCents": 16000,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 3,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_table8_both",
+      "name": "Table of 8 - Both",
+      "publicLabel": "Table of 8 - Both",
+      "type": "table",
+      "guestCount": 8,
+      "priceCents": 20000,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1",
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": true,
+      "sharedCapacityPerShow": 3,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_vip8_first",
+      "name": "VIP Table of 8 - First",
+      "publicLabel": "VIP Table of 8 - First",
+      "type": "vip_table",
+      "guestCount": 8,
+      "priceCents": 24500,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 4,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_vip8_second",
+      "name": "VIP Table of 8 - Second",
+      "publicLabel": "VIP Table of 8 - Second",
+      "type": "vip_table",
+      "guestCount": 8,
+      "priceCents": 28500,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": false,
+      "sharedCapacityPerShow": 4,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    },
+    {
+      "id": "kvrs_4dasoul_20261030_vip8_both",
+      "name": "VIP Table of 8 - Both",
+      "publicLabel": "VIP Table of 8 - Both",
+      "type": "vip_table",
+      "guestCount": 8,
+      "priceCents": 32500,
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "kvrs_4dasoul_20261030_show_1",
+        "kvrs_4dasoul_20261030_show_2"
+      ],
+      "allLinkedShows": true,
+      "sharedCapacityPerShow": 4,
+      "status": "active",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "inventoryHeld": 0,
+      "inventorySold": 0
+    }
+  ],
+  "_fixtureNotes": "Test-only transcription of supplied IDs, prices, coverage, capacities and held sale state. Product labels and public-feed lifecycle fields model the prospective public representation; they are not an independent database or public-feed readback."
+}

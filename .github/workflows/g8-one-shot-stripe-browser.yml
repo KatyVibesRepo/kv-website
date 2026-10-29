@@ -1,0 +1,34 @@
+name: G8 one-shot Stripe TEST browser acceptance
+# Rerun with safe landing-page diagnostics before creating any reservation.
+
+on:
+  push:
+    branches:
+      - feat/g8-mixed-payment-preview
+    paths:
+      - '.github/workflows/g8-one-shot-stripe-browser.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    env:
+      G8_AUTHORIZED_BROWSER_ACCEPTANCE: '1'
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install exact project dependencies
+        run: npm ci
+      - name: Install isolated Chromium test runner
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run bounded synthetic G8 reservation and Stripe TEST checkout
+        run: node scripts/g8-staging-browser-acceptance.mjs
