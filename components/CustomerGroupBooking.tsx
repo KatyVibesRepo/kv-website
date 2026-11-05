@@ -117,13 +117,13 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
       <p>Retrying keeps the original request and does not start a second reservation. Call (832) 437-2807 if you need help.</p>
     </div> : <>
       <form className="stack" onSubmit={getQuote}>
-        <label>Payment option<select value={choice} disabled={busy} onChange={e => { setChoice(e.target.value as PaymentChoice); setQuote(null); }}>
+        <label>Payment option<select aria-label="Payment option" value={choice} disabled={busy} onChange={e => { setChoice(e.target.value as PaymentChoice); setQuote(null); }}>
           <option value="PACKAGE_INSTALLMENT">Pay in Full</option>
           <option value="PAY_AT_DOOR">Pay at Door</option>
           <option value="PAY_PER_GUEST">Split Payment per guest</option></select></label>
-        {showRequired && <label>Show<select required value={showId} disabled={busy} onChange={e => { setShowId(e.target.value); setQuote(null); }}>
+        {showRequired && <label>Show<select aria-label="Show" required value={showId} disabled={busy} onChange={e => { setShowId(e.target.value); setQuote(null); }}>
           <option value="">Choose a show</option>{product.shows.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label>}
-        {choice === 'PAY_PER_GUEST' && <label>Guests planning to pay online<select value={onlineGuests} disabled={busy}
+        {choice === 'PAY_PER_GUEST' && <label>Guests planning to pay online<select aria-label="Guests planning to pay online" value={onlineGuests} disabled={busy}
           onChange={e => { setOnlineGuests(Number(e.target.value)); setQuote(null); }}>
           {Array.from({ length: product.guestCount }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}</select></label>}
         <button className="button ghost" disabled={!ready || busy}>Review Reservation Quote</button>

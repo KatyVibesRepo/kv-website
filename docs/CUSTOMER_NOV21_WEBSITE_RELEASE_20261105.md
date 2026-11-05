@@ -18,7 +18,13 @@ katyvibes.com / www marketing site and legacy booking access are preserved.
 
 KVRS currently allows www only. These current-origin backend settings must be
 coordinated and accepted before a real browser payment. URL validity alone does
-not establish served-route acceptance. No backend switches are changed here.
+not establish served-route acceptance. No backend switches are changed here. The existing GA/ordinary checkout also
+uses customerWebsiteBaseUrl(): KVRS must bind NEXT_PUBLIC_KV_WEBSITE_BASE_URL
+(or its existing selected alias) to the same current/future origin and accept
+KVRS_CHECKOUT_ALLOWED_ORIGINS. Its success route is /tickets/order?session_id=
+{CHECKOUT_SESSION_ID}; cancellation remains the signed KVRS /api/checkout/cancel
+route. Accept its actual provider/account and original-recovery behavior
+separately; the dedicated M1 Stripe report does not prove ordinary GA Checkout.
 
 `KV_WEBSITE_M1_CUSTOMER_ORIGIN` selects the single booking origin. Read UI is
 enabled; new sales, SHOWS sales and approved pairs remain off/empty. When the

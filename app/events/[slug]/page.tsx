@@ -282,7 +282,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
         />
       )}
       {groupProducts.length > 0 && <article className="card stack">
-        <h2>Flexible group payments</h2><p>Reserve one table, pay by guest or fund a table package.</p>
+        <h2>Flexible group payments</h2><p>Reserve a table with Pay in Full, Pay at Door, or Split Payment per guest.</p>
         {groupProducts.map(product => <a className="button ghost" key={product.id}
           href={`/reservations/group/book/${encodeURIComponent(event.slug)}/${encodeURIComponent(product.id)}`}>
           Explore {product.publicLabel || product.name} Payment Options

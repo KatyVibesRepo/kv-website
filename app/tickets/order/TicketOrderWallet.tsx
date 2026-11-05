@@ -346,13 +346,13 @@ export function TicketOrderWallet() {
 
         <div className={styles.heroGrid}>
           <div>
-            <div className={styles.eyebrow}>Your available ticket credentials</div>
+            <div className={styles.eyebrow}>Your tickets</div>
             <h1>{eventTitle}</h1>
             <p className={styles.eventTime}>{formatEventDateTime(order.event?.startsAt, order.event?.endsAt)}</p>
           </div>
 
           <div className={styles.instructionCard}>
-            <strong>Present your issued QR credential at the door.</strong>
+            <strong>Show your QR code to your host.</strong>
             <span>Katy Vibes staff will verify each guest's admission and any outstanding payment.</span>
             <button className={styles.printButton} type="button" onClick={() => window.print()}>
               Print tickets
@@ -430,7 +430,7 @@ export function TicketOrderWallet() {
 
       <section className={styles.footerNote}>
         <h2>Before you arrive</h2>
-        <p>Screenshot or print your QR credential. A group credential can cover multiple guest admissions, admitted one guest at a time. Unpaid admissions still require payment before entry. Table numbers are assigned by venue staff.</p>
+        <p>Save or print your QR code so it is ready when you arrive. Your host will check in your group and confirm your table. Any unpaid guests must complete payment before entry.</p>
       </section>
     </section>
   );
