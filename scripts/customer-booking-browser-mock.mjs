@@ -71,7 +71,7 @@ try {
         reservationState:'RESERVED',canonicalReservationStatus:'RESERVED',admissionPlanState:'CONFIRMED',
         paymentState:paid?(covered===4?'FULLY_PAID':'PARTIALLY_PAID'):'AWAITING_PAYMENT',statusRevision:1,asOf:new Date(observedAt).toISOString(),
         capacityHeld:true,holdExpiresAt:paid&&covered===4?null:event.startsAt,admissionScope:scope,paymentTiming:timing,
-        onlinePaymentInitiationAllowed:!pending&&!paid,onlinePaymentPending:pending,reconciliationRequired:false,coverage,
+        onlinePaymentInitiationAllowed:!pending&&covered<4,onlinePaymentPending:pending,reconciliationRequired:false,coverage,
         showAdmissions:scope.entries.map(e=>({...coverage,entryScopeKey:e.entryScopeKey,guestUnits:4})),
         payment:{currency:'USD',totalCents:10000,stripeSettledCents:paid?amount:0,manualAcknowledgedCents:0,
           pendingCents:pending?amount:0,outstandingCents:paid?10000-amount:10000,
@@ -162,6 +162,11 @@ try {
       state='SETTLED';await page.getByRole('button',{name:'Refresh Payment Status',exact:true}).click();
       await page.getByText(choice==='PACKAGE_INSTALLMENT'?'Payment status: fully paid':'Payment status: partially paid',{exact:true}).waitFor();
       if(choice==='PACKAGE_INSTALLMENT')await page.getByText(/Currently covered: 4 guests/).waitFor();
+      if(choice==='PAY_PER_GUEST') {
+        await page.getByRole('button',{name:'Pay This Guest',exact:true}).first().waitFor();
+        assert.equal(await page.getByRole('button',{name:'Pay This Guest',exact:true}).count(),3);
+      }
+      assert.equal(await page.getByRole('heading',{name:'Resolve your earlier request',exact:true}).count(),0);
     } else assert.equal(checkoutCount,0);
     failedRead=true;await page.getByRole('button',{name:'Refresh Payment Status',exact:true}).click();
     await qr.waitFor({state:'detached'}); assert.equal(createCount,1); assert.equal(checkoutCount,choice==='PAY_AT_DOOR'?0:1);

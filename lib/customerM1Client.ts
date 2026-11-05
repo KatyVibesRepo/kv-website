@@ -337,6 +337,14 @@ export function centsFromDollars(value: string): number | null {
 export type CustomerOperation =
   | { kind: 'reservation'; command: Command<ReservationInput>; eventId: string; productId: string }
   | { kind: 'checkout'; command: Command<PaymentInput>; expectedCents: number; checkoutRef?: string; paymentTiming?: CustomerPaymentTiming; providerExpiresAt?: string };
+export function customerOperationResolved(operation: CustomerOperation | null, status: CustomerStatus) {
+  if (operation?.kind !== 'checkout' || !operation.checkoutRef ||
+    operation.command.body.publicReservationRef !== status.publicReservationRef ||
+    status.reconciliationRequired || status.nextAction === 'CONTACT_VENUE' ||
+    status.onlinePaymentPending || status.payment.pendingCents !== 0) return false;
+  const entry = status.checkoutHistory.find(item => item.checkoutRef === operation.checkoutRef);
+  return Boolean(entry && ['SETTLED', 'FAILED', 'CANCELED', 'EXPIRED'].includes(entry.state));
+}
 const operationKey = 'kv-customer-original-operation-v1';
 export function saveCustomerOperation(operation: CustomerOperation) {
   // Persist the exact original command before sending, without an owner bearer or QR.

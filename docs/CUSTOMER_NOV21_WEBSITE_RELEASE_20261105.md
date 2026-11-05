@@ -66,6 +66,8 @@ pays the full remaining balance; backend settlement covers every stated guest.
 Split Payment per guest retains explicit guest-share payments. Pay at Door
 creates no Stripe Checkout automatically. New commands re-read authoritative
 status. Original uncertain commands retain their exact body/key and recovery.
+A fresh status clears a saved payment only when its exact checkout is terminal
+and no funding is pending or under review, allowing the next guest to pay.
 
 Return pages ignore and scrub provider query markers, use the existing
 same-tab handoff, and load current reservation status. Without a handoff they
@@ -82,7 +84,7 @@ and resubmission. No automatic retry or ticket entitlement is inferred.
 
 ## Validation and remaining acceptance
 
-116 unit/transport/route observations pass locally, with strict TypeScript.
+117 unit/transport/route observations pass locally, with strict TypeScript.
 New regression coverage checks the 15 real identities, 12 table quote scopes,
 CST 6/9 PM boundaries, VIP totals, domain transition, acknowledgment forwarding
 and no retry. The standard source workflow builds and runs isolated browser

@@ -8,6 +8,21 @@ const paymentTiming = deadline => ({ contract: 'kvrs.m1.reservation-payment-timi
 const quoteGrace = deadline => ({ minutes: null, version: 1, anchor: 'RESERVATION_START', expiresAt: deadline });
 const { customerRelease, customerReleaseForHost, customerProductEligible } = await load('../lib/customerM1Release.ts');
 
+test('only the exact authoritative terminal checkout clears the journal for the next guest', () => {
+  const ref = 'kvr_' + 'a'.repeat(40), checkoutRef = 'kvc_' + 'a'.repeat(32);
+  const operation = { kind: 'checkout', command: client.immutableCommand({publicReservationRef:ref,
+    contributionMode:'GUEST_SHARE',guestShareRef:'guest-1'}), expectedCents:1500,checkoutRef };
+  const status = {publicReservationRef:ref,reconciliationRequired:false,nextAction:'PAYMENT_REQUIRED',
+    onlinePaymentPending:false,payment:{pendingCents:0},checkoutHistory:[{checkoutRef,state:'SETTLED'}]};
+  assert.equal(client.customerOperationResolved(operation,status),true);
+  for(const patch of [{checkoutHistory:[{checkoutRef,state:'PENDING'}]}, {checkoutHistory:[]},
+    {checkoutHistory:[{checkoutRef:'kvc_'+'b'.repeat(32),state:'SETTLED'}]}, {reconciliationRequired:true},
+    {onlinePaymentPending:true}, {payment:{pendingCents:1500}}, {nextAction:'CONTACT_VENUE'},
+    {publicReservationRef:'kvr_'+'b'.repeat(40)}])
+    assert.equal(client.customerOperationResolved(operation,{...status,...patch}),false);
+  assert.equal(client.customerOperationResolved({...operation,checkoutRef:undefined},status),false);
+});
+
 test('customer release stays off without explicit read, sales and real approved pairs', () => {
   assert.equal(customerRelease({}).salesEnabled, false);
   const env = { KV_WEBSITE_M1_CUSTOMER_ORIGIN: 'https://www.katyvibes.com', KV_WEBSITE_M1_CUSTOMER_READ_ENABLED: 'true', KV_WEBSITE_M1_CUSTOMER_SALES_ENABLED: 'true', KV_WEBSITE_M1_CUSTOMER_APPROVED_PAIRS: 'event123:product123' };

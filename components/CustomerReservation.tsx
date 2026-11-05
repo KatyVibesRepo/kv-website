@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import {
-  canStartCustomerPayment, customerFeatureDisabled, clearCustomerOperation, customerCheckout, customerLink,
+  canStartCustomerPayment, customerFeatureDisabled, customerOperationResolved, clearCustomerOperation, customerCheckout, customerLink,
   customerQr, customerRecoverCheckout, customerRecoverRequest, customerRecoverVerify, customerStatus,
   immutableCommand, loadCustomerOperation, saveCustomerOperation, saveCustomerReturn, stripeDestination,
   takeCustomerReturn, validCustomerToken, CustomerRequestError,
@@ -90,6 +90,8 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
   const [operation, setOperation] = useState<CustomerOperation | null>(null);
   const [journalError, setJournalError] = useState(false); const [clock, setClock] = useState(Date.now());
   const locked = useRef(false); const liveToken = useRef(''); const mounted = useRef(true);
+  const liveOperation = useRef<CustomerOperation | null>(null);
+  liveOperation.current = operation;
   liveToken.current = token;
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   useEffect(() => {
@@ -106,7 +108,12 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
     const access = liveToken.current;
     try {
       const result = await customerStatus(reservationRef, access);
-      if (mounted.current && liveToken.current === access) setStatus(result);
+      if (mounted.current && liveToken.current === access) {
+        setStatus(result);
+        if (customerOperationResolved(liveOperation.current, result)) {
+          clearCustomerOperation(); liveOperation.current = null; setOperation(null);
+        }
+      }
       return result;
     } catch (error) {
       if (mounted.current && liveToken.current === access) {
