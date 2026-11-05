@@ -73,7 +73,7 @@ export default async function ReservePage() {
           <p className="eyebrow">Reservation request</p>
           <h2>Tell us what you need.</h2>
           <p>
-            We will send your request to our reservation system for manager review. A team member will confirm availability before your reservation is finalized.
+            Our team will review your request and confirm availability with you.
           </p>
         </div>
         <ReserveRequestForm ticketedWindows={ticketedWindows} stagingWarningEnabled={process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development'} />

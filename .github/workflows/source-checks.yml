@@ -24,6 +24,17 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
 
+      - name: Install isolated browser test dependencies
+        run: npm install --no-save --package-lock=false --ignore-scripts playwright@1.56.1 pngjs@7.0.0 jsqr@1.4.0
+      - name: Install Chromium for isolated tests
+        run: npx playwright install --with-deps chromium
+      - name: Verify booking, return, recovery, failure handling and QR decoding without live writes
+        env:
+          CUSTOMER_BROWSER_MOCK_AUTHORIZED: '1'
+        run: |
+          node scripts/customer-booking-browser-mock.mjs
+          node scripts/customer-timing-browser-mock.mjs
+
       - name: Verify final Production resolver policy
         env:
           NEXT_PUBLIC_KVRS_BASE_URL: https://admin.katyvibes.com

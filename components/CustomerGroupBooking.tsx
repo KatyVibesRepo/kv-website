@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
-  centsFromDollars, customerCreate, customerLink, customerQuote, customerStatus,
+  customerCreate, customerLink, customerQuote, customerStatus,
   immutableCommand, loadCustomerOperation, saveCustomerOperation, clearCustomerOperation,
   CustomerRequestError, type CustomerOperation, type CustomerQuote, type PaymentChoice,
 } from '@/lib/customerM1Client';
@@ -10,14 +10,13 @@ import styles from './CustomerReservations.module.css';
 import { CustomerShowCoverage } from './CustomerShowCoverage';
 import { CustomerPaymentTiming } from './CustomerPaymentTiming';
 
-type Product = { eventId: string; productId: string; eventTitle: string; productName: string; guestCount: number;
+type Product = { eventId: string; productId: string; eventTitle: string; productName: string; guestCount: number; priceCents: number;
   shows: Array<{ id: string; label: string }>; showSelection: 'EVENT' | 'SELECTED_SHOW' | 'RESOLVE_LINKED_SHOWS' };
 const money = (cents: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 
 export function CustomerGroupBooking({ product }: { product: Product }) {
-  const [choice, setChoice] = useState<PaymentChoice>('PAY_PER_GUEST');
+  const [choice, setChoice] = useState<PaymentChoice>('PACKAGE_INSTALLMENT');
   const [onlineGuests, setOnlineGuests] = useState(1);
-  const [installment, setInstallment] = useState('');
   const [showId, setShowId] = useState(product.showSelection === 'SELECTED_SHOW' && product.shows.length === 1 ? product.shows[0].id : '');
   const [serverRequiresShow, setServerRequiresShow] = useState(false);
   const showRequired = product.showSelection === 'SELECTED_SHOW' || serverRequiresShow;
@@ -39,17 +38,17 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
     if (locked.current || operation || !ready) return;
     locked.current = true; setBusy(true); setMessage(''); setQuote(null);
     try {
-      const proposed = centsFromDollars(installment);
-      if (choice === 'PACKAGE_INSTALLMENT' && !proposed) throw new Error('Enter an installment in dollars and cents.');
       if (showRequired && !showId) throw new Error('Please choose a show.');
       const result = await customerQuote({
         eventId: product.eventId, productId: product.productId, quantity: 1,
         paymentChoice: choice, ...(showRequired ? { showId } : {}),
         ...(choice === 'PAY_PER_GUEST' ? { plannedOnlineGuestCount: onlineGuests } :
-          choice === 'PACKAGE_INSTALLMENT' ? { proposedInstallmentCents: proposed! } : {}),
+          choice === 'PACKAGE_INSTALLMENT' ? { proposedInstallmentCents: product.priceCents } : {}),
       });
       if (result.event.id !== product.eventId || result.product.id !== product.productId ||
         result.guestCount !== product.guestCount || result.product.quantity !== 1 || result.currency !== 'USD' ||
+        (choice === 'PACKAGE_INSTALLMENT' && (result.totalCents !== product.priceCents ||
+          result.amountDueNowCents !== result.totalCents || result.amountDueLaterCents !== 0)) ||
         result.capacityHeld !== false || !result.eligiblePaymentChoices.includes(choice) ||
         result.gracePolicy.anchor !== 'RESERVATION_START' ||
         (product.showSelection === 'EVENT' && result.admissionScope.type !== 'EVENT') ||
@@ -119,15 +118,14 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
     </div> : <>
       <form className="stack" onSubmit={getQuote}>
         <label>Payment option<select value={choice} disabled={busy} onChange={e => { setChoice(e.target.value as PaymentChoice); setQuote(null); }}>
-          <option value="PAY_PER_GUEST">Pay by guest</option><option value="PACKAGE_INSTALLMENT">Pay toward the table package</option>
-          <option value="PAY_AT_DOOR">Pay at the door</option></select></label>
+          <option value="PACKAGE_INSTALLMENT">Pay in Full</option>
+          <option value="PAY_AT_DOOR">Pay at Door</option>
+          <option value="PAY_PER_GUEST">Split Payment per guest</option></select></label>
         {showRequired && <label>Show<select required value={showId} disabled={busy} onChange={e => { setShowId(e.target.value); setQuote(null); }}>
           <option value="">Choose a show</option>{product.shows.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label>}
         {choice === 'PAY_PER_GUEST' && <label>Guests planning to pay online<select value={onlineGuests} disabled={busy}
           onChange={e => { setOnlineGuests(Number(e.target.value)); setQuote(null); }}>
           {Array.from({ length: product.guestCount }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}</select></label>}
-        {choice === 'PACKAGE_INSTALLMENT' && <label>Proposed installment ($)<input inputMode="decimal" required value={installment}
-          disabled={busy} onChange={e => { setInstallment(e.target.value); setQuote(null); }} /></label>}
         <button className="button ghost" disabled={!ready || busy}>Review Reservation Quote</button>
       </form>
       {quote && <form className="stack" onSubmit={event => void submit(event)}>
@@ -136,9 +134,9 @@ export function CustomerGroupBooking({ product }: { product: Product }) {
         <CustomerShowCoverage scope={quote.admissionScope} />
         {choice === 'PAY_PER_GUEST' && <><ul>{quote.guestShares.map(s => <li key={s.shareRef}>Guest {s.ordinal}: {money(s.amountCents)}</li>)}</ul>
           <p>Each Checkout pays for one selected guest. Additional guests require separate payment requests after payment status updates.</p></>}
-        {choice === 'PACKAGE_INSTALLMENT' && <p>Payments fund the entire table package. Partial funding grants zero guest admissions until the package is fully funded.</p>}
+        {choice === 'PACKAGE_INSTALLMENT' && <p>One payment covers all {product.guestCount} guests at your table. Your reservation will show confirmation once payment is verified.</p>}
         <CustomerPaymentTiming timing={quote.paymentTiming} />
-        <p>This quote holds no capacity. Review your reservation for its current payment status.</p>
+        <p>Availability is confirmed when your reservation is created. Your confirmation will show the payment deadline.</p>
         <label>Name<input name="name" autoComplete="name" required minLength={2} maxLength={120} disabled={busy} /></label>
         <label>Email<input name="email" type="email" autoComplete="email" required maxLength={200} disabled={busy} /></label>
         <label>Phone<input name="phone" type="tel" autoComplete="tel" required minLength={7} maxLength={40} disabled={busy} /></label>

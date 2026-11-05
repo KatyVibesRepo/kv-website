@@ -35,6 +35,18 @@ export function customerReleaseForHost(host: string | null, env: Record<string, 
     showSalesEnabled: release.showSalesEnabled && matches };
 }
 
+// Keep marketing/development aliases usable while every secure booking stays
+// on the one origin configured with KVRS. This is a temporary 307, never a DNS change.
+export function customerPortalRedirect(host: string | null, path: string,
+  env: Record<string, string | undefined> = process.env) {
+  const release = customerRelease(env);
+  if (!release.origin || !release.readEnabled || !host ||
+    !CUSTOMER_WEBSITE_ORIGINS.some(origin => new URL(origin).host === host) ||
+    new URL(release.origin).host === host || !path.startsWith('/reservations/group/') ||
+    /[?#\\]/.test(path)) return null;
+  return release.origin + path;
+}
+
 // Public links identify candidate coverage. Only the authoritative quote resolves
 // ALL_LINKED_SHOWS versus a retained manual product requiring a show selection.
 export function customerProductSelection(event: PublicEvent, product: PublicTicketType, now = Date.now()) {

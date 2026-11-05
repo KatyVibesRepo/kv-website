@@ -119,9 +119,9 @@ try {
   state = 'SETTLED'; await page.getByRole('button', { name: 'Refresh Payment Status' }).click();
   await page.getByText('Verified online admissions: 1.', { exact: false }).waitFor();
   assert.equal(posts.length, 2); assert.equal(await page.getByRole('button', { name: 'Pay This Guest' }).count(), 0);
-  await page.getByRole('button', { name: 'Show Entry QR', exact: true }).click();
   await page.getByRole('img', { name: 'Group admission QR for authorized Katy Vibes staff' }).waitFor();
-  assert.equal(qrCalls, 1); assert.deepEqual(pageErrors, []);
+  assert.ok(qrCalls >= 2); assert.deepEqual(pageErrors, []);
+  const qrBeforeRecovery = qrCalls;
   console.log('PASS: only authoritative status updates funds/coverage; QR is separately requested and rendered locally');
   const desktop = await context({ width: 1280, height: 900 }); const recoveredPage = await desktop.newPage();
   recoveredPage.on('pageerror', e => pageErrors.push(e.message)); await recoveredPage.clock.install({ time: new Date(observedNow) });
@@ -131,7 +131,7 @@ try {
   await recoveredPage.getByLabel('Verification code', { exact: true }).fill('local-proof-for-browser-verification');
   await recoveredPage.getByRole('button', { name: 'Verify and Open Reservation' }).click();
   await recoveredPage.getByRole('heading', { name: 'Guest payments' }).waitFor();
-  assert.equal(recoveryRequests, 1); assert.equal(qrCalls, 1); assert.equal(posts.length, 2);
+  assert.equal(recoveryRequests, 1); assert.equal(qrCalls, qrBeforeRecovery + 1); assert.equal(posts.length, 2);
   assert.equal(await recoveredPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   assert.deepEqual(pageErrors, []);
   console.log('PASS: desktop email access recovery loads status without creating a payment or replacing the QR');

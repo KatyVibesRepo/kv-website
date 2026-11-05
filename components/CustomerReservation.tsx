@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import {
-  canStartCustomerPayment, customerFeatureDisabled, centsFromDollars, clearCustomerOperation, customerCheckout, customerLink,
+  canStartCustomerPayment, customerFeatureDisabled, clearCustomerOperation, customerCheckout, customerLink,
   customerQr, customerRecoverCheckout, customerRecoverRequest, customerRecoverVerify, customerStatus,
   immutableCommand, loadCustomerOperation, saveCustomerOperation, saveCustomerReturn, stripeDestination,
   takeCustomerReturn, validCustomerToken, CustomerRequestError,
@@ -55,7 +55,7 @@ function CustomerGroupQr({ reservationRef, token, guestCount }: { reservationRef
   const [path, setPath] = useState<{ pixels: number; modules: string } | null>(null);
   const [message, setMessage] = useState(''); const [busy, setBusy] = useState(false); const locked = useRef(false);
   useEffect(() => { setPath(null); setMessage(''); }, [reservationRef, token]);
-  async function showQr() {
+  const showQr = useCallback(async () => {
     if (locked.current) return; locked.current = true; setBusy(true); setPath(null); setMessage('');
     try {
       const qr = await customerQr(reservationRef, token, guestCount);
@@ -67,16 +67,17 @@ function CustomerGroupQr({ reservationRef, token, guestCount }: { reservationRef
       setPath({ pixels: matrix.size + 2 * quiet, modules: modules.join('') });
     } catch { setMessage('Your entry QR is unavailable. Please contact Katy Vibes if you need assistance.'); }
     finally { locked.current = false; setBusy(false); }
-  }
+  }, [reservationRef, token, guestCount]);
+  useEffect(() => { void showQr(); }, [showQr]);
   return <article className="card stack">
-    <h2>Your group entry QR</h2>
-    <p>Show your QR to Katy Vibes staff when you arrive. A scan alone confirms neither payment nor admission, arrival or seating.</p>
+    <h2>Your entry QR</h2>
+    <p>Show this QR to your host when you arrive. Your host will confirm your guests and help you get settled.</p>
     {path && <div className={styles.qr}><svg viewBox={`0 0 ${path.pixels} ${path.pixels}`} role="img"
       aria-label="Group admission QR for authorized Katy Vibes staff" shapeRendering="crispEdges">
       <rect width={path.pixels} height={path.pixels} fill="#fff" /><path d={path.modules} fill="#000" /></svg></div>}
     <button className="button ghost" disabled={busy} onClick={() => void showQr()}>{path ? 'Show Entry QR Again' : 'Show Entry QR'}</button>
     {message && <p role="status">{message}</p>}
-    <p className="muted">Admission requires verified coverage and staff confirmation. Contact the venue for a revoked QR; recovering your link does not replace it.</p>
+    <p className="muted">Keep this QR private. Your reservation above shows which guests are covered for entry.</p>
   </article>;
 }
 
@@ -85,7 +86,7 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
 }) {
   const [token, setToken] = useState(''); const [initialized, setInitialized] = useState(false);
   const [status, setStatus] = useState<CustomerStatus | null>(null); const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState(''); const [installment, setInstallment] = useState('');
+  const [message, setMessage] = useState('');
   const [operation, setOperation] = useState<CustomerOperation | null>(null);
   const [journalError, setJournalError] = useState(false); const [clock, setClock] = useState(Date.now());
   const locked = useRef(false); const liveToken = useRef(''); const mounted = useRef(true);
@@ -173,8 +174,8 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
           expectedCents = share.amountCents;
         } else {
           if (fresh.guestShares.length || !Number.isSafeInteger(body.installmentAmountCents) ||
-            body.installmentAmountCents <= 0 || body.installmentAmountCents > fresh.payment.packageBalanceCents) {
-            throw new Error('Enter an installment within the remaining table balance.');
+            body.installmentAmountCents <= 0 || body.installmentAmountCents !== fresh.payment.packageBalanceCents) {
+            throw new Error('The table balance changed. Refresh your reservation before paying.');
           }
           expectedCents = body.installmentAmountCents;
         }
@@ -224,8 +225,8 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
           <div><span>Outstanding balance</span><strong>{money(status.payment.outstandingCents)}</strong></div>
           <div><span>{status.admissionScope.type === 'SHOWS' ? 'Guests checked in at least once' : 'Checked in by staff'}</span><strong>{status.coverage.admitted}</strong></div>
         </div>
-        {packageMode ? <p>Table package funded: {money(status.payment.packagePaidCents)}. Package balance: {money(status.payment.packageBalanceCents)}.
-          Partial package funding grants zero guest admissions. Coverage confirmed by the venue: {status.coverage.prepaid + status.coverage.manualAcknowledged} guests.</p> :
+        {packageMode ? <p>Paid toward your table: {money(status.payment.packagePaidCents)}. Remaining balance: {money(status.payment.packageBalanceCents)}.
+          Your full table payment covers all guests once verified. Currently covered: {status.coverage.prepaid + status.coverage.manualAcknowledged} guests.</p> :
           <p>Verified online admissions: {status.coverage.prepaid}. Venue-acknowledged admissions: {status.coverage.manualAcknowledged}.
             Awaiting payment: {status.coverage.unpaidActive}. Released unpaid: {status.coverage.releasedUnpaid}.</p>}
         {!status.paymentTiming && status.holdExpiresAt && <p>Unpaid payment deadline: <strong>{date(status.holdExpiresAt)}</strong>.
@@ -248,14 +249,13 @@ export function CustomerReservation({ reservationRef, salesEnabled, approvedPair
           {payable && share.coverage === 'UNPAID' && share.lifecycle === 'ACTIVE' && <button className="button ghost" disabled={busy}
             onClick={() => void payment({ publicReservationRef: reservationRef, contributionMode: 'GUEST_SHARE', guestShareRef: share.shareRef })}>Pay This Guest</button>}
         </div>)}</div>}
-        {packageMode && payable && <form className="stack" onSubmit={event => { event.preventDefault(); const amount = centsFromDollars(installment);
-          if (amount) void payment({ publicReservationRef: reservationRef, contributionMode: 'PACKAGE_BALANCE', installmentAmountCents: amount });
-          else setMessage('Enter a valid installment in dollars and cents.'); }}>
-          <label>Installment ($)<input inputMode="decimal" required value={installment} disabled={busy} onChange={e => setInstallment(e.target.value)} /></label>
-          <button className="button" disabled={busy}>Pay Toward Table Package</button></form>}
+        {packageMode && payable && <button className="button" disabled={busy}
+          onClick={() => void payment({ publicReservationRef: reservationRef, contributionMode: 'PACKAGE_BALANCE',
+            installmentAmountCents: status.payment.packageBalanceCents })}>
+          Pay in Full · {money(status.payment.packageBalanceCents)}</button>}
         {!payable && salesEnabled && !status.onlinePaymentPending && !status.reconciliationRequired && !operation &&
-          <p>New online payments are unavailable for the current reservation status or deadline. Refresh status or call Katy Vibes for help.</p>}
-        <p>One online Checkout can be pending at a time. Each guest share is an explicit separate payment.</p>
+          <p>Check your payment status above. Call Katy Vibes if you need help with a balance.</p>}
+        <p>Please finish one payment before starting another. Split payments are made one guest at a time.</p>
       </article>
       {status.checkoutHistory.length > 0 && <article className="card stack"><h2>Online payment requests</h2>
         {status.checkoutHistory.map(entry => <div className={styles.row} key={entry.checkoutRef}>

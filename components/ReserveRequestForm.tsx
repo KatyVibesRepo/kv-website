@@ -124,15 +124,12 @@ export function ReserveRequestForm({
     () => ticketedWarnings(ticketedWindows, values.reservationDate, values.reservationTime),
     [ticketedWindows, values.reservationDate, values.reservationTime],
   );
-  const evaluated = stagingWarningEnabled && warningSnapshot?.selectionKey === selectionKey
+  const evaluated = warningSnapshot?.selectionKey === selectionKey
     ? warningSnapshot : null;
-  const matchingTicketedEvents = stagingWarningEnabled
-    ? evaluated?.warnings || [] : preliminaryWarnings;
-  const needsAcknowledgment = stagingWarningEnabled
-    ? Boolean(evaluated?.requiresAcknowledgment) : matchingTicketedEvents.length > 0;
+  const matchingTicketedEvents = evaluated?.warnings || preliminaryWarnings;
+  const needsAcknowledgment = Boolean(evaluated?.requiresAcknowledgment);
 
   useEffect(() => {
-    if (!stagingWarningEnabled) return;
     const { reservationDate: date, reservationTime: time, guestCount } = values;
     const partySize = Number(guestCount);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time) ||
@@ -142,7 +139,7 @@ export function ReserveRequestForm({
     setWarningSnapshot({ selectionKey: key, status: 'checking', warnings: [], requiresAcknowledgment: false });
     const timeout = window.setTimeout(async () => {
       try {
-        const response = await fetch('/api/g8/ticketed-warning/evaluate', {
+        const response = await fetch(stagingWarningEnabled ? '/api/g8/ticketed-warning/evaluate' : '/api/reserve/ticketed-warning', {
           method: 'POST', cache: 'no-store', signal: controller.signal,
           headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
           body: JSON.stringify({ date, time, partySize }),
@@ -197,7 +194,7 @@ export function ReserveRequestForm({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (stagingWarningEnabled && (!evaluated || evaluated.status !== 'ready')) {
+    if ((!evaluated || evaluated.status !== 'ready')) {
       setSubmitState({ status: 'error', message: 'Please wait until event admission requirements have been checked.' });
       return;
     }
@@ -213,7 +210,7 @@ export function ReserveRequestForm({
     const payload = {
       ...values,
       guestCount: Number(values.guestCount || 1),
-      ...(stagingWarningEnabled ? { ticketedWarningAcknowledged: needsAcknowledgment && acknowledgedTicketNotice } : {}),
+      ticketedWarningAcknowledged: needsAcknowledgment && acknowledgedTicketNotice,
     };
     const serializedPayload = JSON.stringify(payload);
     const idempotencyKey =
@@ -401,10 +398,10 @@ export function ReserveRequestForm({
         </label>
       </div>
 
-      {stagingWarningEnabled && evaluated?.status === 'checking' && (
+      {evaluated?.status === 'checking' && (
         <p className="muted" role="status">Checking ticketed-show admission requirements…</p>
       )}
-      {stagingWarningEnabled && evaluated?.status === 'error' && (
+      {evaluated?.status === 'error' && (
         <p className="reserve-form-message error" role="alert">
           Ticket requirements cannot be verified right now. Please try again shortly.
         </p>
@@ -444,7 +441,7 @@ export function ReserveRequestForm({
       </label>
 
       <div className="reserve-form-footer">
-        <button className="button hot" type="submit" disabled={submitState.status === 'submitting' || (stagingWarningEnabled && (!evaluated || evaluated.status !== 'ready'))}>
+        <button className="button hot" type="submit" disabled={submitState.status === 'submitting' || ((!evaluated || evaluated.status !== 'ready'))}>
           {submitState.status === 'submitting' ? 'Sending Request…' : 'Submit Reservation Request'}
         </button>
         <p className="muted">

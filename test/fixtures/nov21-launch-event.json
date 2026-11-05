@@ -1,0 +1,408 @@
+{
+  "id": "cmw3ig99m0001pn6dotdqn40f",
+  "slug": "r-b-night-with-cc-rider-band-at-katy-vibes",
+  "title": "R&B Night with CC Rider Band at Katy Vibes",
+  "timezone": "America/Chicago",
+  "startsAt": "2026-11-22T00:00:00.000Z",
+  "endsAt": "2026-11-22T05:00:00.000Z",
+  "status": "DRAFT",
+  "visibility": "PRIVATE",
+  "isTicketed": true,
+  "isReservationEnabled": true,
+  "shows": [
+    {
+      "id": "cmw3ig9aa0003pn6dv7fj0uod",
+      "name": "Show 1",
+      "startsAt": "2026-11-22T00:00:00.000Z",
+      "endsAt": "2026-11-22T02:00:00.000Z",
+      "timezone": "America/Chicago",
+      "status": "scheduled",
+      "definitionState": "active",
+      "isVisible": true,
+      "transactionEnabled": true
+    },
+    {
+      "id": "cmw3ig9aq0005pn6dx862gkps",
+      "name": "Show 2",
+      "startsAt": "2026-11-22T03:00:00.000Z",
+      "endsAt": "2026-11-22T05:00:00.000Z",
+      "timezone": "America/Chicago",
+      "status": "scheduled",
+      "definitionState": "active",
+      "isVisible": true,
+      "transactionEnabled": true
+    }
+  ],
+  "ticketTypes": [
+    {
+      "id": "cmw3ig9az0007pn6d1akoaoop",
+      "name": "General Admission",
+      "guestCount": 1,
+      "priceCents": 1500,
+      "inventoryTotal": 50,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "General Admission",
+      "type": "general_admission",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 50,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ig9dt000hpn6d1brumjqa",
+      "name": "General Admission",
+      "guestCount": 1,
+      "priceCents": 2000,
+      "inventoryTotal": 50,
+      "eventShowIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "General Admission",
+      "type": "general_admission",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 50,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ig9bz0009pn6dw6etqj67",
+      "name": "Table of 3",
+      "guestCount": 3,
+      "priceCents": 4500,
+      "inventoryTotal": 10,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "Table of 3",
+      "type": "table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 10,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ig9ee000jpn6dxqolq23b",
+      "name": "Table of 3",
+      "guestCount": 3,
+      "priceCents": 6000,
+      "inventoryTotal": 10,
+      "eventShowIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "Table of 3",
+      "type": "table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 10,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ig9ch000bpn6df27yrs4v",
+      "name": "Table of 4",
+      "guestCount": 4,
+      "priceCents": 6000,
+      "inventoryTotal": 20,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "Table of 4",
+      "type": "table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 20,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ig9et000lpn6dnzu5grbv",
+      "name": "Table of 4",
+      "guestCount": 4,
+      "priceCents": 8000,
+      "inventoryTotal": 20,
+      "eventShowIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "Table of 4",
+      "type": "table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 20,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ig9cy000dpn6dxppjifxe",
+      "name": "Table of 8",
+      "guestCount": 8,
+      "priceCents": 12000,
+      "inventoryTotal": 3,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "Table of 8",
+      "type": "table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 3,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ig9fa000npn6daoebpt2w",
+      "name": "Table of 8",
+      "guestCount": 8,
+      "priceCents": 16000,
+      "inventoryTotal": 3,
+      "eventShowIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "Table of 8",
+      "type": "table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 3,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ig9dd000fpn6dp0v68i0v",
+      "name": "VIP Table of 8",
+      "guestCount": 8,
+      "priceCents": 24500,
+      "inventoryTotal": 4,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "VIP Table of 8",
+      "type": "vip_table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 4,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ig9fp000ppn6dwsdie16y",
+      "name": "VIP Table of 8",
+      "guestCount": 8,
+      "priceCents": 28500,
+      "inventoryTotal": 4,
+      "eventShowIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": false,
+      "publicLabel": "VIP Table of 8",
+      "type": "vip_table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 4,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ihs5r000spn6dt06gm5v7",
+      "name": "Both Shows - General Admission",
+      "guestCount": 1,
+      "priceCents": 2500,
+      "inventoryTotal": 50,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": true,
+      "publicLabel": "Both Shows - General Admission",
+      "type": "general_admission",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 50,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ij0n6000vpn6dsiwzco5q",
+      "name": "Both Shows - Table of 3",
+      "guestCount": 3,
+      "priceCents": 7500,
+      "inventoryTotal": 10,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": true,
+      "publicLabel": "Both Shows - Table of 3",
+      "type": "table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 10,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ij1xl000ypn6diqwwuax7",
+      "name": "Both Shows - Table of 4",
+      "guestCount": 4,
+      "priceCents": 10000,
+      "inventoryTotal": 20,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": true,
+      "publicLabel": "Both Shows - Table of 4",
+      "type": "table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 20,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ij3710011pn6dcbau3mkh",
+      "name": "Both Shows - Table of 8",
+      "guestCount": 8,
+      "priceCents": 20000,
+      "inventoryTotal": 3,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": true,
+      "publicLabel": "Both Shows - Table of 8",
+      "type": "table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 3,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    },
+    {
+      "id": "cmw3ijay60014pn6dfvol2let",
+      "name": "Both Shows - VIP Table of 8",
+      "guestCount": 8,
+      "priceCents": 32500,
+      "inventoryTotal": 4,
+      "eventShowIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "allLinkedShows": true,
+      "publicLabel": "Both Shows - VIP Table of 8",
+      "type": "vip_table",
+      "currency": "USD",
+      "scope": "SHOWS",
+      "showIds": [
+        "cmw3ig9aa0003pn6dv7fj0uod",
+        "cmw3ig9aq0005pn6dx862gkps"
+      ],
+      "status": "PAUSED",
+      "checkoutEnabled": false,
+      "isVisible": false,
+      "quantityAvailable": 4,
+      "minQuantity": 1,
+      "maxQuantity": 1
+    }
+  ]
+}
