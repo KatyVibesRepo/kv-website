@@ -131,6 +131,7 @@ try {
   await recoveredPage.getByLabel('Verification code', { exact: true }).fill('local-proof-for-browser-verification');
   await recoveredPage.getByRole('button', { name: 'Verify and Open Reservation' }).click();
   await recoveredPage.getByRole('heading', { name: 'Guest payments' }).waitFor();
+  await recoveredPage.getByRole('img', { name: 'Group admission QR for authorized Katy Vibes staff' }).waitFor();
   assert.equal(recoveryRequests, 1); assert.equal(qrCalls, qrBeforeRecovery + 1); assert.equal(posts.length, 2);
   assert.equal(await recoveredPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
   assert.deepEqual(pageErrors, []);
