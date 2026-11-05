@@ -11068,3 +11068,8 @@ nav a,
     border-radius: 10px;
   }
 }
+
+/* Secure booking pages keep third-party frames blocked; retain the map link. */
+body:has(.secure-booking-area) .footer-location-map {
+  display: none;
+}
