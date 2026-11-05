@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
 const { PNG } = require('pngjs');
 const jsQR = require('jsqr');
 if (process.env.CUSTOMER_BROWSER_MOCK_AUTHORIZED !== '1') throw Error('Isolated browser guard declined.');
-const WEBSITE = 'https://kv-website-ten.vercel.app', API = 'https://admin.katyvibes.com';
+const WEBSITE = process.env.CUSTOMER_BROWSER_ORIGIN || 'https://kv-website-ten.vercel.app', API = 'https://admin.katyvibes.com';
 const draft = JSON.parse(readFileSync(new URL('../test/fixtures/nov21-launch-event.json', import.meta.url)));
 const event = { ...draft, status: 'PUBLISHED', visibility: 'PUBLIC', ticketTypes: draft.ticketTypes.map(p =>
   ({ ...p, status: 'ACTIVE', checkoutEnabled: true, isVisible: true })) };
@@ -38,7 +38,7 @@ const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'star
 const local = req => new Promise((resolve, reject) => {
   const url = new URL(req.url());
   const outgoing = http.request({hostname:'127.0.0.1',port:3199,path:url.pathname+url.search,method:req.method(),
-    headers:{...req.headers(),host:'kv-website-ten.vercel.app','accept-encoding':'identity'}}, response => {
+    headers:{...req.headers(),host:url.host,'accept-encoding':'identity'}}, response => {
       const chunks=[]; response.on('data', c=>chunks.push(c)); response.on('end',()=>resolve({status:response.statusCode,
         headers:Object.fromEntries(Object.entries(response.headers).filter(([key])=>!['transfer-encoding','content-length','content-encoding','set-cookie'].includes(key))),
         body:Buffer.concat(chunks)}));
@@ -81,7 +81,7 @@ try {
     }
     await ctx.route('**/*',async route=>{
       const req=route.request(), url=new URL(req.url());
-      if(url.origin===WEBSITE)return route.fulfill(await local(req));
+      if(url.origin===WEBSITE || url.origin==='https://kv-website-ten.vercel.app')return route.fulfill(await local(req));
       if(url.origin==='https://checkout.stripe.com')return route.fulfill({contentType:'text/html',body:
         `<h1>Isolated payment provider</h1><a href="${WEBSITE}/reservations/group/return?result=success&session_id=untrusted">Return to reservation</a><a href="${WEBSITE}/reservations/group/return?result=cancel">Cancel and return</a>`});
       if(url.origin!==API)return route.fulfill({body:'',status:204});
@@ -123,6 +123,11 @@ try {
         newPaymentCreated:false,coverageGranted:false,freshStatusRequired:true});
       throw Error('Unexpected isolated API request');
     });
+    if(WEBSITE==='https://katyvibes.com') {
+      await page.goto('https://kv-website-ten.vercel.app/reservations/group/return?result=success');
+      await page.getByRole('heading',{name:'Find your reservation',exact:true}).waitFor();
+      assert.equal(page.url(),WEBSITE+'/reservations/group/return');
+    }
     await page.goto(WEBSITE+'/reservations/group/book/'+event.slug+'/'+product.id);
     const choices=await page.getByLabel('Payment option',{exact:true}).locator('option').allTextContents();
     assert.deepEqual(choices,['Pay in Full','Pay at Door','Split Payment per guest']);
