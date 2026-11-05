@@ -6,7 +6,7 @@ on:
 
 jobs:
   source-checks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       NEXT_PUBLIC_KVRS_BASE_URL: http://localhost:3001
       KVRS_BASE_URL: http://localhost:3001
