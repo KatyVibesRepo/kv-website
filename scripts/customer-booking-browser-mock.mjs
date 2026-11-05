@@ -136,7 +136,7 @@ try {
     }
     await page.goto(WEBSITE+'/reservations/group/book/'+event.slug+'/'+product.id);
     try { await page.getByLabel('Payment option',{exact:true}).waitFor({timeout:15000}); }
-    catch { throw Error('Booking form unavailable: '+await page.locator('main').innerText()+'; server: '+serverErrors.slice(-1500)); }
+    catch { throw Error('Booking form unavailable: '+await page.locator('body').innerText({timeout:2000}).catch(()=>'<empty>')+'; server: '+serverErrors.slice(-1500)); }
     const choices=await page.getByLabel('Payment option',{exact:true}).locator('option').allTextContents();
     assert.deepEqual(choices,['Pay in Full','Pay at Door','Split Payment per guest']);
     await page.getByLabel('Payment option',{exact:true}).selectOption(choice);

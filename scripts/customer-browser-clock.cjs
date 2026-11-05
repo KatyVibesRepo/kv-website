@@ -6,4 +6,6 @@ const RealDate = Date;
 global.Date = class extends RealDate {
   constructor(...args) { super(...(args.length ? args : [observedAt])); }
   static now() { return observedAt; }
+  static parse(value) { return RealDate.parse(value); }
+  static UTC(...args) { return RealDate.UTC(...args); }
 };
