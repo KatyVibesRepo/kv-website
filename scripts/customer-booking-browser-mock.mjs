@@ -27,7 +27,7 @@ const fixture = http.createServer((req, res) => {
   assert.equal(req.method, 'GET');
   res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ ok:true, event, events:[event] }));
 });
-await new Promise(resolve => fixture.listen(3001, '127.0.0.1', resolve));
+await new Promise(resolve => fixture.listen(3001, resolve));
 const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', '3199'], {
   env: { ...process.env, KVRS_BASE_URL: 'http://localhost:3001', NEXT_PUBLIC_KVRS_BASE_URL: 'http://localhost:3001',
     KV_WEBSITE_M1_CUSTOMER_ORIGIN: WEBSITE, KV_WEBSITE_M1_CUSTOMER_READ_ENABLED: 'true',
@@ -47,6 +47,7 @@ const local = req => new Promise((resolve, reject) => {
   if(req.postData()) outgoing.write(req.postData()); outgoing.end();
 });
 let browser;
+let serverErrors = ''; server.stderr.on('data', c => { serverErrors += c.toString(); });
 try {
   await new Promise((resolve,reject)=>{
     let log=''; const timeout=setTimeout(()=>reject(Error('Website startup timeout')),20000);
@@ -129,6 +130,8 @@ try {
       assert.equal(page.url(),WEBSITE+'/reservations/group/return');
     }
     await page.goto(WEBSITE+'/reservations/group/book/'+event.slug+'/'+product.id);
+    try { await page.getByLabel('Payment option',{exact:true}).waitFor({timeout:15000}); }
+    catch { throw Error('Booking form unavailable: '+await page.locator('main').innerText()+'; server: '+serverErrors.slice(-1500)); }
     const choices=await page.getByLabel('Payment option',{exact:true}).locator('option').allTextContents();
     assert.deepEqual(choices,['Pay in Full','Pay at Door','Split Payment per guest']);
     await page.getByLabel('Payment option',{exact:true}).selectOption(choice);
