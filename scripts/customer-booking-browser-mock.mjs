@@ -10,6 +10,7 @@ const { chromium } = require('playwright');
 const { PNG } = require('pngjs');
 const jsQR = require('jsqr');
 if (process.env.CUSTOMER_BROWSER_MOCK_AUTHORIZED !== '1') throw Error('Isolated browser guard declined.');
+const observedAt = Date.parse('2026-11-05T12:00:00.000Z');
 const WEBSITE = process.env.CUSTOMER_BROWSER_ORIGIN || 'https://kv-website-ten.vercel.app', API = 'https://admin.katyvibes.com';
 const draft = JSON.parse(readFileSync(new URL('../test/fixtures/nov21-launch-event.json', import.meta.url)));
 const event = { ...draft, status: 'PUBLISHED', visibility: 'PUBLIC', ticketTypes: draft.ticketTypes.map(p =>
@@ -28,7 +29,7 @@ const fixture = http.createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ ok:true, event, events:[event] }));
 });
 await new Promise(resolve => fixture.listen(3001, resolve));
-const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', '3199'], {
+const server = spawn(process.execPath, ['--require', new URL('./customer-browser-clock.cjs', import.meta.url).pathname, 'node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', '3199'], {
   env: { ...process.env, KVRS_BASE_URL: 'http://localhost:3001', NEXT_PUBLIC_KVRS_BASE_URL: 'http://localhost:3001',
     KV_WEBSITE_M1_CUSTOMER_ORIGIN: WEBSITE, KV_WEBSITE_M1_CUSTOMER_READ_ENABLED: 'true',
     KV_WEBSITE_M1_CUSTOMER_SALES_ENABLED: 'true', KV_WEBSITE_M1_CUSTOMER_SHOWS_ENABLED: 'true',
@@ -60,7 +61,7 @@ try {
     let state='READY', createCount=0, checkoutCount=0, qrCount=0, readCount=0, failedRead=false;
     const errors=[];
     const ctx=await browser.newContext({viewport:index===0?{width:390,height:844}:{width:1280,height:900},serviceWorkers:'block'});
-    const page=await ctx.newPage(); page.on('pageerror',e=>errors.push(e.message));
+    const page=await ctx.newPage(); await page.clock.install({time:new Date(observedAt)}); page.on('pageerror',e=>errors.push(e.message));
     function status() {
       const paid=state==='SETTLED', pending=state==='PENDING', covered=paid?(choice==='PACKAGE_INSTALLMENT'?4:1):0;
       const amount=choice==='PACKAGE_INSTALLMENT'?10000:2500;
@@ -68,7 +69,7 @@ try {
       return {ok:true,publicReservationRef:ref,event:{id:event.id,title:event.title,slug:event.slug,timezone:event.timezone},
         product:{id:product.id,name:product.name,kind:'TABLE',quantity:1,guestsPerProduct:4},guestCount:4,
         reservationState:'RESERVED',canonicalReservationStatus:'RESERVED',admissionPlanState:'CONFIRMED',
-        paymentState:paid?(covered===4?'FULLY_PAID':'PARTIALLY_PAID'):'AWAITING_PAYMENT',statusRevision:1,asOf:new Date().toISOString(),
+        paymentState:paid?(covered===4?'FULLY_PAID':'PARTIALLY_PAID'):'AWAITING_PAYMENT',statusRevision:1,asOf:new Date(observedAt).toISOString(),
         capacityHeld:true,holdExpiresAt:paid&&covered===4?null:event.startsAt,admissionScope:scope,paymentTiming:timing,
         onlinePaymentInitiationAllowed:!pending&&!paid,onlinePaymentPending:pending,reconciliationRequired:false,coverage,
         showAdmissions:scope.entries.map(e=>({...coverage,entryScopeKey:e.entryScopeKey,guestUnits:4})),
@@ -94,7 +95,7 @@ try {
         const body=req.postDataJSON(); assert.equal(body.productId,product.id); assert.equal(body.eventId,event.id);
         assert.equal(body.showId,undefined); assert.equal(body.paymentChoice,choice);
         assert.equal(body.proposedInstallmentCents,choice==='PACKAGE_INSTALLMENT'?10000:undefined);
-        return json({ok:true,quoteToken:'isolated-quote',quoteExpiresAt:new Date(Date.now()+240000).toISOString(),capacityHeld:false,
+        return json({ok:true,quoteToken:'isolated-quote',quoteExpiresAt:new Date(observedAt+240000).toISOString(),capacityHeld:false,
           event:{id:event.id},product:{id:product.id,quantity:1},guestCount:4,currency:'USD',totalCents:10000,
           amountDueNowCents:choice==='PACKAGE_INSTALLMENT'?10000:choice==='PAY_PER_GUEST'?2500:0,
           amountDueLaterCents:choice==='PACKAGE_INSTALLMENT'?0:choice==='PAY_PER_GUEST'?7500:10000,
@@ -117,7 +118,7 @@ try {
         if(choice==='PACKAGE_INSTALLMENT')assert.equal(body.installmentAmountCents,10000);
         state='PENDING';return json({ok:true,publicReservationRef:ref,checkoutRef,checkoutUrl:'https://checkout.stripe.com/c/pay/isolated',
           amountCents:amount,currency:'USD',paymentState:'PENDING',coverageGranted:false,paymentTiming:timing,
-          providerExpiresAt:new Date(Date.now()+1800000).toISOString()});
+          providerExpiresAt:new Date(observedAt+1800000).toISOString()});
       }
       if(url.pathname==='/api/public/m1/checkouts/'+checkoutRef)return json({ok:true,checkoutRef,state:'PENDING',providerStatus:'open',
         checkoutUrl:'https://checkout.stripe.com/c/pay/isolated',amountCents:choice==='PACKAGE_INSTALLMENT'?10000:2500,currency:'USD',
@@ -125,7 +126,11 @@ try {
       throw Error('Unexpected isolated API request');
     });
     if(WEBSITE==='https://katyvibes.com') {
-      await page.goto('https://kv-website-ten.vercel.app/reservations/group/return?result=success');
+      // Assert the HTTP redirect without following it onto an actual public site.
+      const moved=await local({url:()=> 'https://kv-website-ten.vercel.app/reservations/group/return?result=success',
+        method:()=> 'GET',headers:()=> ({}),postData:()=> null});
+      assert.equal(moved.status,307); assert.equal(moved.headers.location,WEBSITE+'/reservations/group/return');
+      await page.goto(WEBSITE+'/reservations/group/return');
       await page.getByRole('heading',{name:'Find your reservation',exact:true}).waitFor();
       assert.equal(page.url(),WEBSITE+'/reservations/group/return');
     }

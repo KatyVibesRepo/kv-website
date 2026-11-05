@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { customerLink, takeCustomerReturn, validCustomerRef } from '@/lib/customerM1Client';
+import styles from './CustomerReservations.module.css';
 
 export function CustomerCheckoutReturn() {
   const [message, setMessage] = useState('Returning to your reservation to verify payment status…');
@@ -21,7 +22,7 @@ export function CustomerCheckoutReturn() {
     if (validCustomerRef(ref)) window.location.assign('/reservations/group/' + ref);
     else setMessage('Enter the reservation reference from your confirmation, or call Katy Vibes for help.');
   }
-  return <section className="stack"><h1>Payment update</h1><p role="status">{message}</p>
+  return <section className={`stack ${styles.panel}`}><h1>Payment update</h1><p role="status">{message}</p>
     <p>Your reservation will show your latest payment status. Please check it before making another payment.</p>
     <form className="card stack" onSubmit={recover}>
       <h2>Find your reservation</h2><p>Have your confirmation handy? Enter its reservation reference to recover your secure link by email.</p>
