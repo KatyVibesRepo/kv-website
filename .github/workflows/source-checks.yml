@@ -6,7 +6,7 @@ on:
 
 jobs:
   source-checks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       NEXT_PUBLIC_KVRS_BASE_URL: http://localhost:3001
       KVRS_BASE_URL: http://localhost:3001
@@ -23,6 +23,19 @@ jobs:
       - run: npm test
       - run: npm run typecheck
       - run: npm run build
+
+      - name: Install isolated browser test dependencies
+        run: npm install --prefix /tmp/kv-website-browser-tools --no-save --ignore-scripts playwright@1.56.1 pngjs@7.0.0 jsqr@1.4.0
+      - name: Install Chromium for isolated tests
+        run: /tmp/kv-website-browser-tools/node_modules/.bin/playwright install --with-deps chromium
+      - name: Verify booking, return, recovery, failure handling and QR decoding without live writes
+        env:
+          CUSTOMER_BROWSER_MOCK_AUTHORIZED: '1'
+          NODE_PATH: /tmp/kv-website-browser-tools/node_modules
+        run: |
+          node scripts/customer-booking-browser-mock.mjs
+          CUSTOMER_BROWSER_ORIGIN=https://katyvibes.com node scripts/customer-booking-browser-mock.mjs
+          node scripts/customer-timing-browser-mock.mjs
 
       - name: Verify final Production resolver policy
         env:

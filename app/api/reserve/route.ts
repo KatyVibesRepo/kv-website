@@ -15,6 +15,7 @@ type ReservationRequestPayload = {
   seatingPreference?: string;
   occasion?: string;
   notes?: string;
+  ticketedWarningAcknowledged?: boolean;
 };
 
 function cleanString(value: unknown) {
@@ -84,6 +85,7 @@ export async function POST(request: Request) {
     seatingPreference: cleanOptionalString(body.seatingPreference) || null,
     occasion: cleanOptionalString(body.occasion) || null,
     bringingCake: false,
+    ticketedWarningAcknowledged: body.ticketedWarningAcknowledged === true,
     notes: cleanOptionalString(body.notes) || null,
   };
 
@@ -107,6 +109,13 @@ export async function POST(request: Request) {
       data = null;
     }
 
+    if (response.status === 409 && data && typeof data === 'object' &&
+      'code' in data && data.code === 'TICKETED_EVENT_ACK_REQUIRED') {
+      return NextResponse.json({ ok: false, code: 'TICKETED_EVENT_ACK_REQUIRED',
+        message: 'Please review the event admission notice before submitting.',
+        warnings: 'warnings' in data && Array.isArray(data.warnings) ? data.warnings : [],
+      }, { status: 409, headers: { 'Cache-Control': 'no-store' } });
+    }
     if (!response.ok) {
       const errorMessage =
         data

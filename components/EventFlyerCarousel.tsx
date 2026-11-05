@@ -14,7 +14,10 @@ type EventFlyerCardProps = {
 export function EventFlyerCard({ event, imageVariant = 'landscape', className = '' }: EventFlyerCardProps) {
   const date = formatShortEventDate(event.startsAt);
   const imageUrl = eventFlyerImage(event, imageVariant);
-  const description = event.subtitle || event.shortDescription || '';
+  const description = [event.subtitle, event.shortDescription].find((value) =>
+    value?.trim()
+    && !/EventsManager\.Next|end[ -]to[ -]end KVRS prototype|prototype event used to prove/i.test(value),
+  ) || '';
 
   return (
     <article className={`event-flyer-slide ${className}`.trim()}>

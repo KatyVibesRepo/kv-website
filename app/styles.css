@@ -10777,3 +10777,294 @@ nav a,
   }
 }
 /* end jobs-hero-matches-parties */
+
+
+/* G8: keep the original ticket layout; reveal alternative payments only on request. */
+.ticket-additional-payment {
+  min-width: 0;
+  margin-top: 0.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 0.35rem;
+}
+
+.ticket-additional-payment-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 34px;
+  padding: 0.35rem 0.55rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.25;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.24);
+  text-underline-offset: 3px;
+}
+
+.ticket-additional-payment-toggle:hover,
+.ticket-additional-payment-toggle:focus-visible {
+  color: #fff;
+  text-decoration-color: rgba(47, 213, 255, 0.8);
+}
+
+.ticket-additional-payment-toggle:focus-visible {
+  outline: 2px solid rgba(47, 213, 255, 0.7);
+  outline-offset: 2px;
+}
+
+.ticket-additional-payment-chevron {
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.ticket-additional-payment-panel[hidden] {
+  display: none !important;
+}
+
+.ticket-additional-payment-panel {
+  min-width: 0;
+  padding: 0.55rem 0.1rem 0;
+}
+
+.mixed-payment-planner {
+  min-width: 0;
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 13px;
+  background: rgba(4, 3, 10, 0.32);
+}
+
+.mixed-payment-intro {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.79);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.mixed-payment-options {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.3rem;
+}
+
+.mixed-payment-choice {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 9px;
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  font-size: 0.79rem;
+}
+
+.mixed-payment-choice:has(input:checked) {
+  border-color: rgba(47, 213, 255, 0.5);
+  background: rgba(47, 213, 255, 0.065);
+}
+
+.mixed-payment-choice input[type="radio"] {
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: #2fd5ff;
+}
+
+.mixed-payment-details {
+  min-width: 0;
+  margin: 0;
+  padding: 0.5rem 0.6rem;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.83);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.mixed-payment-details label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.76rem;
+}
+
+.mixed-payment-details input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9px;
+  background: rgba(4, 3, 10, 0.58);
+  color: #fff;
+  font: inherit;
+}
+
+.mixed-payment-details p {
+  margin: 0.35rem 0 0;
+}
+
+.mixed-payment-notice {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.69);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.mixed-payment-notice a {
+  color: #8be6ff;
+  text-decoration: underline;
+}
+
+.reserve-ticketed-warning {
+  margin: 1rem 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 186, 73, 0.45);
+  border-radius: 16px;
+  background: rgba(255, 186, 73, 0.1);
+  color: #fff;
+}
+
+.reserve-ticketed-warning strong {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.reserve-ticketed-warning p {
+  margin: 0.4rem 0;
+  line-height: 1.5;
+}
+
+.reserve-ticketed-warning a {
+  color: #8be6ff;
+  text-decoration: underline;
+}
+
+
+/* Customer reservation warnings and backend-verified payment coverage */
+.reserve-ticket-warning-acknowledgment {
+  display: flex !important;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+  color: #fff;
+  font-weight: 700;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.reserve-ticket-warning-acknowledgment input[type="checkbox"] {
+  flex: 0 0 1.2rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: #2fd5ff;
+}
+
+.kvrs-payment-status {
+  margin: 1.5rem 0;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid rgba(47, 213, 255, 0.22);
+  border-radius: 18px;
+  background: rgba(6, 12, 29, 0.9);
+  color: #fff;
+}
+
+.kvrs-payment-status h2 {
+  margin: 0 0 0.5rem;
+}
+
+.kvrs-payment-status p {
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.6;
+}
+
+.kvrs-payment-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 0.7rem;
+}
+
+.kvrs-payment-status-row {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.8rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.065);
+}
+
+.kvrs-payment-status-row span {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+}
+
+.kvrs-payment-status-row strong {
+  overflow-wrap: anywhere;
+}
+
+
+/* G8 admission QR: opaque entry credential, crisp black/white modules. */
+.g8-admission-qr-card {
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(47, 213, 255, 0.3);
+}
+.g8-admission-qr-display {
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  text-align: center;
+}
+.g8-admission-qr-paper {
+  width: min(100%, 350px);
+  padding: 12px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 5px 22px rgba(0, 0, 0, 0.28);
+}
+.g8-admission-qr-symbol {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  background: #fff;
+}
+.g8-admission-qr-instruction {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.g8-admission-qr-terms {
+  margin: 0;
+  max-width: 46ch;
+  line-height: 1.55;
+}
+.g8-admission-qr-display .muted {
+  margin: 0;
+  max-width: 54ch;
+  line-height: 1.55;
+}
+.g8-admission-qr-unavailable {
+  line-height: 1.55;
+}
+@media (max-width: 480px) {
+  .g8-admission-qr-paper {
+    width: min(100%, 330px);
+    padding: 10px;
+    border-radius: 10px;
+  }
+}

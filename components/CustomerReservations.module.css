@@ -1,0 +1,17 @@
+.panel { max-width: 900px; margin-inline: auto; width: 100%; overflow-wrap: anywhere; }
+.panel label { display: grid; gap: .5rem; }
+.panel input, .panel select { min-width: 0; width: 100%; padding: .75rem; color: #fff; background: #101e36; border: 1px solid #7c92b7; border-radius: .5rem; }
+.panel option { background: #101e36; }
+.panel .check { display: flex; align-items: flex-start; gap: .75rem; }
+.panel .check input { width: 1.2rem; flex: 0 0 1.2rem; margin-top: .2rem; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 1rem; }
+.stats div { padding: 1rem; background: #0d1d34; border: 1px solid #4b6489; border-radius: .75rem; }
+.stats span, .stats strong { display: block; }
+.stats strong { font-size: 1.5rem; }
+.rows { display: grid; gap: .75rem; }
+.row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; padding: 1rem; border: 1px solid #4b6489; border-radius: .75rem; }
+.row span { display: block; }
+.qr { background: white; padding: 20px; width: min(100%, 350px); aspect-ratio: 1; margin-inline: auto; border-radius: 1rem; }
+.qr svg { display: block; width: 100%; height: 100%; }
+.notice { padding: 1rem; background: #182f50; border-left: 3px solid #b4d5ff; border-radius: .5rem; }
+.actions { display: flex; flex-wrap: wrap; gap: .75rem; }
