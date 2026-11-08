@@ -61,7 +61,7 @@ export default async function ReservePage() {
             Submitting this form does not automatically confirm your table. For urgent requests, same-day parties, or large groups, call us directly.
           </p>
           <ul className="reserve-note-list">
-            <li>Lunch starts at 11 AM Tuesday through Sunday.</li>
+            <li>Lunch starts at 11 AM Friday through Sunday. Tuesday through Thursday doors open at 4 PM.</li>
             <li>Event nights may have ticket or table requirements.</li>
             <li>Patio, VIP, and stage-area requests depend on availability.</li>
           </ul>
