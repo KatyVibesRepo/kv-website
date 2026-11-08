@@ -1,3 +1,5 @@
+import { katyVibesInfo } from '@/lib/siteContent';
+
 type DaySpecial = {
   title: string;
   time: string;
@@ -7,7 +9,6 @@ type DaySpecial = {
 
 type SpecialDay = {
   day: string;
-  hours: string;
   note: string;
   specials: DaySpecial[];
 };
@@ -20,7 +21,6 @@ type PricedItem = {
 const specialDays: SpecialDay[] = [
   {
     day: 'Tuesday',
-    hours: '11:00 AM – 10:00 PM',
     note: 'Tacos, Tito’s, and all-day happy hour drinks.',
     specials: [
       { title: '$2.50 Tacos', time: 'All day', tag: 'Food Special' },
@@ -41,7 +41,6 @@ const specialDays: SpecialDay[] = [
   },
   {
     day: 'Wednesday',
-    hours: '11:00 AM – 12:00 AM',
     note: 'Wings, whiskey, and Old Fashioneds all day.',
     specials: [
       { title: '99¢ Wings', time: 'All day', tag: 'Food Special' },
@@ -73,7 +72,6 @@ const specialDays: SpecialDay[] = [
   },
   {
     day: 'Thursday',
-    hours: '11:00 AM – 12:00 AM',
     note: 'Ribeye, martinis, and happy hour.',
     specials: [
       { title: '$25 10 oz Ribeye', time: 'All day', tag: 'Food Special' },
@@ -92,7 +90,6 @@ const specialDays: SpecialDay[] = [
   },
   {
     day: 'Friday',
-    hours: '11:00 AM – 2:00 AM',
     note: 'Vibe Burger special plus happy hour.',
     specials: [
       { title: '$12 Vibe Burger', time: 'All day', tag: 'Food Special' },
@@ -105,7 +102,6 @@ const specialDays: SpecialDay[] = [
   },
   {
     day: 'Saturday',
-    hours: '11:00 AM – 2:00 AM',
     note: 'Weekend Molcajete special.',
     specials: [
       { title: '$40 Molcajete', time: 'All day', tag: 'Food Special' },
@@ -119,7 +115,6 @@ const specialDays: SpecialDay[] = [
   },
   {
     day: 'Sunday',
-    hours: '11:00 AM – 10:00 PM',
     note: 'Sunday fried shrimp platter special.',
     specials: [
       { title: '$15 Fried Shrimp Platter', time: 'All day', tag: 'Food Special' },
@@ -263,7 +258,7 @@ export default function SpecialsPage() {
             <article className="special-day-card" key={day.day}>
               <div className="special-day-header">
                 <div>
-                  <span className="eyebrow">{day.hours}</span>
+                  <span className="eyebrow">{katyVibesInfo.hours.find((row) => row.day === day.day)?.time}</span>
                   <h3>{day.day}</h3>
                 </div>
                 <p>{day.note}</p>

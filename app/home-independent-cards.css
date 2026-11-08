@@ -1,0 +1,12 @@
+/* Let the About and Reservations cards take their own content height.
+   This selector intentionally overrides older homepage equal-height !important rules. */
+.home-page-stack .home-events-section ~ .split-section.home-independent-cards {
+  align-items: start !important;
+}
+
+.home-page-stack .home-events-section ~ .split-section.home-independent-cards > .card {
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: start !important;
+}

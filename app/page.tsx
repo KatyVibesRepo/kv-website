@@ -1,4 +1,5 @@
 import { HomeEventsCarousel } from '@/components/HomeEventsCarousel';
+import './home-independent-cards.css';
 import { HomepageMediaExperience } from '@/components/HomepageMediaExperience';
 import { homeFeaturePanels, katyVibesInfo } from '@/lib/siteContent';
 import { ReviewsSection } from '@/components/ReviewsSection';
@@ -131,7 +132,7 @@ return (
 
       <ReviewsSection />
 
-      <section className="split-section">
+      <section className="split-section home-independent-cards">
         <div className="card stack">
           <div className="eyebrow">About Katy Vibes</div>
           <h2>Unwind. Relax. Enjoy.</h2>
