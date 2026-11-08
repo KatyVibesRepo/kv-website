@@ -199,7 +199,7 @@ export const foodSections: MenuSection[] = [
   },
   {
     title: 'Happy Hour Food',
-    kicker: 'Tuesday through Friday, 3 PM to 7 PM.',
+    kicker: 'Tuesday through Thursday, 4–7 PM. Friday, 3–7 PM.',
     items: [
       { itemKey: 'web-v1-food-happy-hour-food-2-beef-sliders', name: '2 Beef Sliders', price: '$6' },
       { itemKey: 'web-v1-food-happy-hour-food-2-chicken-sliders', name: '2 Chicken Sliders', price: '$6' },
@@ -230,7 +230,7 @@ export const foodSections: MenuSection[] = [
   },
   {
     title: 'Happy Hour Drinks',
-    kicker: 'Tuesday all day. Wednesday through Friday, 2 PM to 7 PM.',
+    kicker: 'Tuesday, 4 PM–close. Wednesday and Thursday, 4–7 PM. Friday, 2–7 PM.',
     items: [
       { name: 'House Margarita', price: '$6' },
       { name: '1800 Silver / Reposado', price: '$6' },
@@ -299,8 +299,8 @@ export const specials = [
   { day: 'Friday', title: '$12 Vibe Burger', time: 'All day' },
   { day: 'Saturday', title: '$40 Molcajete', time: 'All day', detail: 'No happy hour Saturday.' },
   { day: 'Sunday', title: '$15 Fried Shrimp Platter', time: 'All day', detail: 'No happy hour Sunday.' },
-  { day: 'Happy Hour Food', title: '$6 food selections; 2 salmon sliders $10', time: 'Tue–Fri 3:00 PM – 7:00 PM' },
-  { day: 'Happy Hour Drinks', title: '$6 liquor selections, happy hour beer, and house wine $6 glass / $22 bottle', time: 'Tuesday all day / Wed–Fri 2:00 PM – 7:00 PM' },
+  { day: 'Happy Hour Food', title: '$6 food selections; 2 salmon sliders $10', time: 'Tue–Thu 4:00 PM – 7:00 PM / Fri 3:00 PM – 7:00 PM' },
+  { day: 'Happy Hour Drinks', title: '$6 liquor selections, happy hour beer, and house wine $6 glass / $22 bottle', time: 'Tue 4:00 PM–close / Wed–Thu 4:00 PM – 7:00 PM / Fri 2:00 PM – 7:00 PM' },
 ];
 
 export const partyPackages = [
