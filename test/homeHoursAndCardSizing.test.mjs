@@ -6,6 +6,7 @@ const info = readFileSync(new URL('../lib/siteContent.ts', import.meta.url), 'ut
 const specials = readFileSync(new URL('../app/specials/page.tsx', import.meta.url), 'utf8');
 const reserve = readFileSync(new URL('../app/reserve/page.tsx', import.meta.url), 'utf8');
 const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8');
+const homeCss = readFileSync(new URL('../app/home-independent-cards.css', import.meta.url), 'utf8');
 
 test('public hours reflect November 2026 schedule with Monday closed', () => {
   const expected = [
@@ -31,7 +32,11 @@ test('specials hours are sourced from shared site hours rather than a duplicate 
 });
 
 test('homepage About and Reservations cards size independently on desktop', () => {
-  assert.match(home, /<section className="split-section" style=\{\{ alignItems: 'start' \}\}>/);
+  assert.match(home, /<section className="split-section home-independent-cards">/);
+  assert.match(home, /import '\.\/home-independent-cards\.css';/);
+  assert.match(homeCss, /align-items: start !important/);
+  assert.match(homeCss, /height: auto !important/);
+  assert.match(homeCss, /min-height: 0 !important/);
   assert.match(home, /About Katy Vibes/);
   assert.match(home, /<div className="eyebrow">Reservations<\/div>/);
 });
