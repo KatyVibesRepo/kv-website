@@ -131,7 +131,7 @@ return (
 
       <ReviewsSection />
 
-      <section className="split-section">
+      <section className="split-section" style={{ alignItems: 'start' }}>
         <div className="card stack">
           <div className="eyebrow">About Katy Vibes</div>
           <h2>Unwind. Relax. Enjoy.</h2>
