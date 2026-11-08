@@ -27,13 +27,13 @@ const specialDays: SpecialDay[] = [
       { title: '$5 Tito’s Vodka', time: 'All day', tag: 'Drink Special' },
       {
         title: 'Happy Hour Drinks',
-        time: 'All day Tuesday',
-        detail: 'Tuesday is the exception to the regular 2:00 PM – 7:00 PM drink happy hour.',
+        time: 'Tuesday 4:00 PM – 10:00 PM',
+        detail: 'Tuesday drink happy hour runs from opening at 4 PM until close.',
         tag: 'Happy Hour',
       },
       {
         title: 'Happy Hour Food',
-        time: '3:00 PM – 7:00 PM',
+        time: '4:00 PM – 7:00 PM',
         detail: '$6 food selections plus $10 for 2 salmon sliders.',
         tag: 'Happy Hour',
       },
@@ -65,7 +65,7 @@ const specialDays: SpecialDay[] = [
       },
       {
         title: 'Happy Hour',
-        time: 'Food 3:00 PM – 7:00 PM · Drinks 2:00 PM – 7:00 PM',
+        time: 'Food & Drinks 4:00 PM – 7:00 PM',
         tag: 'Happy Hour',
       },
     ],
@@ -83,7 +83,7 @@ const specialDays: SpecialDay[] = [
       },
       {
         title: 'Happy Hour',
-        time: 'Food 3:00 PM – 7:00 PM · Drinks 2:00 PM – 7:00 PM',
+        time: 'Food & Drinks 4:00 PM – 7:00 PM',
         tag: 'Happy Hour',
       },
     ],
@@ -239,8 +239,7 @@ export default function SpecialsPage() {
         <div className="eyebrow">Specials</div>
         <h1><span className="gradient-text">Daily specials &</span><br />happy hour.</h1>
         <p>
-          Daily food and drink specials Tuesday through Sunday, plus happy hour Tuesday through Friday.
-          Food happy hour runs 3:00 PM – 7:00 PM. Drinks run 2:00 PM – 7:00 PM, with happy hour drinks all day Tuesday.
+          Daily specials Tuesday through Sunday. Happy hour starts at 4 PM Tuesday through Thursday. Tuesday drink specials run until close; Friday happy hour food starts at 3 PM and drinks at 2 PM.
         </p>
       </div>
 
@@ -288,8 +287,8 @@ export default function SpecialsPage() {
             <h2>Tuesday through Friday.</h2>
           </div>
           <p className="muted">
-            Food: 3:00 PM – 7:00 PM · Drinks: 2:00 PM – 7:00 PM · Tuesday happy hour drinks are available all day.
-            No happy hour Saturday or Sunday.
+            Tuesday: food 4–7 PM, drinks 4 PM–close. Wednesday and Thursday: food and drinks 4–7 PM.
+            Friday: food 3–7 PM, drinks 2–7 PM. No happy hour Saturday or Sunday.
           </p>
         </div>
 
@@ -297,7 +296,7 @@ export default function SpecialsPage() {
           <article className="special-day-card">
             <div className="special-day-header">
               <div>
-                <span className="eyebrow">3:00 PM – 7:00 PM</span>
+                <span className="eyebrow">Tue–Thu 4–7 PM · Fri 3–7 PM</span>
                 <h3>Happy Hour Food</h3>
               </div>
               <p>$6 food selections, plus 2 salmon sliders for $10.</p>
@@ -308,10 +307,10 @@ export default function SpecialsPage() {
           <article className="special-day-card">
             <div className="special-day-header">
               <div>
-                <span className="eyebrow">2:00 PM – 7:00 PM</span>
+                <span className="eyebrow">Tue 4 PM–close · Wed–Thu 4–7 PM · Fri 2–7 PM</span>
                 <h3>Happy Hour Liquor</h3>
               </div>
-              <p>All listed liquor happy hour selections are $6. Tuesday drink happy hour runs all day.</p>
+              <p>All listed liquor happy hour selections are $6. Tuesday drink happy hour runs from opening at 4 PM until close.</p>
             </div>
             <PriceList items={happyHourLiquor} />
           </article>
