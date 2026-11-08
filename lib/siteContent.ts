@@ -14,9 +14,9 @@ export const katyVibesInfo = {
   ],
   hours: [
     { day: 'Monday', time: 'Closed' },
-    { day: 'Tuesday', time: '11:00 AM – 10:00 PM' },
-    { day: 'Wednesday', time: '11:00 AM – 12:00 AM' },
-    { day: 'Thursday', time: '11:00 AM – 12:00 AM' },
+    { day: 'Tuesday', time: '4:00 PM – 10:00 PM' },
+    { day: 'Wednesday', time: '4:00 PM – 12:00 AM' },
+    { day: 'Thursday', time: '4:00 PM – 12:00 AM' },
     { day: 'Friday', time: '11:00 AM – 2:00 AM' },
     { day: 'Saturday', time: '11:00 AM – 2:00 AM' },
     { day: 'Sunday', time: '11:00 AM – 10:00 PM' },
@@ -218,7 +218,7 @@ export const foodSections: MenuSection[] = [
   },
   {
     title: 'Lunch Menu',
-    kicker: 'Tuesday through Sunday, 11 AM to 3 PM.',
+    kicker: 'Friday through Sunday, 11 AM to 3 PM.',
     items: [
       { itemKey: 'web-v1-food-lunch-menu-vibe-burger', name: 'Vibe Burger', description: 'All-beef patty with house Sriracha mayo, sliced tomato, lettuce, American cheese, and an onion ring on a toasted sweet wheat sourdough bun. Vegan patty available upon request.', price: '$13' },
       { itemKey: 'web-v1-food-lunch-menu-texas-smash-burger', name: 'Texas Smash Burger', description: 'Two smashed all-beef patties with American cheese, lettuce, tomatoes, jalapeño slices, bacon, guacamole, and signature house Sriracha mayo.', price: '$15' },
