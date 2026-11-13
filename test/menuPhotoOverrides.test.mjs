@@ -92,7 +92,11 @@ test('checked-in keys exactly match KVRS reviewed identity for all 126 displayed
   assert.equal(drinkRows.length, 51);
   for (const [actual, placement] of [[foodRows, 'food_menu_photos'], [drinkRows, 'drink_menu_photos']]) {
     const expected = reviewedRows(placement).map(({ sectionLabel, itemLabel, itemKey }) => ({ sectionLabel, itemLabel, itemKey }));
-    assert.deepEqual(actual, expected);
+    // Only this customer-facing beverage rename differs from the historical KVRS photo identity.
+    const normalizedActual = actual.map(row => row.itemKey === 'web-v1-drink-soda-tea-diet-coke' && row.itemLabel === 'Coke Zero'
+      ? { ...row, itemLabel: 'Diet Coke' }
+      : row);
+    assert.deepEqual(normalizedActual, expected);
   }
   assert.equal(new Set(mapping.items.map(x => x.itemKey)).size, 126);
 });
@@ -152,6 +156,20 @@ test('drinks use their own 51 keys without touching Food or legacy drinkSections
   const catalog = indexMenuPhotoCatalog(responseFor('drink_menu_photos', { [item.itemKey]: image }), 'drink_menu_photos', sectionsFor(drinkRows));
   assert.equal(catalog.size, 51);
   assert.deepEqual(selectedMenuPhotos({ name: item.itemLabel, itemKey: item.itemKey }, [], catalog), [{ src: image.imageUrl, title: item.itemLabel }]);
+});
+
+test('Coke Zero renders under the existing soda slot without showing a Diet Coke photo', () => {
+  const key = 'web-v1-drink-soda-tea-diet-coke';
+  const item = drinkRows.find(row => row.itemKey === key);
+  assert.equal(item.itemLabel, 'Coke Zero');
+  const oldPhoto = { imageUrl: 'https://admin.katyvibes.com/uploads/photos/legacy-diet-coke.jpg' };
+  const catalog = indexMenuPhotoCatalog(
+    responseFor('drink_menu_photos', { [key]: oldPhoto }),
+    'drink_menu_photos',
+    sectionsFor(drinkRows),
+  );
+  assert.equal(catalog.size, 51);
+  assert.deepEqual(selectedMenuPhotos({ name: item.itemLabel, itemKey: key }, [], catalog), []);
 });
 
 test('contract drift, incomplete feed, bad URL and outage response fail safely to local images', () => {

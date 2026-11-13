@@ -206,7 +206,7 @@ export const enhancedDrinkSections: MenuSection[] = [
         itemKey: 'web-v1-drink-soda-tea-coke', name: 'Coke',
       },
       {
-        itemKey: 'web-v1-drink-soda-tea-diet-coke', name: 'Diet Coke',
+        itemKey: 'web-v1-drink-soda-tea-diet-coke', name: 'Coke Zero',
       },
       {
         itemKey: 'web-v1-drink-soda-tea-dr-pepper', name: 'Dr. Pepper',
