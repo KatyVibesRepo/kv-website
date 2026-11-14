@@ -5726,6 +5726,8 @@ code {
   color: rgba(255, 255, 255, 0.82);
   font-size: 0.98rem !important;
   line-height: 1.55 !important;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .compact-ticket-card .muted {
