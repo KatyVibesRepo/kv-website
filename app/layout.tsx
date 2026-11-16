@@ -4,6 +4,7 @@ import { SiteBackdrop } from '@/components/SiteBackdrop';
 import type { ReactNode } from 'react';
 import { katyVibesInfo, primaryNav } from '@/lib/siteContent';
 import { SiteFooter } from '@/components/SiteFooter';
+import { LaunchFeedbackBanner } from '@/components/LaunchFeedbackBanner';
 import { MenuImageLightboxProvider } from '@/components/MenuImageLightbox';
 
 export const metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <SiteBackdrop />
+        <LaunchFeedbackBanner />
         <header className="site-header">
           <a className="brand" href="/" aria-label="Katy Vibes home">
             <img
