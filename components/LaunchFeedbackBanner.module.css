@@ -1,0 +1,42 @@
+.notice {
+  position: relative;
+  z-index: 11;
+  width: 100%;
+  padding: 8px 18px;
+  border-bottom: 1px solid #e6d18a;
+  background: #fff3c4;
+  color: #403414;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.notice strong {
+  font-weight: 750;
+}
+
+.notice a {
+  color: #59400a;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+
+.notice a:hover {
+  color: #241a06;
+}
+
+.notice a:focus-visible {
+  outline: 2px solid #59400a;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (max-width: 640px) {
+  .notice {
+    padding: 10px 12px;
+    font-size: 0.78rem;
+  }
+}
