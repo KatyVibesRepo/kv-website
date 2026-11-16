@@ -11,7 +11,7 @@ export function LaunchFeedbackBanner() {
       <a href="mailto:jibran@katyvibes.com?subject=Katy%20Vibes%20Website%20Feedback">
         jibran@katyvibes.com
       </a>
-      . Thanks for helping us keep the good vibes going!
+      .
     </aside>
   );
 }
