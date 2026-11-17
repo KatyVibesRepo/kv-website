@@ -69,8 +69,10 @@
 
 .heroCard h1 {
   max-width: 980px;
-  font-size: clamp(2.5rem, 7vw, 6rem);
-  line-height: 0.9;
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  line-height: 1.22;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
 }
 
 .eventTime {
@@ -193,18 +195,74 @@
 .qrBox {
   display: grid;
   place-items: center;
-  min-height: clamp(260px, 42vw, 430px);
+  min-height: 240px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 28px;
-  padding: clamp(14px, 3vw, 28px);
+  padding: clamp(12px, 2.4vw, 24px);
   background: #fff;
 }
 
-.qrBox img {
+.receiptImageWrap {
+  display: grid;
+  place-items: center;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.qrBox .receiptImage {
+  display: block;
+  width: min(100%, 520px);
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.qrBox .qrOnlyImage {
+  display: block;
   width: min(100%, 360px);
   height: auto;
   aspect-ratio: 1 / 1;
   object-fit: contain;
+}
+
+.saveReceiptLink {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.75rem 1.05rem;
+  color: #07101f;
+  background: #c9f4ff;
+  font-size: 0.84rem;
+  font-weight: 900;
+  text-align: center;
+  text-decoration: none;
+}
+
+.saveReceiptLink:hover,
+.saveReceiptLink:focus-visible {
+  background: #9cecff;
+}
+
+.receiptPreparing {
+  color: #243244;
+  font-weight: 700;
+  text-align: center;
+}
+
+.receiptFallbackDetails {
+  display: grid;
+  gap: 6px;
+  max-width: 100%;
+  color: #07101f;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.receiptFallbackDetails small {
+  color: #475569;
+  font-size: 0.78rem;
 }
 
 .qrFallbackLink,
@@ -311,7 +369,7 @@
   }
 
   .heroCard h1 {
-    font-size: clamp(2.4rem, 12vw, 4.9rem);
+    font-size: clamp(1.35rem, 4.8vw, 1.8rem);
   }
 }
 
@@ -341,6 +399,8 @@
 
 @media print {
   .printButton,
+  .saveReceiptLink,
+  .receiptPreparing,
   .footerNote {
     display: none;
   }
