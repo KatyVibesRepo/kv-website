@@ -186,6 +186,203 @@ function safeSvgImageSrc(svg?: string | null) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(trimmed)}`;
 }
 
+
+type TicketReceiptDetails = {
+  eventTitle: string;
+  eventTime: string;
+  ticketType: string;
+  ticketLabel: string;
+  ticketStatus: string;
+  ticketCode: string;
+  guestName: string;
+  guestEmail?: string | null;
+  guestPhone?: string | null;
+  guests: string;
+  paidAmount: string | null;
+};
+
+// The QR itself is always the original KVRS image. Receipt text is drawn
+// AROUND it so staff can read a saved photo without changing its scan value.
+function wrapReceiptLines(ctx: CanvasRenderingContext2D, value: string, width: number) {
+  const lines: string[] = [];
+  let line = '';
+  for (const word of value.trim().split(/\s+/)) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (ctx.measureText(candidate).width <= width) {
+      line = candidate;
+      continue;
+    }
+    if (line) {
+      lines.push(line);
+      line = '';
+    }
+    // Long email addresses and ticket codes must wrap rather than be clipped.
+    for (const character of word) {
+      if (line && ctx.measureText(line + character).width > width) {
+        lines.push(line);
+        line = '';
+      }
+      line += character;
+    }
+  }
+  if (line) lines.push(line);
+  return lines.length ? lines : ['—'];
+}
+
+function createTicketReceiptImage(qr: HTMLImageElement, details: TicketReceiptDetails) {
+  const width = 720;
+  const inset = 48;
+  const textWidth = width - inset * 2;
+  const scale = 2;
+  const canvas = document.createElement('canvas');
+  const measure = canvas.getContext('2d');
+  if (!measure) throw new Error('Receipt image unavailable');
+
+  // Measure once before allocating the canvas, allowing even long guest details
+  // and event names to fit inside the exported PNG.
+  function layout(ctx: CanvasRenderingContext2D, paint: boolean) {
+    let y = 40;
+    const printText = (value: string, font: string, step: number, color: string) => {
+      ctx.font = font;
+      const lines = wrapReceiptLines(ctx, value, textWidth);
+      if (paint) {
+        ctx.fillStyle = color;
+        for (let i = 0; i < lines.length; i += 1) {
+          ctx.fillText(lines[i], inset, y + step * (i + 1) - 6);
+        }
+      }
+      y += lines.length * step;
+    };
+    const rule = () => {
+      y += 18;
+      if (paint) {
+        ctx.fillStyle = '#d7dbe0';
+        ctx.fillRect(inset, y, textWidth, 2);
+      }
+      y += 20;
+    };
+    const detail = (label: string, value?: string | null) => {
+      if (!value?.trim()) return;
+      printText(label, '700 15px Arial, sans-serif', 21, '#5d6570');
+      printText(value, '600 23px Arial, sans-serif', 30, '#111827');
+      y += 13;
+    };
+
+    printText('KATY VIBES', '900 35px Arial, sans-serif', 44, '#0f172a');
+    printText('ADMISSION TICKET', '700 17px Arial, sans-serif', 25, '#445164');
+    rule();
+    printText(details.eventTitle, '800 30px Arial, sans-serif', 40, '#101827');
+    printText(details.eventTime, '500 20px Arial, sans-serif', 29, '#334155');
+    y += 14;
+    detail('TICKET TYPE', details.ticketType);
+    detail('TICKET', details.ticketLabel);
+
+    const qrPanel = 418;
+    y += 8;
+    if (paint) {
+      const left = (width - qrPanel) / 2;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(left, y, qrPanel, qrPanel);
+      // Preserve full QR and a white quiet zone for reliable scanning.
+      ctx.drawImage(qr, left + 29, y + 29, qrPanel - 58, qrPanel - 58);
+    }
+    y += qrPanel;
+    rule();
+
+    detail('NAME', details.guestName);
+    detail('EMAIL', details.guestEmail);
+    detail('PHONE', details.guestPhone);
+    detail('ADMISSION', details.guests);
+    detail('STATUS', details.ticketStatus);
+    detail('TICKET CODE', details.ticketCode);
+    detail('PAID', details.paidAmount);
+    rule();
+    printText('Present this ticket to Katy Vibes staff at the door.', '600 18px Arial, sans-serif', 27, '#273449');
+    printText('Admission is subject to staff verification.', '500 17px Arial, sans-serif', 26, '#64748b');
+    return y + 38;
+  }
+
+  const height = Math.ceil(layout(measure, false));
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Receipt image unavailable');
+  ctx.scale(scale, scale);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, width, height);
+  layout(ctx, true);
+  return canvas.toDataURL('image/png');
+}
+
+function TicketReceiptImage({
+  qrImageSrc,
+  details,
+  ticketNumber,
+}: {
+  qrImageSrc: string;
+  details: TicketReceiptDetails;
+  ticketNumber: number;
+}) {
+  const [receiptSrc, setReceiptSrc] = useState<string | null>(null);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const qr = new window.Image();
+    setReceiptSrc(null);
+    setImageFailed(false);
+    qr.onload = () => {
+      try {
+        const result = createTicketReceiptImage(qr, details);
+        if (active) setReceiptSrc(result);
+      } catch {
+        if (active) setImageFailed(true);
+      }
+    };
+    qr.onerror = () => {
+      if (active) setImageFailed(true);
+    };
+    qr.src = qrImageSrc;
+    return () => { active = false; };
+  }, [
+    qrImageSrc, details.eventTitle, details.eventTime, details.ticketType,
+    details.ticketLabel, details.ticketStatus, details.ticketCode,
+    details.guestName, details.guestEmail, details.guestPhone, details.guests,
+    details.paidAmount,
+  ]);
+
+  return (
+    <div className={styles.receiptImageWrap}>
+      <img
+        className={receiptSrc ? styles.receiptImage : styles.qrOnlyImage}
+        src={receiptSrc || qrImageSrc}
+        alt={receiptSrc
+          ? `Katy Vibes admission receipt for ${details.guestName}, including QR code and ticket details`
+          : `QR code for ${details.ticketLabel}`}
+      />
+      {receiptSrc ? (
+        <a
+          className={styles.saveReceiptLink}
+          href={receiptSrc}
+          download={`katy-vibes-ticket-${ticketNumber}.png`}
+        >
+          Save ticket image
+        </a>
+      ) : imageFailed ? (
+        <div className={styles.receiptFallbackDetails}>
+          <strong>{details.guestName}</strong>
+          {details.guestEmail && <span>{details.guestEmail}</span>}
+          {details.guestPhone && <span>{details.guestPhone}</span>}
+          <span>{details.ticketType} · {details.ticketCode}</span>
+          <small>Use a screenshot or Print tickets to keep these details with your QR.</small>
+        </div>
+      ) : (
+        <span className={styles.receiptPreparing}>Preparing your ticket image…</span>
+      )}
+    </div>
+  );
+}
+
 function compactTicketStatus(status?: string | null) {
   if (!status) return 'Valid';
   return status
@@ -407,7 +604,23 @@ export function TicketOrderWallet() {
 
               <div className={styles.qrBox}>
                 {qrImageSrc ? (
-                  <img src={qrImageSrc} alt={`${label} QR code`} />
+                  <TicketReceiptImage
+                    qrImageSrc={qrImageSrc}
+                    ticketNumber={index + 1}
+                    details={{
+                      eventTitle,
+                      eventTime: formatEventDateTime(order.event?.startsAt, order.event?.endsAt),
+                      ticketType: ticketTypeName,
+                      ticketLabel: label,
+                      ticketStatus: compactTicketStatus(ticket.status),
+                      ticketCode: code,
+                      guestName: customerName,
+                      guestEmail: order.reservation?.guestEmail,
+                      guestPhone: order.reservation?.guestPhone,
+                      guests: guestCountText(order),
+                      paidAmount,
+                    }}
+                  />
                 ) : ticket.qrValue ? (
                   <a className={styles.qrFallbackLink} href={ticket.qrValue}>
                     Open ticket QR
