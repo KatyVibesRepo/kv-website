@@ -11075,3 +11075,24 @@ nav a,
 body:has(.secure-booking-area) .footer-location-map {
   display: none;
 }
+
+/* mobile-readability-20261123: modest phone-only text lift; preserve page layout. */
+@media (max-width: 640px) {
+  html {
+    font-size: 17.5px;
+  }
+
+  .site-header nav a {
+    font-size: 11px !important;
+  }
+
+  .food-page.menu-page-compact .price-chip,
+  .drinks-page.menu-page-compact .price-chip {
+    font-size: 0.75rem !important;
+  }
+
+  .food-page.menu-page-compact .menu-item-media figcaption,
+  .drinks-page.menu-page-compact .menu-item-media figcaption {
+    font-size: 0.625rem !important;
+  }
+}
