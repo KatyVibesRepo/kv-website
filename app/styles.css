@@ -11104,3 +11104,17 @@ body:has(.secure-booking-area) .footer-location-map {
 }
 .booking-sms-consent p { margin: 6px 0 0 25px; }
 .booking-sms-consent a { color: #83e6ff; text-decoration: underline; }
+
+.booking-sms-consent-copy > strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.booking-sms-consent-copy > small {
+  display: block;
+  margin-top: 4px;
+  font-size: .8rem;
+  font-weight: 400;
+  line-height: 1.5;
+}
