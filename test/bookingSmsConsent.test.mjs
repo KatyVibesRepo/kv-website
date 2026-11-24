@@ -8,8 +8,8 @@ test('SMS consent is optional and separate from booking submission', () => {
  assert.doesNotMatch(component, /<input[^>]*\brequired\b/);
  assert.match(component, /Message frequency varies/);
  assert.match(component, /Reply STOP to opt out or HELP/);
- assert.match(component, /<strong>Text me my reservation details and reminders<\/strong>/);
- assert.match(component, /<small>Katy Vibes will text you booking confirmations, reminders and updates\. Optional\./);
+ assert.match(component, /<strong>Text me my booking confirmation<\/strong>/);
+ assert.match(component, /<small>Optional confirmation texts from Katy Vibes for this booking only\. No marketing texts\./);
  assert.match(component, /href="\/privacy"/);
  assert.match(component, /href="\/terms"/);
 });
