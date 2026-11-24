@@ -9,6 +9,7 @@ import type {
 } from '@/lib/kvrsEvents';
 import { resolveKvrsConfig } from '@/lib/kvrsConfig.mjs';
 import { MixedPaymentPlanner, type MixedPaymentMode } from '@/components/MixedPaymentPlanner';
+import { BookingSmsConsent } from '@/components/BookingSmsConsent';
 import { g8Quote, g8Create, g8Link, g8PayGuest, g8PayFullTable, stashCheckoutReturn, isG8Fixture, validG8Ref, validG8Token, type G8Choice } from '@/lib/g8PreviewClient';
 
 type EventTicketCheckoutCardsProps = {
@@ -946,6 +947,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
     const guestName = readFormValue(formData, 'customerName');
     const guestEmail = readFormValue(formData, 'customerEmail');
     const guestPhone = readFormValue(formData, 'customerPhone');
+    const smsConsent = formData.get('smsConsent') === 'on';
 
     const payload = freeReservation
       ? {
@@ -955,6 +957,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
           guestName,
           guestEmail,
           guestPhone,
+          smsConsent,
           partySize: safeQuantity,
           notes: readFormValue(formData, 'notes') || null,
           sourceDetail: 'Katy Vibes Website event RSVP',
@@ -967,6 +970,7 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
           customerName: guestName,
           customerEmail: guestEmail,
           customerPhone: guestPhone,
+          smsConsent,
         };
 
     if (!freeReservation && !ticket?.id) {
@@ -1327,8 +1331,13 @@ export function EventTicketCheckoutCards({ event, ticketTypes, previewMixedPayme
 
                 <label>
                   <span>Phone Number</span>
-                  <input name="customerPhone" type="tel" autoComplete="tel" required />
+                  <input name="customerPhone" type="tel" autoComplete="tel" required onChange={e => {
+                    const consent = e.currentTarget.form?.elements.namedItem('smsConsent');
+                    if (consent instanceof HTMLInputElement) consent.checked = false;
+                  }} />
                 </label>
+
+                {!isG8Fixture(event.id) && <BookingSmsConsent />}
 
                 {freeReservation ? (
                   <label>

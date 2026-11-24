@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { BookingSmsConsent } from '@/components/BookingSmsConsent';
 
 type WarningSnapshot = {
   selectionKey: string;
@@ -86,6 +87,7 @@ type FormValues = {
   guestName: string;
   guestEmail: string;
   guestPhone: string;
+  smsConsent: boolean;
   reservationDate: string;
   reservationTime: string;
   guestCount: string;
@@ -99,6 +101,7 @@ const initialValues: FormValues = {
   guestName: '',
   guestEmail: '',
   guestPhone: '',
+  smsConsent: false,
   reservationDate: '',
   reservationTime: '',
   guestCount: '2',
@@ -188,7 +191,7 @@ export function ReserveRequestForm({
   }, []);
 
   function updateValue<K extends keyof FormValues>(key: K, value: FormValues[K]) {
-    setValues((current) => ({ ...current, [key]: value }));
+    setValues((current) => ({ ...current, [key]: value, ...(key === 'guestPhone' ? { smsConsent: false } : {}) }));
     if (key === 'reservationDate' || key === 'reservationTime' || key === 'guestCount') setAcknowledgedTicketNotice(false);
   }
 
@@ -209,6 +212,7 @@ export function ReserveRequestForm({
 
     const payload = {
       ...values,
+      smsConsent: !stagingWarningEnabled && values.smsConsent === true,
       guestCount: Number(values.guestCount || 1),
       ticketedWarningAcknowledged: needsAcknowledgment && acknowledgedTicketNotice,
     };
@@ -439,6 +443,8 @@ export function ReserveRequestForm({
           placeholder="Tell us about timing, seating needs, event plans, accessibility needs, or anything else that helps us prepare."
         />
       </label>
+
+      {!stagingWarningEnabled && <BookingSmsConsent checked={values.smsConsent} onChange={checked => updateValue('smsConsent', checked)} />}
 
       <div className="reserve-form-footer">
         <button className="button hot" type="submit" disabled={submitState.status === 'submitting' || ((!evaluated || evaluated.status !== 'ready'))}>
