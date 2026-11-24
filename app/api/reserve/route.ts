@@ -7,6 +7,7 @@ type ReservationRequestPayload = {
   guestName?: string;
   guestEmail?: string;
   guestPhone?: string;
+  smsConsent?: boolean;
   reservationDate?: string;
   reservationTime?: string;
   guestCount?: number | string;
@@ -81,6 +82,7 @@ export async function POST(request: Request) {
     guestName,
     guestEmail,
     guestPhone,
+    ...(body.smsConsent === true ? { smsConsent: true } : {}),
     partySize: guestCount,
     seatingPreference: cleanOptionalString(body.seatingPreference) || null,
     occasion: cleanOptionalString(body.occasion) || null,
