@@ -11,7 +11,7 @@ export function BookingSmsConsent({ checked, onChange }: {
           onChange={onChange ? event => onChange(event.target.checked) : undefined} />
         <span className="booking-sms-consent-copy">
           <strong>Text me my booking confirmation</strong>
-          <small>Optional confirmation texts from Katy Vibes for this booking only. No marketing texts. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help.</small>
+          <small>Optional confirmation texts from Katy Vibes for this booking only. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help.</small>
         </span>
       </label>
       <p>Read the <a href="/terms" target="_blank" rel="noreferrer">Terms</a> and{' '}
