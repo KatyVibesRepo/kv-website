@@ -25,6 +25,14 @@ const nextConfig = {
         headers: securityHeaders,
       },
       {
+        source: '/tickets/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+        ],
+      },
+      {
         source: '/reservations/group/:path*',
         headers: [
           { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
