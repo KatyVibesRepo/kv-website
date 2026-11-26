@@ -591,6 +591,7 @@ export function TicketOrderWallet() {
           const qrImageSrc = safeSvgImageSrc(ticket.svg);
           const label = ticket.label || `Ticket ${index + 1} of ${tickets.length}`;
           const code = ticket.code || ticket.id || `Ticket ${index + 1}`;
+          const ticketPageUrl = ticket.ticketUrl || ticket.qrValue;
 
           return (
             <article className={styles.ticketCard} key={ticket.id || `${code}-${index}`}>
@@ -621,8 +622,8 @@ export function TicketOrderWallet() {
                       paidAmount,
                     }}
                   />
-                ) : ticket.qrValue ? (
-                  <a className={styles.qrFallbackLink} href={ticket.qrValue}>
+                ) : ticketPageUrl ? (
+                  <a className={styles.qrFallbackLink} href={ticketPageUrl}>
                     Open ticket QR
                   </a>
                 ) : (
@@ -635,6 +636,7 @@ export function TicketOrderWallet() {
                 <strong>{code}</strong>
               </div>
 
+              {qrImageSrc && ticketPageUrl ? <a className={styles.qrFallbackLink} href={ticketPageUrl}>Open ticket</a> : null}
               <p className={styles.doorNote}>Show this QR code at the door.</p>
             </article>
           );
