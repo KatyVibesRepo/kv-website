@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+test('wallet opens human-facing ticket URL before the scanner URL and keeps backend QR image',()=>{const s=readFileSync('app/tickets/order/TicketOrderWallet.tsx','utf8');assert.match(s,/const ticketPageUrl = ticket.ticketUrl \|\| ticket.qrValue/);assert.match(s,/href=\{ticketPageUrl\}/);assert.match(s,/safeSvgImageSrc\(ticket.svg\)/);assert.match(s,/>Open ticket<\/a>/);assert.doesNotMatch(s,/href=\{ticket.qrValue\}/)});
